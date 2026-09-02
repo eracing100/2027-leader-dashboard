@@ -856,17 +856,6 @@ function renderStatsTab(){
     .map(t => ({ t, pool: ROSTER.filter(m => m.e === t).length, applied: APPLICANTS.filter(a => a.eligible === t).length }))
     .map(r => barRow(eligShort(r.t), r.applied, r.pool)).join('');
 
-  const teamCounts = {};
-  APPLICANTS.forEach(a => { const t = a.team || '미기재'; teamCounts[t] = (teamCounts[t] || 0) + 1; });
-  const teamEntries = Object.keys(teamCounts).map(t => ({ t, applied: teamCounts[t] })).sort((a,b) => b.applied - a.applied);
-  const maxTeamApplied = teamEntries.length ? teamEntries[0].applied : 1;
-  const teamRowsHtml = teamEntries.map(r => `
-    <div class="stat-row">
-      <div class="stat-row-lbl">${escapeHtml(r.t)}</div>
-      <div class="stat-row-bar"><i style="width:${Math.min(r.applied/maxTeamApplied*100,100)}%"></i></div>
-      <div class="stat-row-val tnum">${r.applied}명</div>
-    </div>`).join('');
-
   wrap.innerHTML = summaryHtml + `
     <div class="stat-section">
       <div class="stat-section-title">동기별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원</span></div>
@@ -876,13 +865,9 @@ function renderStatsTab(){
       <div class="stat-section-title">자격등급별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원</span></div>
       ${eligRows}
     </div>
-    <div class="stat-section">
-      <div class="stat-section-title">지원 팀별 현황<span class="stat-section-sub">지원서에 적힌 팀 기준 · 지원자가 있는 팀만 표시</span></div>
-      ${teamEntries.length ? teamRowsHtml : '<div class="empty" style="padding:16px 0">아직 지원자가 있는 팀이 없습니다.</div>'}
-    </div>
     <div class="notice">
       <span class="dot">●</span>
-      <span>성비 등은 현재 지원서 양식에서 수집하지 않는 항목이라 표시하지 않았습니다. 필요하면 알려주세요 — 양식에 항목을 추가하면 반영할 수 있습니다.</span>
+      <span>성비 등은 현재 지원서 양식에서 수집하지 않는 항목이라 표시하지 않았습니다.</span>
     </div>
   `;
 }
