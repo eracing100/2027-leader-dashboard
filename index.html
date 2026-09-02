@@ -856,6 +856,12 @@ function renderStatsTab(){
     .map(t => ({ t, pool: ROSTER.filter(m => m.e === t).length, applied: APPLICANTS.filter(a => a.eligible === t).length }))
     .map(r => barRow(eligShort(r.t), r.applied, r.pool)).join('');
 
+  const ROLE_ORDER = ['팀장','조장','부조장','조원','면려회'];
+  const roleRows = ROLE_ORDER
+    .map(role => ({ role, pool: ROSTER.filter(m => m.r.indexOf(role) !== -1).length, applied: APPLICANTS.filter(a => a.curRole === role).length }))
+    .filter(r => r.pool > 0)
+    .map(r => barRow(r.role, r.applied, r.pool)).join('');
+
   wrap.innerHTML = summaryHtml + `
     <div class="stat-section">
       <div class="stat-section-title">동기별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원</span></div>
@@ -864,6 +870,10 @@ function renderStatsTab(){
     <div class="stat-section">
       <div class="stat-section-title">자격등급별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원</span></div>
       ${eligRows}
+    </div>
+    <div class="stat-section">
+      <div class="stat-section-title">현재역할별 지원 현황<span class="stat-section-sub">해당 역할 인원 대비 지원 인원</span></div>
+      ${roleRows || '<div class="empty" style="padding:16px 0">표시할 데이터가 없습니다.</div>'}
     </div>
     <div class="notice">
       <span class="dot">●</span>
