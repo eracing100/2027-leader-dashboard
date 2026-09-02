@@ -222,12 +222,17 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   }
   .row.headrow{display:none}
   .row .name{grid-area:name}
-  .row .team-pill{grid-area:team;justify-self:start}
-  .row .elig-badge{grid-area:elig;justify-self:end}
+  .row .team-cell{grid-area:team;justify-self:start}
+  .row .elig-cell{grid-area:elig;justify-self:end}
   .row .roles{grid-area:roles}
-  .row .att-wrap{grid-area:att}
-  .row .course-badge{grid-area:course;justify-self:start}
+  .row .att-cell{grid-area:att}
+  .row .course-cell{grid-area:course;justify-self:start}
   .row .tenure-col{grid-area:tenure;justify-self:end;font-size:11.5px;color:var(--ink-faint)}
+  .row [class$="-cell"]::before, .row .roles::before, .row .tenure-col::before{
+    content:attr(data-lbl);display:block;font-size:9.5px;font-weight:700;letter-spacing:.02em;
+    color:var(--ink-faint);margin-bottom:3px;text-transform:uppercase;
+  }
+  .row .elig-cell::before, .row .tenure-col::before{text-align:right}
   .top-meta{justify-content:flex-start}
 }
 @media (prefers-reduced-motion: reduce){
@@ -845,12 +850,12 @@ function rowHtml(m){
   return `
     <div class="row">
       <div class="name">${escapeHtml(m.n)}${rmk}</div>
-      <div><span class="team-pill" title="${escapeHtml(m.t)}">${escapeHtml(m.t)}</span></div>
-      <div class="roles">${roleHtml}</div>
-      <div>${attHtml}</div>
-      <div class="tenure-col tnum">${escapeHtml(m.ten)}</div>
-      <div>${courseHtml}</div>
-      <div><span class="elig-badge ${eligClass(m.e)}">${eligShort(m.e)}</span></div>
+      <div class="team-cell" data-lbl="소속팀"><span class="team-pill" title="${escapeHtml(m.t)}">${escapeHtml(m.t)}</span></div>
+      <div class="roles" data-lbl="현재역할">${roleHtml}</div>
+      <div class="att-cell" data-lbl="출석률">${attHtml}</div>
+      <div class="tenure-col tnum" data-lbl="등록연차">${escapeHtml(m.ten)}</div>
+      <div class="course-cell" data-lbl="양육과정">${courseHtml}</div>
+      <div class="elig-cell" data-lbl="지원가능등급"><span class="elig-badge ${eligClass(m.e)}">${eligShort(m.e)}</span></div>
     </div>
   `;
 }
