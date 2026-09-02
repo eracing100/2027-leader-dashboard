@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap">
 <style>
 :root{
   --bg:#f3f4f7;
@@ -26,7 +26,7 @@
   --radius:14px;
   --radius-sm:9px;
   --font-body:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;
-  --font-display:'Noto Serif KR',Georgia,serif;
+  --font-display:'Gowun Dodum','Pretendard Variable',Pretendard,sans-serif;
   --ease:cubic-bezier(.22,.75,.28,1);
   --shadow:0 1px 2px rgba(23,38,32,.05), 0 10px 28px -14px rgba(23,38,32,.16);
   --shadow-lg:0 4px 10px rgba(23,38,32,.05), 0 24px 48px -20px rgba(23,38,32,.24);
@@ -81,8 +81,8 @@ body::before{
   top:50%;left:50%;transform:translate(-50%,-58%);opacity:.55;pointer-events:none;
 }
 .gate-card{position:relative;width:100%;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:38px 32px 34px;box-shadow:var(--shadow-lg);text-align:center}
-.gate-mark{width:44px;height:44px;border-radius:13px;margin:0 auto 20px;background:var(--accent);box-shadow:0 8px 20px -10px rgba(44,92,80,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-family:var(--font-display);font-size:18px;letter-spacing:.01em}
-.gate-card h1{font-family:var(--font-display);font-weight:500;font-size:19px;margin:0 0 8px;letter-spacing:-.005em}
+.gate-mark{width:44px;height:44px;border-radius:13px;margin:0 auto 20px;background:var(--accent);box-shadow:0 8px 20px -10px rgba(44,92,80,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:400;font-family:var(--font-display);font-size:19px;letter-spacing:.01em}
+.gate-card h1{font-family:var(--font-display);font-weight:400;font-size:20px;margin:0 0 8px;letter-spacing:0}
 .gate-card p{font-size:13px;color:var(--ink-soft);margin:0 0 24px;line-height:1.6}
 #gate-form{display:flex;flex-direction:column;gap:10px}
 #gate-input{width:100%;padding:13px 14px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--ink);font-size:16px;text-align:center;letter-spacing:.15em;font-weight:600;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
@@ -110,7 +110,7 @@ header.top::before{
 }
 .top-eyebrow{font-size:11.5px;font-weight:700;color:var(--accent-ink);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:7px}
 .top-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;box-shadow:0 0 0 3px var(--accent-soft)}
-h1.title{font-family:var(--font-display);font-size:28px;font-weight:500;margin:0 0 7px;letter-spacing:-.01em}
+h1.title{font-family:var(--font-display);font-size:27px;font-weight:400;margin:0 0 7px;letter-spacing:0}
 .top-sub{font-size:13.5px;color:var(--ink-soft);max-width:560px}
 .top-meta{font-size:12.5px;color:var(--ink-faint);text-align:right;white-space:nowrap;display:flex;align-items:center;gap:10px;justify-content:flex-end}
 .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3aa373;margin-right:5px;vertical-align:1px;box-shadow:0 0 0 3px rgba(58,163,115,.18)}
@@ -136,7 +136,7 @@ h1.title{font-family:var(--font-display);font-size:28px;font-weight:500;margin:0
 .app-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;box-shadow:var(--shadow);transition:box-shadow .2s var(--ease),transform .2s var(--ease)}
 .app-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
 .app-card .app-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-.app-card .app-name{font-family:var(--font-display);font-size:16.5px;font-weight:500;letter-spacing:-.005em}
+.app-card .app-name{font-family:var(--font-display);font-size:16.5px;font-weight:400;letter-spacing:0}
 .app-card .app-meta{font-size:12px;color:var(--ink-faint);margin-top:2px}
 .app-card .app-badges{display:flex;gap:5px;flex-wrap:wrap}
 .match-ok{background:var(--accent-soft);color:var(--accent-ink)}
@@ -193,13 +193,22 @@ details.filters[open] summary::after{transform:rotate(180deg)}
 .result-count{font-size:12.5px;color:var(--ink-faint);font-weight:600;margin:14px 2px 10px}
 .result-count b{color:var(--ink)}
 
+.stat-section{margin-bottom:24px}
+.stat-section-title{font-family:var(--font-display);font-size:14.5px;font-weight:400;color:var(--ink);margin-bottom:10px;display:flex;align-items:baseline;gap:8px}
+.stat-section-sub{font-family:var(--font-body);font-size:11.5px;font-weight:600;color:var(--ink-faint)}
+.stat-row{display:grid;grid-template-columns:104px 1fr 140px;align-items:center;gap:12px;padding:7px 2px}
+.stat-row-lbl{font-size:12.5px;font-weight:600;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat-row-bar{height:7px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.stat-row-bar i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .5s var(--ease)}
+.stat-row-val{font-size:12px;color:var(--ink-faint);text-align:right;white-space:nowrap}
+
 .group{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .2s var(--ease)}
 .group.open{box-shadow:var(--shadow-lg)}
 .group-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .15s var(--ease)}
 .group-head:hover{background:var(--surface-2)}
 .group-head .car{width:16px;height:16px;flex:none;color:var(--ink-faint);transition:transform .2s var(--ease);display:flex;align-items:center;justify-content:center}
 .group.open .group-head .car{transform:rotate(90deg)}
-.group-head .cohort-tag{font-family:var(--font-display);font-size:15.5px;font-weight:500;color:var(--ink);letter-spacing:-.005em}
+.group-head .cohort-tag{font-family:var(--font-display);font-size:15.5px;font-weight:400;color:var(--ink);letter-spacing:0}
 .group-head .cohort-count{font-size:12px;color:var(--ink-faint);font-weight:600}
 .group-body{display:none}
 .group.open .group-body{display:block}
@@ -209,6 +218,7 @@ details.filters[open] summary::after{transform:rotate(180deg)}
 .row.headrow{background:var(--surface-2);font-size:11px;color:var(--ink-faint);font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:8px 16px;border-top:none}
 .row .name{font-weight:700;color:var(--ink)}
 .row .rmk{display:block;font-weight:400;color:var(--ink-faint);font-size:11px;margin-top:1px}
+.applied-tag{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent-soft-2);border-radius:5px;padding:1px 6px;vertical-align:2px;white-space:nowrap}
 .team-pill{display:inline-block;font-size:11.5px;font-weight:600;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px 7px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .roles{display:flex;gap:4px;flex-wrap:wrap}
 .badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;border-radius:6px;padding:2.5px 7px;white-space:nowrap}
@@ -258,7 +268,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
     column-gap:14px;row-gap:9px;padding:14px 16px 13px;
   }
   .row.headrow{display:none}
-  .row .name{order:1;grid-column:1 / -1;font-family:var(--font-display);font-size:15.5px;font-weight:500;letter-spacing:-.005em;color:var(--ink)}
+  .row .name{order:1;grid-column:1 / -1;font-family:var(--font-display);font-size:15.5px;font-weight:400;letter-spacing:0;color:var(--ink)}
   .row .roles{order:2;display:flex;gap:5px;flex-wrap:wrap;align-items:center;align-self:center}
   .row .elig-cell{order:3;justify-self:end;align-self:center}
   .row .team-cell{order:4;padding-top:11px;border-top:1px solid var(--border);min-width:0}
@@ -270,6 +280,10 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
     color:var(--ink-faint);margin-bottom:4px;text-transform:uppercase;
   }
   .top-meta{justify-content:flex-start}
+  .stat-row{grid-template-columns:1fr auto;grid-template-areas:"lbl val" "bar bar";row-gap:5px;padding:9px 2px}
+  .stat-row-lbl{grid-area:lbl;white-space:normal}
+  .stat-row-val{grid-area:val}
+  .stat-row-bar{grid-area:bar}
 }
 @media (prefers-reduced-motion: reduce){
   .stat,.app-card,.group,.row,#gate-input,.toolbar select,.toolbar input,.btn-refresh{transition:none !important}
@@ -283,7 +297,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
 <div id="gate">
   <div class="gate-card">
     <div class="gate-mark">M</div>
-    <h1>청년2부 리더선출 대시보드</h1>
+    <h1>청년2부 리더선출</h1>
     <p>리더선출위원회 전용 페이지입니다.<br>전달받은 접속 코드를 입력해주세요.</p>
     <form id="gate-form">
       <input id="gate-input" type="password" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="접속 코드">
@@ -316,6 +330,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <div class="tabs">
     <button class="tab-btn active" id="tab-btn-roster" onclick="switchTab('roster')">전체 명단</button>
     <button class="tab-btn" id="tab-btn-apply" onclick="switchTab('apply')">지원 현황 <span id="apply-tab-count"></span></button>
+    <button class="tab-btn" id="tab-btn-stats" onclick="switchTab('stats')">통계</button>
   </div>
 
   <div id="panel-roster">
@@ -371,6 +386,14 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
     </div>
     <div id="apply-summary" class="apply-summary"></div>
     <div id="apply-list"></div>
+  </div>
+
+  <div id="panel-stats" style="display:none">
+    <div class="notice">
+      <span class="dot">●</span>
+      <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다.</span>
+    </div>
+    <div id="stats-content"></div>
   </div>
 
   <footer class="foot" id="footer-total"></footer>
@@ -630,14 +653,17 @@ function showApp(){
   if (!filtersBound){ bindFilterEvents(); filtersBound = true; }
   render();
   renderApplicants();
+  renderStatsTab();
   document.getElementById('app').style.display = 'block';
 }
 
 function switchTab(tab){
   document.getElementById('tab-btn-roster').classList.toggle('active', tab === 'roster');
   document.getElementById('tab-btn-apply').classList.toggle('active', tab === 'apply');
+  document.getElementById('tab-btn-stats').classList.toggle('active', tab === 'stats');
   document.getElementById('panel-roster').style.display = tab === 'roster' ? 'block' : 'none';
   document.getElementById('panel-apply').style.display = tab === 'apply' ? 'block' : 'none';
+  document.getElementById('panel-stats').style.display = tab === 'stats' ? 'block' : 'none';
 }
 
 function renderApplicants(){
@@ -771,6 +797,96 @@ function renderStats(){
   `).join('');
 }
 
+/* "통계" 탭 — 지원 현황 데이터를 기준으로 계산한 통계. 자격자 수는 전체 명단(ROSTER) 기준 */
+function renderStatsTab(){
+  const wrap = document.getElementById('stats-content');
+  if (!APPLICANTS.length){
+    wrap.innerHTML = '<div class="empty">아직 접수된 지원서가 없습니다. 지원서가 접수되면 통계가 자동으로 표시됩니다.</div>';
+    return;
+  }
+
+  const eligiblePool = ROSTER.filter(m => m.e !== '해당없음');
+  const totalEligible = eligiblePool.length;
+  const totalApplied = APPLICANTS.length;
+  const overallRate = totalEligible ? (totalApplied / totalEligible * 100) : 0;
+
+  let expYes = 0, expNo = 0;
+  APPLICANTS.forEach(a => {
+    if (a.exp.indexOf('있음') !== -1) expYes++;
+    else if (a.exp.indexOf('없음') !== -1) expNo++;
+  });
+
+  const summaryHtml = `
+    <div class="stats">
+      <div class="stat total">
+        <div class="num tnum">${totalApplied}</div>
+        <div class="lbl">총 지원 건수</div>
+      </div>
+      <div class="stat tier1">
+        <div class="num tnum">${overallRate.toFixed(1)}%</div>
+        <div class="lbl">자격자 대비 지원율<br>(${totalApplied}/${totalEligible}명)</div>
+      </div>
+      <div class="stat tier2">
+        <div class="num tnum">${expYes}</div>
+        <div class="lbl">리더사역 경험 있음<br>(지원자 중 ${totalApplied ? Math.round(expYes/totalApplied*100) : 0}%)</div>
+      </div>
+      <div class="stat tier3">
+        <div class="num tnum">${expNo}</div>
+        <div class="lbl">리더사역 경험 없음<br>(지원자 중 ${totalApplied ? Math.round(expNo/totalApplied*100) : 0}%)</div>
+      </div>
+    </div>`;
+
+  function barRow(label, applied, pool){
+    const pct = pool ? Math.min(applied / pool * 100, 100) : 0;
+    const val = pool != null ? `${applied} / ${pool}명 (${pct.toFixed(0)}%)` : `${applied}명`;
+    return `
+      <div class="stat-row">
+        <div class="stat-row-lbl">${escapeHtml(label)}</div>
+        <div class="stat-row-bar"><i style="width:${pct}%"></i></div>
+        <div class="stat-row-val tnum">${val}</div>
+      </div>`;
+  }
+
+  const cohortRows = COHORT_PRESENT
+    .map(c => ({ c, pool: eligiblePool.filter(m => m.c === c).length, applied: APPLICANTS.filter(a => (a.cohort || '') === c).length }))
+    .filter(r => r.pool > 0)
+    .map(r => barRow(r.c + '동기', r.applied, r.pool)).join('');
+
+  const eligRows = ELIG_TIERS.filter(t => t !== '해당없음')
+    .map(t => ({ t, pool: ROSTER.filter(m => m.e === t).length, applied: APPLICANTS.filter(a => a.eligible === t).length }))
+    .map(r => barRow(eligShort(r.t), r.applied, r.pool)).join('');
+
+  const teamCounts = {};
+  APPLICANTS.forEach(a => { const t = a.team || '미기재'; teamCounts[t] = (teamCounts[t] || 0) + 1; });
+  const teamEntries = Object.keys(teamCounts).map(t => ({ t, applied: teamCounts[t] })).sort((a,b) => b.applied - a.applied);
+  const maxTeamApplied = teamEntries.length ? teamEntries[0].applied : 1;
+  const teamRowsHtml = teamEntries.map(r => `
+    <div class="stat-row">
+      <div class="stat-row-lbl">${escapeHtml(r.t)}</div>
+      <div class="stat-row-bar"><i style="width:${Math.min(r.applied/maxTeamApplied*100,100)}%"></i></div>
+      <div class="stat-row-val tnum">${r.applied}명</div>
+    </div>`).join('');
+
+  wrap.innerHTML = summaryHtml + `
+    <div class="stat-section">
+      <div class="stat-section-title">동기별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원</span></div>
+      ${cohortRows || '<div class="empty" style="padding:16px 0">표시할 데이터가 없습니다.</div>'}
+    </div>
+    <div class="stat-section">
+      <div class="stat-section-title">자격등급별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원</span></div>
+      ${eligRows}
+    </div>
+    <div class="stat-section">
+      <div class="stat-section-title">지원 팀별 현황<span class="stat-section-sub">지원서에 적힌 팀 기준 · 지원자가 있는 팀만 표시</span></div>
+      ${teamEntries.length ? teamRowsHtml : '<div class="empty" style="padding:16px 0">아직 지원자가 있는 팀이 없습니다.</div>'}
+    </div>
+    <div class="notice">
+      <span class="dot">●</span>
+      <span>성비 등은 현재 지원서 양식에서 수집하지 않는 항목이라 표시하지 않았습니다. 필요하면 알려주세요 — 양식에 항목을 추가하면 반영할 수 있습니다.</span>
+    </div>
+  `;
+}
+
 /* 새로고침 시에도 사용자가 고른 동기/팀 필터가 초기화되지 않도록 기존 선택값을 보존 */
 function populateFilterOptions(){
   const cSel = document.getElementById('f-cohort');
@@ -875,7 +991,7 @@ function tenureNum(m){
   return isNaN(f) ? 0 : f;
 }
 
-function rowHtml(m){
+function rowHtml(m, appliedSet){
   const att = attNum(m);
   const attHtml = att === null
     ? '<span class="att-none">데이터 없음</span>'
@@ -883,9 +999,11 @@ function rowHtml(m){
   const roleHtml = m.r.map(r => `<span class="badge b-${r}">${escapeHtml(r)}</span>`).join('');
   const courseHtml = m.co === '수료' ? '<span class="course-badge course-yes">수료</span>' : '<span class="course-badge course-no">미수료</span>';
   const rmk = m.rm ? `<span class="rmk">${escapeHtml(m.rm)}</span>` : '';
+  const applied = appliedSet && appliedSet.has((m.n || '').trim() + '|' + (m.c || '').trim());
+  const appliedTag = applied ? '<span class="applied-tag">지원완료</span>' : '';
   return `
     <div class="row">
-      <div class="name">${escapeHtml(m.n)}${rmk}</div>
+      <div class="name">${escapeHtml(m.n)}${appliedTag}${rmk}</div>
       <div class="team-cell" data-lbl="소속팀"><span class="team-pill" title="${escapeHtml(m.t)}">${escapeHtml(m.t)}</span></div>
       <div class="roles" data-lbl="현재역할">${roleHtml}</div>
       <div class="att-cell" data-lbl="출석률">${attHtml}</div>
@@ -925,12 +1043,14 @@ function render(){
     return;
   }
 
+  const appliedSet = appliedKeySet();
+
   const bySort = document.getElementById('f-sort').value;
   if (bySort !== 'cohort'){
     groupsEl.innerHTML = `
       <div class="group open">
         <div class="row headrow"><div>이름</div><div>팀</div><div>역할</div><div>출석률</div><div>연차</div><div>양육</div><div>가능등급</div></div>
-        <div class="group-body" style="display:block">${sorted.map(rowHtml).join('')}</div>
+        <div class="group-body" style="display:block">${sorted.map(m => rowHtml(m, appliedSet)).join('')}</div>
       </div>`;
     return;
   }
@@ -952,7 +1072,7 @@ function render(){
         </div>
         <div class="group-body">
           <div class="row headrow"><div>이름</div><div>팀</div><div>역할</div><div>출석률</div><div>연차</div><div>양육</div><div>가능등급</div></div>
-          ${items.map(rowHtml).join('')}
+          ${items.map(m => rowHtml(m, appliedSet)).join('')}
         </div>
       </div>`;
     }).join('');
