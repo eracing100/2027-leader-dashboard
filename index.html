@@ -4,424 +4,778 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>2027 리더 지원 현황</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <style>
+:root{
+  --bg:#f3f4f7;
+  --surface:#ffffff;
+  --surface-2:#eceef3;
+  --ink:#181f2e;
+  --ink-soft:#5c6474;
+  --ink-faint:#8790a0;
+  --border:#dfe2e9;
+  --accent:#2c5c50;
+  --accent-ink:#1d3f37;
+  --accent-soft:#e2ece8;
+  --accent-soft-2:#cfe0d9;
+  --gold:#b8862f;
+  --danger:#c1473f;
+  --radius:14px;
+  --radius-sm:9px;
+  --shadow:0 1px 2px rgba(20,24,34,.04), 0 8px 24px -12px rgba(20,24,34,.10);
+}
+@media (prefers-color-scheme: dark){
   :root{
-    --bg: #F4F6FC;
-    --card: #FFFFFF;
-    --ink: #1B2350;
-    --ink-soft: #545C87;
-    --ink-dim: #8A90B3;
-    --line: #E2E5F3;
-    --navy: #1E2761;
-    --navy-soft: #2B3A7A;
-    --gold: #A8721F;
-    --good: #2F7A55;
-    --good-bg: #E7F5EC;
-    --mid: #B8791E;
-    --mid-bg: #FCF1DE;
-    --bad: #B23B3B;
-    --bad-bg: #FBE9E9;
-    --nodata: #8A90B3;
-    --nodata-bg: #EEF0F8;
-    --shadow: rgba(30,39,97,0.08);
+    --bg:#12151c;
+    --surface:#191d27;
+    --surface-2:#20242f;
+    --ink:#eef0f4;
+    --ink-soft:#a6acba;
+    --ink-faint:#727a8c;
+    --border:#2b303c;
+    --accent:#5ea38f;
+    --accent-ink:#a9d3c6;
+    --accent-soft:#1c2b26;
+    --accent-soft-2:#22392f;
+    --gold:#d7ab61;
+    --danger:#e0776f;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.5);
   }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --bg: #10132A;
-      --card: #191D3C;
-      --ink: #ECEEFA;
-      --ink-soft: #B7BBDE;
-      --ink-dim: #7A80AC;
-      --line: #2C3160;
-      --navy: #2B3A7A;
-      --navy-soft: #38499A;
-      --gold: #E3B15A;
-      --good: #59C08A;
-      --good-bg: #14301F;
-      --mid: #E3AE55;
-      --mid-bg: #332A10;
-      --bad: #E37A7A;
-      --bad-bg: #391818;
-      --nodata: #8A90B3;
-      --nodata-bg: #1F2347;
-      --shadow: rgba(0,0,0,0.5);
-    }
-  }
-  *{ box-sizing:border-box; }
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:"Noto Sans KR",sans-serif; -webkit-font-smoothing:antialiased;
-  }
-  .mono{ font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums; }
-  .wrap{ max-width:1080px; margin:0 auto; padding:32px 20px 80px; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;
+  font-feature-settings:'tnum' 1,'case' 1;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+}
+.tnum{font-feature-settings:'tnum' 1}
+::selection{background:var(--accent-soft-2)}
 
-  header.top{ margin-bottom:22px; }
-  header.top .eyebrow{ font-family:"JetBrains Mono",monospace; font-size:12px; letter-spacing:.18em; color:var(--gold); margin:0 0 8px; }
-  header.top h1{ font-size:clamp(22px,3.4vw,30px); margin:0 0 6px; font-weight:900; text-wrap:balance; }
-  header.top p{ margin:0; color:var(--ink-soft); font-size:13.5px; line-height:1.6; }
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.gate-card{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px 32px 32px;box-shadow:var(--shadow);text-align:center}
+.gate-mark{width:44px;height:44px;border-radius:12px;margin:0 auto 18px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;letter-spacing:.02em}
+.gate-card h1{font-size:18px;font-weight:700;margin:0 0 6px}
+.gate-card p{font-size:13px;color:var(--ink-soft);margin:0 0 22px;line-height:1.6}
+#gate-form{display:flex;flex-direction:column;gap:10px}
+#gate-input{width:100%;padding:13px 14px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--ink);font-size:16px;text-align:center;letter-spacing:.15em;font-weight:600;transition:border-color .15s}
+#gate-input:focus{outline:none;border-color:var(--accent)}
+#gate-form button{padding:12px 14px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;transition:opacity .15s;font-family:inherit}
+#gate-form button:hover{opacity:.9}
+#gate-error{font-size:12.5px;color:var(--danger);min-height:16px;margin-top:2px}
+.shake{animation:shake .32s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 
-  .kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:22px 0; }
-  @media (max-width:760px){ .kpis{ grid-template-columns:repeat(2,1fr); } }
-  .kpi{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 14px; box-shadow:0 8px 20px -14px var(--shadow); }
-  .kpi .n{ font-size:24px; font-weight:700; color:var(--navy); }
-  @media (prefers-color-scheme: dark){ .kpi .n{ color:#AFC0F5; } }
-  .kpi .l{ font-size:12px; color:var(--ink-soft); margin-top:4px; line-height:1.4; }
-  .kpi.warn .n{ color:var(--mid); }
+#loading, #load-error{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center}
+.spinner{width:26px;height:26px;border-radius:50%;border:3px solid var(--surface-2);border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p, #load-error p{font-size:13px;color:var(--ink-soft);max-width:320px;line-height:1.6}
+#load-error button{padding:10px 18px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
 
-  .note{ font-size:12.5px; color:var(--ink-dim); margin:-8px 0 22px; line-height:1.6; }
+#app{display:none;max-width:1180px;margin:0 auto;padding:28px 20px 80px}
+header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.top-eyebrow{font-size:12px;font-weight:700;color:var(--accent-ink);letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.top-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+h1.title{font-size:26px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
+.top-sub{font-size:13.5px;color:var(--ink-soft);max-width:560px}
+.top-meta{font-size:12.5px;color:var(--ink-faint);text-align:right;white-space:nowrap}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3aa373;margin-right:5px;vertical-align:1px}
 
-  .controls{
-    position:sticky; top:0; z-index:5; background:var(--bg); padding:12px 0;
-    display:flex; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--line); margin-bottom:14px;
-  }
-  .controls input, .controls select{
-    font-family:inherit; font-size:13.5px; color:var(--ink);
-    background:var(--card); border:1px solid var(--line); border-radius:8px;
-    padding:8px 10px;
-  }
-  .controls input{ flex:1 1 180px; min-width:140px; }
-  .controls select{ flex:0 0 auto; }
-  .controls button{
-    font-family:inherit; font-size:13px; color:var(--ink-soft); background:var(--card);
-    border:1px solid var(--line); border-radius:8px; padding:8px 12px; cursor:pointer;
-  }
-  .controls button:hover{ color:var(--ink); border-color:var(--ink-dim); }
-  #count{ font-size:12.5px; color:var(--ink-dim); align-self:center; margin-left:auto; white-space:nowrap; }
+.tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--border)}
+.tab-btn{font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink-faint);background:none;border:none;border-bottom:2px solid transparent;padding:9px 4px;margin-bottom:-1px;cursor:pointer}
+.tab-btn:hover{color:var(--ink-soft)}
+.tab-btn.active{color:var(--accent-ink);border-bottom-color:var(--accent)}
+.tab-btn span{font-weight:800;color:var(--gold)}
 
-  .group{ margin-bottom:14px; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
-  .group summary{
-    list-style:none; cursor:pointer; padding:13px 16px; display:flex; align-items:center; gap:10px;
-    font-weight:700; font-size:14.5px; background:var(--navy); color:#fff;
-  }
-  .group summary::-webkit-details-marker{ display:none; }
-  .group summary .arrow{ margin-left:auto; font-family:"JetBrains Mono",monospace; font-size:12px; opacity:.8; }
-  .group summary .gcount{ font-family:"JetBrains Mono",monospace; font-size:12px; font-weight:400; color:#D9DFF7; }
-  .group[open] summary .arrow{ transform:rotate(90deg); display:inline-block; }
+.apply-summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.apply-summary .stat{flex:1;min-width:120px}
 
-  table{ width:100%; min-width:720px; border-collapse:collapse; font-size:13.5px; }
-  thead th{
-    text-align:left; font-size:11.5px; letter-spacing:.04em; color:var(--ink-dim);
-    padding:9px 12px; border-bottom:1px solid var(--line); white-space:nowrap;
-  }
-  tbody td{ padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:middle; }
-  tbody td:first-child, thead th:first-child{ white-space:nowrap; }
-  tbody tr:last-child td{ border-bottom:none; }
-  tbody tr:hover{ background:var(--bg); }
-  .tblwrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -1px; }
-  @media (max-width:760px){
-    .wrap{ padding:20px 12px 60px; }
-    .group summary{ font-size:13.5px; padding:11px 13px; }
-    .tblwrap::after{
-      content:"← 옆으로 스크롤 →"; display:block; text-align:center;
-      font-size:11px; color:var(--ink-dim); padding:6px 0 2px; border-top:1px dashed var(--line);
-    }
-  }
+.app-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px}
+.app-card .app-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.app-card .app-name{font-size:15px;font-weight:800}
+.app-card .app-meta{font-size:12px;color:var(--ink-faint);margin-top:2px}
+.app-card .app-badges{display:flex;gap:5px;flex-wrap:wrap}
+.match-ok{background:var(--accent-soft);color:var(--accent-ink)}
+.match-warn{background:#fbeddb;color:#b3701e}
+.app-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
+.app-field{font-size:12.5px}
+.app-field b{display:block;font-size:11px;color:var(--ink-faint);font-weight:700;margin-bottom:2px}
+.app-field.wide{grid-column:1 / -1;white-space:pre-wrap;line-height:1.6}
+@media (max-width:700px){.app-fields{grid-template-columns:1fr}}
 
-  .role-badge{ font-size:11.5px; padding:2px 7px; border-radius:999px; background:var(--nodata-bg); color:var(--ink-soft); white-space:nowrap; }
-  .role-팀장{ background:#EFE2C8; color:#7A5A12; }
-  @media (prefers-color-scheme: dark){ .role-팀장{ background:#3A3016; color:#E3B15A; } }
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 16px 14px;position:relative;overflow:hidden}
+.stat .num{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.stat .lbl{font-size:12px;color:var(--ink-soft);margin-top:6px;font-weight:600;line-height:1.4}
+.stat .bar{height:4px;border-radius:3px;background:var(--surface-2);margin-top:12px;overflow:hidden}
+.stat .bar i{display:block;height:100%;border-radius:3px}
+.stat.tier1 .num{color:var(--accent-ink)}
+.stat.tier1 .bar i{background:var(--accent)}
+.stat.tier2 .bar i{background:#5c8f7f}
+.stat.tier3 .bar i{background:#93b6ab}
+.stat.tier4 .bar i{background:var(--ink-faint)}
+.stat.total{background:var(--accent);color:#fff;border-color:var(--accent)}
+.stat.total .lbl{color:rgba(255,255,255,.82)}
+.stat.total .bar{background:rgba(255,255,255,.22)}
+.stat.total .bar i{background:#fff}
 
-  .att-cell{ display:flex; align-items:center; gap:8px; min-width:120px; }
-  .att-bar{ flex:1; height:6px; border-radius:4px; background:var(--line); position:relative; max-width:70px; }
-  .att-bar i{ position:absolute; inset:0; border-radius:4px; }
-  .att-num{ font-size:12.5px; width:40px; text-align:right; }
-  .att-good{ color:var(--good); } .att-good i{ background:var(--good); }
-  .att-mid{ color:var(--mid); } .att-mid i{ background:var(--mid); }
-  .att-bad{ color:var(--bad); } .att-bad i{ background:var(--bad); }
-  .att-none{ color:var(--nodata); }
+.notice{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin-bottom:22px}
+.notice b{color:var(--ink);font-weight:700}
+.notice .dot{color:var(--gold);flex:none;font-size:15px;line-height:1.5}
 
-  .elig{ font-size:11.5px; padding:3px 8px; border-radius:6px; white-space:nowrap; font-weight:500; }
-  .elig-3{ background:var(--good-bg); color:var(--good); }
-  .elig-2{ background:var(--mid-bg); color:var(--mid); }
-  .elig-1{ background:var(--nodata-bg); color:var(--ink-soft); }
-  .elig-0{ background:var(--bad-bg); color:var(--bad); }
+details.filters{margin-bottom:6px}
+details.filters summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink-soft);padding:9px 4px}
+details.filters summary::-webkit-details-marker{display:none}
+details.filters summary::after{content:'▾';margin-left:2px;color:var(--ink-faint);font-size:11px;transition:transform .15s}
+details.filters[open] summary::after{transform:rotate(180deg)}
+.filt-count{color:var(--ink-faint);font-weight:600}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px;padding:2px 2px 10px}
+.toolbar select, .toolbar input[type="text"]{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;transition:border-color .15s}
+.toolbar input[type="text"]{cursor:text;font-weight:500;min-width:150px}
+.toolbar select:hover, .toolbar input[type="text"]:hover{border-color:var(--ink-faint)}
+.toolbar select:focus, .toolbar input[type="text"]:focus{outline:none;border-color:var(--accent)}
+#reset-btn{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-soft);background:transparent;border:1px solid transparent;border-radius:9px;padding:8px 10px;cursor:pointer}
+#reset-btn:hover{color:var(--ink);background:var(--surface-2)}
+.result-count{font-size:12.5px;color:var(--ink-faint);font-weight:600;margin:14px 2px 10px}
+.result-count b{color:var(--ink)}
 
-  .remark{ color:var(--ink-dim); font-size:12px; }
-  .empty-row td{ text-align:center; color:var(--ink-dim); padding:22px; }
+.group{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.group-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none}
+.group-head:hover{background:var(--surface-2)}
+.group-head .car{width:16px;height:16px;flex:none;color:var(--ink-faint);transition:transform .15s;display:flex;align-items:center;justify-content:center}
+.group.open .group-head .car{transform:rotate(90deg)}
+.group-head .cohort-tag{font-size:13px;font-weight:800;color:var(--ink)}
+.group-head .cohort-count{font-size:12px;color:var(--ink-faint);font-weight:600}
+.group-body{display:none}
+.group.open .group-body{display:block}
 
-  footer{ text-align:center; color:var(--ink-dim); font-size:12px; margin-top:34px; }
-</style>
-<style>
-  #gate-overlay{
-    position:fixed; inset:0; z-index:9999;
-    background:var(--bg); color:var(--ink);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Noto Sans KR',sans-serif;
+.row{display:grid;grid-template-columns:116px 112px 140px minmax(130px,1fr) 74px 70px 128px;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--border);font-size:12.8px}
+.row.headrow{background:var(--surface-2);font-size:11px;color:var(--ink-faint);font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:8px 16px;border-top:none}
+.row .name{font-weight:700;color:var(--ink)}
+.row .rmk{display:block;font-weight:400;color:var(--ink-faint);font-size:11px;margin-top:1px}
+.team-pill{display:inline-block;font-size:11.5px;font-weight:600;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px 7px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.roles{display:flex;gap:4px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;border-radius:6px;padding:2.5px 7px;white-space:nowrap}
+.b-팀장{background:#efe7fa;color:#6b45b8}
+.b-조장{background:#e5eefd;color:#2f5cc8}
+.b-부조장{background:#fbeddb;color:#b3701e}
+.b-조원{background:var(--surface-2);color:var(--ink-soft)}
+.b-면려회{background:#fbe6ef;color:#c14c85}
+@media (prefers-color-scheme: dark){
+  .b-팀장{background:#2c2340;color:#c9adf2}
+  .b-조장{background:#1f2c47;color:#9cbcf7}
+  .b-부조장{background:#3a2c16;color:#e8b46f}
+  .b-조원{background:var(--surface-2);color:var(--ink-soft)}
+  .b-면려회{background:#3a2030;color:#f0a4c8}
+}
+.att-wrap{display:flex;align-items:center;gap:6px}
+.att-num{font-weight:700;font-size:12px;min-width:34px}
+.att-bar{flex:1;height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden;min-width:28px}
+.att-bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.att-none{color:var(--ink-faint);font-size:11px}
+.course-badge{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px}
+.course-yes{background:var(--accent-soft);color:var(--accent-ink)}
+.course-no{background:var(--surface-2);color:var(--ink-faint)}
+.elig-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;display:inline-block}
+.elig-1{background:var(--accent);color:#fff}
+.elig-2{background:var(--accent-soft-2);color:var(--accent-ink)}
+.elig-3{background:var(--accent-soft);color:var(--accent-ink)}
+.elig-4{background:var(--surface-2);color:var(--ink-faint)}
+
+.empty{padding:40px 16px;text-align:center;color:var(--ink-faint);font-size:13px}
+footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--ink-faint);text-align:center}
+
+@media (max-width:860px){
+  #app{padding:18px 14px 60px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat{padding:13px 13px 11px}
+  .stat .num{font-size:22px}
+  header.top{align-items:flex-start}
+  h1.title{font-size:21px}
+  .top-meta{text-align:left;order:-1;margin-bottom:2px}
+  .toolbar{flex-direction:column;align-items:stretch;padding-top:4px}
+  .toolbar select,.toolbar input[type="text"]{width:100%}
+  #reset-btn{align-self:flex-end}
+  .group-head{padding:14px 14px}
+  .row{padding:12px 14px 13px}
+  .row{grid-template-columns:96px 1fr 88px;grid-template-areas:
+      "name team elig"
+      "roles roles roles"
+      "att course tenure";
+    row-gap:6px;
   }
-  #gate-box{
-    background:var(--card); border:1px solid var(--line); border-radius:16px;
-    padding:36px 32px; width:min(90%,340px); text-align:center;
-    box-shadow:0 8px 30px var(--shadow);
-  }
-  #gate-box h2{ margin:0 0 6px; font-size:18px; color:var(--ink); }
-  #gate-box p{ margin:0 0 18px; font-size:13px; color:var(--ink-dim); }
-  #gate-input{
-    width:100%; box-sizing:border-box; padding:12px 14px; font-size:16px;
-    border:1px solid var(--line); border-radius:10px; text-align:center;
-    letter-spacing:4px; margin-bottom:12px; background:var(--bg); color:var(--ink);
-  }
-  #gate-submit{
-    width:100%; padding:12px; font-size:14px; font-weight:700; color:#fff;
-    background:var(--navy); border:none; border-radius:10px; cursor:pointer;
-  }
-  #gate-error{ color:var(--bad); font-size:12px; margin-top:10px; min-height:16px; }
-  #page-content{ display:none; }
-  #gate-box.shake{ animation:shake .3s; }
-  @keyframes shake{ 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .row.headrow{display:none}
+  .row .name{grid-area:name}
+  .row .team-pill{grid-area:team;justify-self:start}
+  .row .elig-badge{grid-area:elig;justify-self:end}
+  .row .roles{grid-area:roles}
+  .row .att-wrap{grid-area:att}
+  .row .course-badge{grid-area:course;justify-self:start}
+  .row .tenure-col{grid-area:tenure;justify-self:end;font-size:11.5px;color:var(--ink-faint)}
+}
 </style>
 </head>
 <body>
-<div id="gate-overlay">
-  <div id="gate-box">
-    <h2>접속 코드 확인</h2>
+
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark">M</div>
+    <h1>접속 코드 확인</h1>
     <p>청년2부 리더선출위원회 전용 페이지입니다.<br>전달받은 코드를 입력해주세요.</p>
-    <input id="gate-input" type="password" inputmode="numeric" maxlength="10" placeholder="••••">
-    <button id="gate-submit">확인</button>
-    <div id="gate-error"></div>
+    <form id="gate-form">
+      <input id="gate-input" type="password" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="코드 입력">
+      <div id="gate-error"></div>
+      <button type="submit">확인</button>
+    </form>
   </div>
 </div>
-<div id="page-content">
-<div class="wrap">
 
+<div id="loading" style="display:none">
+  <div class="spinner"></div>
+  <p>구글 시트에서 최신 명단을 불러오는 중입니다...</p>
+</div>
+
+<div id="load-error" style="display:none">
+  <p><b>데이터를 불러오지 못했습니다.</b><br>원본 시트 접근에 문제가 있을 수 있습니다. 잠시 후 다시 시도해주세요.</p>
+  <button onclick="loadData()">다시 시도</button>
+</div>
+
+<div id="app">
   <header class="top">
-    <p class="eyebrow">2027 LEADER ROSTER</p>
-    <h1>2027년도 리더 지원 현황</h1>
-    <p>청년2부 전체 명단과 팀장·조장·부조장 지원 자격을 한눈에 확인할 수 있는 표입니다. 원본은 "2027년도 메이커스 리더 지원(응답)" 시트의 참조용 명단입니다.</p>
+    <div>
+      <div class="top-eyebrow">청년2부 리더선출위원회</div>
+      <h1 class="title">2027년도 리더 지원 현황</h1>
+      <div class="top-sub">청년2부 전체 명단과 팀장·조장·부조장 지원 자격을 한눈에 확인할 수 있는 표입니다. 마스터 워크북과 실시간으로 연결되어 있어 시트가 갱신되면 이 페이지도 새로고침 시 최신 내용으로 반영됩니다.</div>
+    </div>
+    <div class="top-meta"><span class="live-dot"></span><span id="meta-date"></span></div>
   </header>
 
-  <div class="kpis">
-    <div class="kpi"><div class="n mono" id="kpi-total">–</div><div class="l">전체 인원</div></div>
-    <div class="kpi"><div class="n mono" id="kpi-3">–</div><div class="l">팀장·조장·부조장<br>모두 가능</div></div>
-    <div class="kpi"><div class="n mono" id="kpi-2">–</div><div class="l">조장·부조장<br>가능</div></div>
-    <div class="kpi"><div class="n mono" id="kpi-1">–</div><div class="l">부조장만<br>가능</div></div>
-    <div class="kpi warn"><div class="n mono" id="kpi-0">–</div><div class="l">해당없음<br>(1년 미만 등록 등)</div></div>
-  </div>
-  <p class="note">※ 현재 지원서 접수 건수는 0건입니다 — 이 표는 지원자 명단이 아니라, 지원 가능 여부를 미리 확인할 수 있는 청년2부 전체 명단입니다. 최근 등록자 3명은 출석부 데이터가 아직 없어 "데이터 없음"으로 표기됩니다.</p>
-
-  <div class="controls">
-    <input id="q" type="text" placeholder="이름으로 검색…">
-    <select id="f-team"><option value="">동기 전체</option></select>
-    <select id="f-role">
-      <option value="">현재역할 전체</option>
-      <option value="팀장">팀장</option>
-      <option value="조장">조장</option>
-      <option value="조원">조원</option>
-    </select>
-    <select id="f-elig">
-      <option value="">지원가능 전체</option>
-      <option value="3">팀장·조장·부조장 가능</option>
-      <option value="2">조장·부조장 가능</option>
-      <option value="1">부조장만 가능</option>
-      <option value="0">해당없음</option>
-    </select>
-    <select id="f-course">
-      <option value="">양육과정 전체</option>
-      <option value="수료">수료</option>
-      <option value="미수료">미수료</option>
-    </select>
-    <select id="sort">
-      <option value="name">이름순</option>
-      <option value="att-desc">출석률 높은순</option>
-      <option value="att-asc">출석률 낮은순</option>
-      <option value="tenure-desc">등록연차 긴순</option>
-    </select>
-    <button id="reset">필터 초기화</button>
-    <span id="count"></span>
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-btn-roster" onclick="switchTab('roster')">전체 명단</button>
+    <button class="tab-btn" id="tab-btn-apply" onclick="switchTab('apply')">지원 현황 <span id="apply-tab-count"></span></button>
   </div>
 
+  <div id="panel-roster">
+  <div class="stats" id="stats"></div>
+
+  <div class="notice">
+    <span class="dot">●</span>
+    <span>이 표는 <b>지원자 명단이 아니라</b> 등록연차·출석률을 기준으로 지원 가능 여부를 미리 확인할 수 있는 청년2부 전체 명단입니다. 실제 지원 접수 현황은 옆의 "지원 현황" 탭에서 확인해주세요. 최근 등록자 일부는 출석부 데이터가 아직 없어 "데이터 없음"으로 표기됩니다.</span>
+  </div>
+
+  <details class="filters" id="filters" open>
+    <summary><span class="filt-ico">☰</span> 필터 · 정렬 <span class="filt-count" id="filt-count"></span></summary>
+    <div class="toolbar">
+      <input id="f-search" type="text" placeholder="이름 검색">
+      <select id="f-cohort"><option value="">동기 전체</option></select>
+      <select id="f-team"><option value="">현재 팀 전체</option></select>
+      <select id="f-role">
+        <option value="">현재역할 전체</option>
+        <option value="팀장">팀장</option>
+        <option value="조장">조장</option>
+        <option value="부조장">부조장</option>
+        <option value="조원">조원</option>
+        <option value="면려회">면려회</option>
+      </select>
+      <select id="f-elig">
+        <option value="">지원가능 전체</option>
+        <option value="팀장/조장/부조장 가능">팀장·조장·부조장 가능</option>
+        <option value="조장/부조장 가능">조장·부조장 가능</option>
+        <option value="부조장 가능">부조장만 가능</option>
+        <option value="해당없음">해당없음</option>
+      </select>
+      <select id="f-course"><option value="">양육과정 전체</option><option value="수료">수료</option><option value="미수료">미수료</option></select>
+      <select id="f-sort">
+        <option value="cohort">동기순</option>
+        <option value="name">이름순</option>
+        <option value="att-desc">출석률 높은순</option>
+        <option value="att-asc">출석률 낮은순</option>
+        <option value="tenure-desc">등록연차 긴순</option>
+      </select>
+      <button id="reset-btn">필터 초기화</button>
+    </div>
+  </details>
+
+  <div class="result-count" id="result-count"></div>
   <div id="groups"></div>
+  </div>
 
-  <footer>총 409명 · 자동 생성 · 개인 열람용</footer>
+  <div id="panel-apply" style="display:none">
+    <div class="notice">
+      <span class="dot">●</span>
+      <span>구글 폼으로 접수된 지원서만 모아 보여줍니다. 응답 시트에 새 지원서가 들어오면 이 페이지를 새로고침할 때 자동으로 반영됩니다.</span>
+    </div>
+    <div id="apply-summary" class="apply-summary"></div>
+    <div id="apply-list"></div>
+  </div>
+
+  <footer class="foot" id="footer-total"></footer>
 </div>
 
 <script>
-const ROSTER = [{"name": "김병훈", "team": "92", "role": "팀장", "joinDate": "2023-03-19", "tenure": "3.5", "attendance": "94.2", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 팀장)"}, {"name": "김성욱", "team": "92", "role": "조원", "joinDate": "2022-04-10", "tenure": "4.4", "attendance": "89.5", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "김한나A", "team": "92", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "95.2", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "남은혜", "team": "92", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "88.6", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "배윤지", "team": "92", "role": "조장", "joinDate": "2024-01-28", "tenure": "2.6", "attendance": "84.3", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장)"}, {"name": "이명훈", "team": "92", "role": "조원", "joinDate": "2022-09-25", "tenure": "3.9", "attendance": "75.2", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "이선영", "team": "92", "role": "조장", "joinDate": "2022-05-22", "tenure": "4.3", "attendance": "91.4", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장)"}, {"name": "최현호", "team": "92", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "78.6", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "황서현", "team": "92", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "97.1", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "강진구", "team": "93", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "97.1", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "강청솔", "team": "93", "role": "팀장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "98.6", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 팀장); 등반일 미기재(장기 등록 추정)"}, {"name": "고요한", "team": "93", "role": "조원", "joinDate": "2022-09-18", "tenure": "4", "attendance": "79", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "박지윤", "team": "93", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "79", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이정인", "team": "93", "role": "팀장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "93.3", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 팀장); 등반일 미기재(장기 등록 추정)"}, {"name": "임충규", "team": "93", "role": "팀장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "98.1", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 팀장); 등반일 미기재(장기 등록 추정)"}, {"name": "장태훈", "team": "93", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "63.8", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "한희승", "team": "93", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "96.2", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "구연희", "team": "94", "role": "조원", "joinDate": "2023-03-26", "tenure": "3.4", "attendance": "67.6", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "김광희", "team": "94", "role": "조원", "joinDate": "2022-10-02", "tenure": "3.9", "attendance": "97.1", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "김성빈", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "96.2", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김에스더", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "77.1", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김종욱", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "79", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김찬우", "team": "94", "role": "조원", "joinDate": "2023-04-30", "tenure": "3.4", "attendance": "81", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "김하영", "team": "94", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "81.9", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "문영진", "team": "94", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "96.2", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "문주영", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "93.3", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박선용", "team": "94", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "97.1", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "박소현", "team": "94", "role": "조장", "joinDate": "2024-04-14", "tenure": "2.4", "attendance": "88.6", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장)"}, {"name": "박지인A", "team": "94", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "77.1", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "박지홍", "team": "94", "role": "조장", "joinDate": "2023-01-15", "tenure": "3.6", "attendance": "98.6", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장)"}, {"name": "오현석", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "83.8", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이경원", "team": "94", "role": "팀장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "95.2", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 팀장); 등반일 미기재(장기 등록 추정)"}, {"name": "이수빈", "team": "94", "role": "조원", "joinDate": "2023-03-26", "tenure": "3.4", "attendance": "81.9", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "이예지", "team": "94", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "83.8", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "이정현", "team": "94", "role": "조장", "joinDate": "2023-02-26", "tenure": "3.5", "attendance": "83.8", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장)"}, {"name": "임소정", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "92.4", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "정경진", "team": "94", "role": "조장", "joinDate": "2024-05-05", "tenure": "2.3", "attendance": "78.1", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장)"}, {"name": "정문종", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "85.7", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김자윤", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "93.3", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김진규", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "97.1", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김혜린", "team": "95", "role": "조원", "joinDate": "2023-01-08", "tenure": "3.7", "attendance": "73.3", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "박채원A", "team": "95", "role": "조원", "joinDate": "2024-07-07", "tenure": "2.2", "attendance": "63.8", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "변다윤", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "68.6", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "신철민", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "87.6", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "오명주", "team": "95", "role": "조장", "joinDate": "2023-06-11", "tenure": "3.2", "attendance": "89.5", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장)"}, {"name": "윤세라", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "85.7", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이민지", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "92.4", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이은미", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "68.6", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "최재환", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "93.3", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "최한나", "team": "95", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "67.6", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "강하영", "team": "96", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "76.2", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "구나연", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "98.1", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김준희", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "66.7", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김희주", "team": "96", "role": "조장", "joinDate": "2024-08-11", "tenure": "2.1", "attendance": "88.6", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장)"}, {"name": "박지희A", "team": "96", "role": "조장", "joinDate": "2023-10-22", "tenure": "2.9", "attendance": "65.7", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장)"}, {"name": "이초희", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "83.8", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "장한나", "team": "96", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "100", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "최예진B", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "67.6", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "황금준", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "61.9", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "강신의", "team": "97", "role": "팀장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "98.1", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 팀장); 등반일 미기재(장기 등록 추정)"}, {"name": "강주석", "team": "97", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "91.4", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "김예림", "team": "97", "role": "팀장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "96.2", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 팀장); 등반일 미기재(장기 등록 추정)"}, {"name": "김현애", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "95.2", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "노슬비", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "72.4", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "민주현", "team": "97", "role": "조원", "joinDate": "2023-03-19", "tenure": "3.5", "attendance": "81", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "박지은", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "68.6", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "성효경", "team": "97", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "91.4", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "원혜연", "team": "97", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "98.1", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "윤찬미", "team": "97", "role": "조원", "joinDate": "2024-05-19", "tenure": "2.3", "attendance": "75.2", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": ""}, {"name": "이채현", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "100", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이효주", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "77.1", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "최다민", "team": "97", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "90.5", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "최서연", "team": "97", "role": "팀장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "96.2", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 팀장); 등반일 미기재(장기 등록 추정)"}, {"name": "한준택", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "86.7", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "홍자경", "team": "97", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "58.1", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "김규현", "team": "98", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "97.1", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "김선웅", "team": "98", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "71.4", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "김수현", "team": "98", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "69.5", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "김연주", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "94.3", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김재욱", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "82.9", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김재원", "team": "98", "role": "팀장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "95.2", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 팀장); 등반일 미기재(장기 등록 추정)"}, {"name": "김태연", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "62.9", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김혜연", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "81.9", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박승민", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "98.1", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "송수현", "team": "98", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "96.2", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "신선우", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "75.2", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이용권", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "54.3", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "장효민", "team": "98", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "92.4", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "정유진", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "51.4", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "조예찬", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "72.4", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김한솔", "team": "99", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "92.3", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "박채원B", "team": "99", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "74.7", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "양지은", "team": "99", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "73.6", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "이유진B", "team": "99", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "97.7", "course": "미수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "장민지", "team": "99", "role": "조장", "joinDate": "", "tenure": "장기(2년+)", "attendance": "85.1", "course": "수료", "eligible": "팀장/조장/부조장 가능", "remark": "(현직 조장); 등반일 미기재(장기 등록 추정)"}, {"name": "강하은", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "82.9", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김보현", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "88.6", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김상은", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "71.4", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김수진", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "94.3", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김주영", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "88.6", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김지수", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "77.1", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김현수B", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "82.9", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박수민", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "71.4", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "백재은", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "77.1", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "송인태", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "74.3", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "신금하", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "74.3", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "유수민", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "88.6", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이서연", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "91.4", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "장동찬", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "71.4", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "정형민", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "80", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "조민서", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "100", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "조예준", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "100", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "홍희진", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "94.3", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김호경", "team": "92", "role": "조원", "joinDate": "2025-02-16", "tenure": "1.6", "attendance": "93.8", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "민사라", "team": "92", "role": "조원", "joinDate": "2024-09-22", "tenure": "2", "attendance": "66.7", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "양정모", "team": "92", "role": "조원", "joinDate": "2023-01-01", "tenure": "3.7", "attendance": "41", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "조진태", "team": "92", "role": "조원", "joinDate": "2025-01-19", "tenure": "1.6", "attendance": "52.9", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "최용현", "team": "92", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "55.2", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "민승빈", "team": "93", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "48.6", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "서덕민", "team": "93", "role": "조원", "joinDate": "2025-03-23", "tenure": "1.5", "attendance": "90.8", "course": "수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "유송희", "team": "93", "role": "조원", "joinDate": "2025-07-05", "tenure": "1.2", "attendance": "82", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "이찬용", "team": "93", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "61", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "강석진", "team": "94", "role": "조원", "joinDate": "2025-02-09", "tenure": "1.6", "attendance": "40.2", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "구태송", "team": "94", "role": "조원", "joinDate": "2025-07-20", "tenure": "1.1", "attendance": "27.1", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "김유진", "team": "94", "role": "조원", "joinDate": "2025-03-23", "tenure": "1.5", "attendance": "89.5", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "박진범", "team": "94", "role": "조원", "joinDate": "2025-08-10", "tenure": "1.1", "attendance": "53.6", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "손현영", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "53.3", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "윤영진", "team": "94", "role": "조원", "joinDate": "2025-08-31", "tenure": "1", "attendance": "47.2", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "임장훈", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "52.4", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "조윤계", "team": "94", "role": "조원", "joinDate": "2025-03-09", "tenure": "1.5", "attendance": "29.5", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "강민규", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "61", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "강해우", "team": "95", "role": "조원", "joinDate": "2025-02-16", "tenure": "1.6", "attendance": "82.7", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "권선영", "team": "95", "role": "조원", "joinDate": "2025-08-17", "tenure": "1.1", "attendance": "65.5", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "김경현", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "68.6", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "노하은", "team": "95", "role": "조원", "joinDate": "2024-03-31", "tenure": "2.4", "attendance": "66.7", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "설예원", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "56.2", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이사라", "team": "95", "role": "조원", "joinDate": "2024-02-04", "tenure": "2.6", "attendance": "66.7", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "정진우", "team": "95", "role": "조원", "joinDate": "2025-08-24", "tenure": "1", "attendance": "63", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "지현경", "team": "95", "role": "조원", "joinDate": "2025-01-19", "tenure": "1.6", "attendance": "68.2", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "김수빈", "team": "96", "role": "조원", "joinDate": "2025-07-13", "tenure": "1.1", "attendance": "31.7", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "김슬기", "team": "96", "role": "조원", "joinDate": "2025-05-04", "tenure": "1.3", "attendance": "67.1", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "김희윤", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "58.1", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박재형", "team": "96", "role": "조원", "joinDate": "2025-02-02", "tenure": "1.6", "attendance": "86.7", "course": "수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "박재희", "team": "96", "role": "조원", "joinDate": "2025-05-18", "tenure": "1.3", "attendance": "69.1", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "설재윤", "team": "96", "role": "조원", "joinDate": "2024-10-06", "tenure": "1.9", "attendance": "84", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "신선민", "team": "96", "role": "조원", "joinDate": "2025-03-23", "tenure": "1.5", "attendance": "43.4", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "신은진", "team": "96", "role": "조원", "joinDate": "2025-01-19", "tenure": "1.6", "attendance": "37.6", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "이유진A", "team": "96", "role": "조원", "joinDate": "2025-03-02", "tenure": "1.5", "attendance": "49.4", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "정현욱", "team": "96", "role": "조원", "joinDate": "2025-06-01", "tenure": "1.3", "attendance": "31.8", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "최승우", "team": "96", "role": "조원", "joinDate": "2025-01-19", "tenure": "1.6", "attendance": "48.2", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "김정호", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "59", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박지현", "team": "97", "role": "조원", "joinDate": "2025-03-09", "tenure": "1.5", "attendance": "53.8", "course": "수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "원은진", "team": "97", "role": "조원", "joinDate": "2025-07-05", "tenure": "1.2", "attendance": "60.7", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "한수아", "team": "97", "role": "조원", "joinDate": "2023-09-17", "tenure": "3", "attendance": "41.9", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "강동근", "team": "98", "role": "조원", "joinDate": "2025-06-22", "tenure": "1.2", "attendance": "85.7", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "강연우", "team": "98", "role": "조원", "joinDate": "2024-06-30", "tenure": "2.2", "attendance": "61.9", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "권오율", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "50.5", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김요셉", "team": "98", "role": "조원", "joinDate": "2024-10-06", "tenure": "1.9", "attendance": "56", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "이지우", "team": "98", "role": "조원", "joinDate": "2024-11-03", "tenure": "1.8", "attendance": "68.8", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "이현지", "team": "98", "role": "조원", "joinDate": "2025-03-30", "tenure": "1.4", "attendance": "57.3", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "임채린", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "35.2", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "장유진", "team": "98", "role": "조원", "joinDate": "2025-06-15", "tenure": "1.2", "attendance": "76.6", "course": "미수료", "eligible": "조장/부조장 가능", "remark": ""}, {"name": "조하진", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "61.9", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "홍수정", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "60", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "황예진", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "38.1", "course": "미수료", "eligible": "조장/부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "강건", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "2.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "강준영", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "65.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "권유리", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "2.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김가현", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "2.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김나연", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "2.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김민지B", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "5.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김성현", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김영국", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "37.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김주원", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "8.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김혜주", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "8.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김혜준", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "60", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "문길수", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "민지원", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박지희B", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "42.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박한성", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "14.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박형규", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "송수한", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "54.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "송주원", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "20", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "신민선", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "안서현", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "54.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "윤여빈", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "51.4", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이경찬", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "48.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이도연", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "37.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이소윤", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "68.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이시온B", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "11.4", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이재은", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이정우", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "40", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "임수진", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "42.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "장유민", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "40", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "장은서", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "장지인", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "17.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "전하정", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "42.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "주지혜", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "차혁진", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "최이레", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "20", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "최지원", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "14.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "표성하", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "8.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "한지원", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "홍은애", "team": "00", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "5.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "고현정", "team": "92", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "19", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "권지연", "team": "92", "role": "조원", "joinDate": "2025-04-13", "tenure": "1.4", "attendance": "2.7", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김지일", "team": "92", "role": "조원", "joinDate": "2025-02-09", "tenure": "1.6", "attendance": "2.4", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김홍균", "team": "92", "role": "조원", "joinDate": "2025-06-01", "tenure": "1.3", "attendance": "11.4", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "박성휘", "team": "92", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "25.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박정환", "team": "92", "role": "조원", "joinDate": "2025-08-10", "tenure": "1.1", "attendance": "16.1", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "박지웅", "team": "92", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "9.5", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "신은식", "team": "92", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "14.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "유소리나", "team": "92", "role": "조원", "joinDate": "2024-08-25", "tenure": "2", "attendance": "6.7", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "이경진", "team": "92", "role": "조원", "joinDate": "2023-07-30", "tenure": "3.1", "attendance": "2.9", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "이지원", "team": "92", "role": "조원", "joinDate": "2025-04-06", "tenure": "1.4", "attendance": "10.8", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "이창희", "team": "92", "role": "조원", "joinDate": "2025-01-19", "tenure": "1.6", "attendance": "9.4", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "정준영", "team": "92", "role": "조원", "joinDate": "2025-03-30", "tenure": "1.4", "attendance": "8", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "조승현", "team": "92", "role": "조원", "joinDate": "2025-03-09", "tenure": "1.5", "attendance": "5.1", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "조혜경", "team": "92", "role": "조원", "joinDate": "2024-11-24", "tenure": "1.8", "attendance": "9.7", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "지동호", "team": "92", "role": "조원", "joinDate": "2025-07-27", "tenure": "1.1", "attendance": "1.7", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "최찬휘", "team": "92", "role": "조원", "joinDate": "2022-10-02", "tenure": "3.9", "attendance": "39", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "황산성", "team": "92", "role": "조원", "joinDate": "2025-04-13", "tenure": "1.4", "attendance": "4.1", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "방미나", "team": "93", "role": "조원", "joinDate": "2023-07-16", "tenure": "3.1", "attendance": "6.7", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "오하경", "team": "93", "role": "조원", "joinDate": "2025-01-26", "tenure": "1.6", "attendance": "7.1", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "우렁찬", "team": "93", "role": "조원", "joinDate": "2024-08-25", "tenure": "2", "attendance": "18.1", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "유승현", "team": "93", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "5.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "윤준영", "team": "93", "role": "조원", "joinDate": "2025-03-23", "tenure": "1.5", "attendance": "2.6", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "이무일", "team": "93", "role": "조원", "joinDate": "2024-01-21", "tenure": "2.6", "attendance": "1.9", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "조수연A", "team": "93", "role": "조원", "joinDate": "2024-04-14", "tenure": "2.4", "attendance": "28.6", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "지은혜", "team": "93", "role": "조원", "joinDate": "2024-03-24", "tenure": "2.5", "attendance": "23.8", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "화은지", "team": "93", "role": "조원", "joinDate": "2018-12-09", "tenure": "7.7", "attendance": "3.8", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "기도영", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "6.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박동규", "team": "94", "role": "조원", "joinDate": "2024-02-25", "tenure": "2.5", "attendance": "10.5", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "박충현", "team": "94", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "13.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "신지현", "team": "94", "role": "조원", "joinDate": "2023-10-15", "tenure": "2.9", "attendance": "8.6", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "이원준", "team": "94", "role": "조원", "joinDate": "2024-04-07", "tenure": "2.4", "attendance": "21", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "최정현", "team": "94", "role": "조원", "joinDate": "2025-07-27", "tenure": "1.1", "attendance": "15.5", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "탁나연", "team": "94", "role": "조원", "joinDate": "2025-08-10", "tenure": "1.1", "attendance": "17.9", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "편예림", "team": "94", "role": "조원", "joinDate": "2023-01-01", "tenure": "3.7", "attendance": "27.6", "course": "수료", "eligible": "부조장 가능", "remark": ""}, {"name": "황래혁", "team": "94", "role": "조원", "joinDate": "2025-08-03", "tenure": "1.1", "attendance": "10.5", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "공윤상", "team": "95", "role": "조원", "joinDate": "2025-03-02", "tenure": "1.5", "attendance": "13.9", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김도현", "team": "95", "role": "조원", "joinDate": "2025-01-19", "tenure": "1.6", "attendance": "12.9", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김민지A", "team": "95", "role": "조원", "joinDate": "2024-11-24", "tenure": "1.8", "attendance": "8.6", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김성경", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "20", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김준석B", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "29.5", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "류한종", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "11.4", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박민규", "team": "95", "role": "조원", "joinDate": "2025-02-22", "tenure": "1.5", "attendance": "32.1", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "박민나", "team": "95", "role": "조원", "joinDate": "2025-08-10", "tenure": "1.1", "attendance": "8.9", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "손다몬", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "19", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "송예림", "team": "95", "role": "조원", "joinDate": "2024-08-11", "tenure": "2.1", "attendance": "12.4", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "유인석", "team": "95", "role": "조원", "joinDate": "2025-01-19", "tenure": "1.6", "attendance": "23.5", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "이승현", "team": "95", "role": "조원", "joinDate": "2024-11-24", "tenure": "1.8", "attendance": "2.2", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "이진솔", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "13.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이현정", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "1.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이현주", "team": "95", "role": "조원", "joinDate": "2024-01-21", "tenure": "2.6", "attendance": "7.6", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "장예진", "team": "95", "role": "조원", "joinDate": "2025-06-15", "tenure": "1.2", "attendance": "7.8", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "정동영", "team": "95", "role": "조원", "joinDate": "2023-04-30", "tenure": "3.4", "attendance": "44.8", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "정한비", "team": "95", "role": "조원", "joinDate": "2025-02-09", "tenure": "1.6", "attendance": "4.9", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "최신애", "team": "95", "role": "조원", "joinDate": "2024-06-23", "tenure": "2.2", "attendance": "10.5", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "최지현", "team": "95", "role": "조원", "joinDate": "2023-02-05", "tenure": "3.6", "attendance": "2.9", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "최한길", "team": "95", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "21", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김건희", "team": "96", "role": "조원", "joinDate": "2024-01-28", "tenure": "2.6", "attendance": "20", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김기연", "team": "96", "role": "조원", "joinDate": "2024-04-14", "tenure": "2.4", "attendance": "23.8", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김서아", "team": "96", "role": "조원", "joinDate": "2024-09-22", "tenure": "2", "attendance": "19.6", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김승환", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "26.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김영진", "team": "96", "role": "조원", "joinDate": "2023-02-12", "tenure": "3.6", "attendance": "26.7", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김진실", "team": "96", "role": "조원", "joinDate": "2025-01-19", "tenure": "1.6", "attendance": "9.4", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "남규태", "team": "96", "role": "조원", "joinDate": "2025-01-19", "tenure": "1.6", "attendance": "28.2", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "문하영", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "47.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이예진", "team": "96", "role": "조원", "joinDate": "2025-03-16", "tenure": "1.5", "attendance": "6.5", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "이원혁", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "7.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이태영", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "18.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "전혜린", "team": "96", "role": "조원", "joinDate": "2023-03-19", "tenure": "3.5", "attendance": "23.8", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "한지은", "team": "96", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "5.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "한희정", "team": "96", "role": "조원", "joinDate": "2025-07-20", "tenure": "1.1", "attendance": "22", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "홍민형", "team": "96", "role": "조원", "joinDate": "2024-10-27", "tenure": "1.9", "attendance": "5.2", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김민정B", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "12.4", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "변주희", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "1.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "옥동경", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "40", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "유승진", "team": "97", "role": "조원", "joinDate": "2025-06-15", "tenure": "1.2", "attendance": "12.5", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "이경지", "team": "97", "role": "조원", "joinDate": "2025-08-17", "tenure": "1.1", "attendance": "21.8", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "이성우", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "1.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "전동환", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "30.5", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "최용훈", "team": "97", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "28.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김영수", "team": "98", "role": "조원", "joinDate": "2025-05-31", "tenure": "1.3", "attendance": "40.9", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김영우", "team": "98", "role": "조원", "joinDate": "2025-04-13", "tenure": "1.4", "attendance": "2.7", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김이삭", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "3.8", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김지원", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "24.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "남궁석", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "2.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이승주", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "8.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이지현B", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "13.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이진우", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "4.8", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이한결", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "37.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "임동욱", "team": "98", "role": "조원", "joinDate": "2024-11-03", "tenure": "1.8", "attendance": "26", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "전윤", "team": "98", "role": "조원", "joinDate": "2023-02-12", "tenure": "3.6", "attendance": "13.2", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "정명", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "11.4", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "조창현", "team": "98", "role": "조원", "joinDate": "2025-03-23", "tenure": "1.5", "attendance": "50", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "황성진", "team": "98", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "40", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "강승협", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "46", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정); 2026-08-31 신규 원본에서 새로 발견됨(기존 v7/v8엔 없었음); 출석은 강신의팀 GBS로 집계된 것으로 보임, 소속팀은 교사회팀"}, {"name": "강은석", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "39.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김건", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "73.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김민석B", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "80.5", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김민찬", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "4.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김상훈", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "24.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김수아", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "2.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김수윤", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "85.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김정윤", "team": "99", "role": "조원", "joinDate": "2025-08-03", "tenure": "1.1", "attendance": "21.1", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김지현", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "47.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김태영", "team": "99", "role": "조원", "joinDate": "2025-06-22", "tenure": "1.2", "attendance": "19", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김하림", "team": "99", "role": "조원", "joinDate": "2025-07-20", "tenure": "1.1", "attendance": "35.6", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "김하민", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "41.4", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "김한나B", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "17.2", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "류현식", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "48.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "마민우", "team": "99", "role": "조원", "joinDate": "2025-03-16", "tenure": "1.5", "attendance": "10.4", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "문채규", "team": "99", "role": "조원", "joinDate": "2025-03-02", "tenure": "1.5", "attendance": "39.2", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "문채은", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "73.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박규리", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "48.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박예림", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "78.2", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박예준", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "2.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박예진", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "65.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박재석", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "4.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박주한", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "81.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "박형민", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "56.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "백서윤", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "29.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "변해준", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "36.8", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "서예린", "team": "99", "role": "조원", "joinDate": "2025-03-16", "tenure": "1.5", "attendance": "44.2", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "설동현", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "82.8", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "성유빈", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "39.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "손영혜", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "34.5", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "안예진", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "80.5", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "원유미", "team": "99", "role": "조원", "joinDate": "2025-04-13", "tenure": "1.4", "attendance": "4.1", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "윤하림", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "1.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이민환", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "70.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이원진", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "79.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이지예", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "80.5", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이현석", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "66.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이희태", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "1.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "전서연", "team": "99", "role": "조원", "joinDate": "2025-08-17", "tenure": "1.1", "attendance": "72.7", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "전아현", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "2.3", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "정근모", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "87.4", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "정수연", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "0", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "정태민", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "81.6", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "조성완", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "43.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "조헌재", "team": "99", "role": "조원", "joinDate": "2025-08-24", "tenure": "1", "attendance": "75.9", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "조현웅", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "1.1", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "최성찬", "team": "99", "role": "조원", "joinDate": "2025-04-06", "tenure": "1.4", "attendance": "56.8", "course": "미수료", "eligible": "부조장 가능", "remark": ""}, {"name": "한수영", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "78.2", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "한정원", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "54", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "홍가은", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "11.5", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "황가현", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "14.9", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "황예광", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "20.7", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "황찬미", "team": "99", "role": "조원", "joinDate": "", "tenure": "장기(2년+)", "attendance": "19.5", "course": "미수료", "eligible": "부조장 가능", "remark": "등반일 미기재(장기 등록 추정)"}, {"name": "이해형", "team": "00", "role": "조원", "joinDate": "2026-02-22", "tenure": "0.5", "attendance": "75", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "조수연B", "team": "00", "role": "조원", "joinDate": "2026-03-08", "tenure": "0.5", "attendance": "76.9", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "백승우", "team": "92", "role": "조원", "joinDate": "2025-11-30", "tenure": "0.8", "attendance": "45", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "송종범", "team": "92", "role": "조원", "joinDate": "2025-10-12", "tenure": "0.9", "attendance": "6.4", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "신지혜", "team": "92", "role": "조원", "joinDate": "2025-11-02", "tenure": "0.8", "attendance": "15.9", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "심연석", "team": "92", "role": "조원", "joinDate": "2026-02-01", "tenure": "0.6", "attendance": "16.1", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "정수연", "team": "92", "role": "조원", "joinDate": "2026-01-18", "tenure": "0.6", "attendance": "27.3", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "김광록", "team": "93", "role": "조원", "joinDate": "2026-03-15", "tenure": "0.5", "attendance": "0", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "박은진", "team": "93", "role": "조원", "joinDate": "2026-01-25", "tenure": "0.6", "attendance": "84.4", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "안예린", "team": "93", "role": "조원", "joinDate": "2026-02-01", "tenure": "0.6", "attendance": "83.9", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "양현모", "team": "93", "role": "조원", "joinDate": "2026-08-02", "tenure": "0.1", "attendance": "100", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "이연호", "team": "93", "role": "조원", "joinDate": "2026-01-18", "tenure": "0.6", "attendance": "63.6", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "전예찬", "team": "93", "role": "조원", "joinDate": "2025-11-23", "tenure": "0.8", "attendance": "9.8", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "최시은", "team": "93", "role": "조원", "joinDate": "2026-01-18", "tenure": "0.6", "attendance": "6.1", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "최원준", "team": "93", "role": "조원", "joinDate": "2026-02-08", "tenure": "0.6", "attendance": "40", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "김누리", "team": "94", "role": "조원", "joinDate": "2026-07-05", "tenure": "0.2", "attendance": "55.6", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "김성은", "team": "94", "role": "조원", "joinDate": "2025-11-09", "tenure": "0.8", "attendance": "20.9", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "김현수A", "team": "94", "role": "조원", "joinDate": "2025-09-07", "tenure": "1", "attendance": "48.1", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "박예나", "team": "94", "role": "조원", "joinDate": "2025-11-23", "tenure": "0.8", "attendance": "68.3", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "이지민A", "team": "94", "role": "조원", "joinDate": "2025-10-26", "tenure": "0.9", "attendance": "11.1", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "이지민B", "team": "94", "role": "조원", "joinDate": "2025-11-23", "tenure": "0.8", "attendance": "31.7", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "권하빈", "team": "95", "role": "조원", "joinDate": "2026-08-02", "tenure": "0.1", "attendance": "", "course": "미수료", "eligible": "해당없음", "remark": "출석부 데이터 없음(최근 등록)"}, {"name": "김주환", "team": "95", "role": "조원", "joinDate": "2026-03-01", "tenure": "0.5", "attendance": "66.7", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "김준성", "team": "95", "role": "조원", "joinDate": "2025-09-14", "tenure": "1", "attendance": "15.7", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "남의지", "team": "95", "role": "조원", "joinDate": "2026-03-15", "tenure": "0.5", "attendance": "28", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "명시온", "team": "95", "role": "조원", "joinDate": "2026-02-22", "tenure": "0.5", "attendance": "46.4", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "서그린", "team": "95", "role": "조원", "joinDate": "2025-09-07", "tenure": "1", "attendance": "23.1", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "안성인", "team": "95", "role": "조원", "joinDate": "2026-03-08", "tenure": "0.5", "attendance": "88.5", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "양한현", "team": "95", "role": "조원", "joinDate": "2025-09-07", "tenure": "1", "attendance": "30.8", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "임혜린", "team": "95", "role": "조원", "joinDate": "2026-02-22", "tenure": "0.5", "attendance": "3.6", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "채예현", "team": "95", "role": "조원", "joinDate": "2026-08-02", "tenure": "0.1", "attendance": "", "course": "미수료", "eligible": "해당없음", "remark": "출석부 데이터 없음(최근 등록)"}, {"name": "김미현", "team": "96", "role": "조원", "joinDate": "2026-02-22", "tenure": "0.5", "attendance": "53.6", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "박소희", "team": "96", "role": "조원", "joinDate": "2026-01-18", "tenure": "0.6", "attendance": "33.3", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "오데니스", "team": "96", "role": "조원", "joinDate": "2026-08-02", "tenure": "0.1", "attendance": "40", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "유은이", "team": "96", "role": "조원", "joinDate": "2026-01-18", "tenure": "0.6", "attendance": "9.1", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "이다운", "team": "96", "role": "조원", "joinDate": "2025-10-12", "tenure": "0.9", "attendance": "53.2", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "이윤석", "team": "96", "role": "조원", "joinDate": "2025-09-14", "tenure": "1", "attendance": "66.7", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "조형래", "team": "96", "role": "조원", "joinDate": "2026-08-02", "tenure": "0.1", "attendance": "20", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "홍직경", "team": "96", "role": "조원", "joinDate": "2026-01-18", "tenure": "0.6", "attendance": "66.7", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "김민석A", "team": "97", "role": "조원", "joinDate": "2025-11-30", "tenure": "0.8", "attendance": "15", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "류연주", "team": "97", "role": "조원", "joinDate": "2026-07-05", "tenure": "0.2", "attendance": "44.4", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "손종환", "team": "97", "role": "조원", "joinDate": "2025-11-30", "tenure": "0.8", "attendance": "12.5", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "이시온A", "team": "97", "role": "조원", "joinDate": "2026-01-25", "tenure": "0.6", "attendance": "96.9", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "이예인", "team": "97", "role": "조원", "joinDate": "2025-11-23", "tenure": "0.8", "attendance": "29.3", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "조혜지", "team": "97", "role": "조원", "joinDate": "2026-03-01", "tenure": "0.5", "attendance": "70.4", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "현명한", "team": "97", "role": "조원", "joinDate": "2026-02-15", "tenure": "0.6", "attendance": "75.9", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "김민경", "team": "98", "role": "조원", "joinDate": "2026-01-18", "tenure": "0.6", "attendance": "24.2", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "김성호", "team": "98", "role": "조원", "joinDate": "2026-01-18", "tenure": "0.6", "attendance": "100", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "윤진우", "team": "98", "role": "조원", "joinDate": "2026-01-18", "tenure": "0.6", "attendance": "30.3", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "이승현", "team": "98", "role": "조원", "joinDate": "2026-02-01", "tenure": "0.6", "attendance": "54.3", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "이준엽", "team": "98", "role": "조원", "joinDate": "2025-11-23", "tenure": "0.8", "attendance": "14.6", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "최소연", "team": "98", "role": "조원", "joinDate": "2026-08-02", "tenure": "0.1", "attendance": "", "course": "미수료", "eligible": "해당없음", "remark": "출석부 데이터 없음(최근 등록)"}, {"name": "최진혁", "team": "98", "role": "조원", "joinDate": "2025-09-14", "tenure": "1", "attendance": "94.1", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "김미조", "team": "99", "role": "조원", "joinDate": "2026-01-18", "tenure": "0.6", "attendance": "42.4", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "안재범", "team": "99", "role": "조원", "joinDate": "2025-09-28", "tenure": "0.9", "attendance": "91.8", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "최윤지", "team": "99", "role": "조원", "joinDate": "2025-09-21", "tenure": "1", "attendance": "14", "course": "미수료", "eligible": "해당없음", "remark": ""}, {"name": "최현수", "team": "99", "role": "조원", "joinDate": "2026-02-22", "tenure": "0.5", "attendance": "65.7", "course": "미수료", "eligible": "해당없음", "remark": ""}];
+const ACCESS_CODE = "0906";
+const SHEET_ID = "1UPUpBLJtt_ke2ViB-bRH-zVz2X3H8o9rWhoagBTIhjA";
+const SHEET_TAB = "2026 메이커스";
+const RESP_SHEET_ID = "1j9OXTouq5hWOdpfCH2OJLzI-zpTtjTU2EdLvd35TShE";
+const RESP_GID = "1908492599";
+const COHORT_ORDER_FULL = ["00","99","98","97","96","95","94","93","92","91"];
 
-const eligRank = {
-  "팀장/조장/부조장 가능": 3,
-  "조장/부조장 가능": 2,
-  "부조장 가능": 1,
-  "해당없음": 0,
-};
-const eligLabel = { 3:"팀장·조장·부조장 가능", 2:"조장·부조장 가능", 1:"부조장 가능", 0:"해당없음" };
+let APPLICANTS = [];
 
-function attClass(v){
-  if(v === "" || v === null || v === undefined) return "none";
-  const n = parseFloat(v);
-  if(n >= 80) return "good";
-  if(n >= 70) return "mid";
-  return "bad";
+/* 팀 내 직책과 별개로 겸직하는 면려회, 그리고 회칙상 별도 트랙인 부조장 —
+   원본 시트의 "현재역할" 컬럼에는 아직 반영되어 있지 않아 여기서 보정합니다.
+   (위원회가 실제 부조장/면려회 명단을 바꾸면 이 두 줄만 갱신하면 됩니다.) */
+const MYEONRYEOHOE = new Set(["김한나A","구나연","민주현","이채현","김연주","이용권","서덕민"]);
+const BUJOJANG = new Set(["박재형","박지현","편예림"]);
+
+let ROSTER = [];
+let COUNTS = {};
+let TEAM_LIST = [];
+let COHORT_PRESENT = [];
+const openGroups = new Set();
+
+/* ---------- CSV parsing (RFC4180 minimal) ---------- */
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i], next = text[i+1];
+    if (inQuotes){
+      if (c === '"' && next === '"'){ field += '"'; i++; }
+      else if (c === '"'){ inQuotes = false; }
+      else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ','){ row.push(field); field = ''; }
+      else if (c === '\r'){ /* skip */ }
+      else if (c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.length > 1 || (r.length === 1 && r[0] !== ''));
 }
 
-function tenureLabel(r){
-  if(r.tenure === "장기(2년+)") return "장기(2년+)";
-  if(r.tenure === "") return "–";
-  return r.tenure + "년";
+function gvizCsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`;
+}
+function respCsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${RESP_SHEET_ID}/export?format=csv&gid=${RESP_GID}`;
 }
 
-// populate team filter
-const teams = [...new Set(ROSTER.map(r=>r.team))].sort();
-const teamSel = document.getElementById('f-team');
-teams.forEach(t=>{
-  const o = document.createElement('option');
-  o.value = t; o.textContent = t + "동기";
-  teamSel.appendChild(o);
+async function loadData(){
+  document.getElementById('load-error').style.display = 'none';
+  document.getElementById('loading').style.display = 'flex';
+  try {
+    const res = await fetch(gvizCsvUrl(), {cache:'no-store'});
+    if (!res.ok) throw new Error('http ' + res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    if (!rows.length || rows[0].indexOf('이름') === -1 || rows[0].indexOf('가능등급') === -1){
+      throw new Error('unexpected sheet content — check sharing permission (anyone with link, viewer)');
+    }
+    buildRoster(rows);
+
+    try {
+      const res2 = await fetch(respCsvUrl(), {cache:'no-store'});
+      if (res2.ok){
+        const text2 = await res2.text();
+        buildApplicants(parseCSV(text2));
+      } else {
+        APPLICANTS = [];
+      }
+    } catch (e2){
+      console.error('applicants fetch failed', e2);
+      APPLICANTS = [];
+    }
+
+    document.getElementById('loading').style.display = 'none';
+    showApp();
+  } catch (e){
+    console.error(e);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('load-error').style.display = 'flex';
+  }
+}
+
+function buildApplicants(rows){
+  if (!rows.length){ APPLICANTS = []; return; }
+  const header = rows[0].map(h => h.trim());
+  const col = name => header.indexOf(name);
+  const idx = {
+    ts: col('타임스탬프'),
+    team: col('1-1. 팀'),
+    cohort: col('1-2. 동기'),
+    name: col('1-3. 이름'),
+    phone: col('1-4. 연락처'),
+    exp: col('2. 리더사역 경험'),
+    expDetail: col('2-1. 어떤 사역을 하셨었나요?'),
+    gift: header.findIndex(h => h.indexOf('은사나 경험') !== -1),
+    reason: header.findIndex(h => h.indexOf('지원하게 된 이유') !== -1),
+    goal: header.findIndex(h => h.indexOf('이루고 싶은 목표') !== -1),
+    curRole: col('현재역할'),
+    att: col('출석률'),
+    tenure: col('등록연차'),
+    course: col('양육과정수료'),
+    eligible: col('가능한 직분'),
+    check: col('대조결과'),
+  };
+  const out = [];
+  for (let i = 1; i < rows.length; i++){
+    const r = rows[i];
+    const name = (r[idx.name] || '').trim();
+    if (!name) continue;
+    out.push({
+      ts: (r[idx.ts] || '').trim(),
+      team: (r[idx.team] || '').trim(),
+      cohort: (r[idx.cohort] || '').trim(),
+      name: name,
+      phone: (r[idx.phone] || '').trim(),
+      exp: (r[idx.exp] || '').trim(),
+      expDetail: (r[idx.expDetail] || '').trim(),
+      gift: idx.gift >= 0 ? (r[idx.gift] || '').trim() : '',
+      reason: idx.reason >= 0 ? (r[idx.reason] || '').trim() : '',
+      goal: idx.goal >= 0 ? (r[idx.goal] || '').trim() : '',
+      curRole: (r[idx.curRole] || '').trim(),
+      att: (r[idx.att] || '').trim(),
+      tenure: (r[idx.tenure] || '').trim(),
+      course: (r[idx.course] || '').trim(),
+      eligible: (r[idx.eligible] || '').trim(),
+      check: (r[idx.check] || '').trim(),
+    });
+  }
+  APPLICANTS = out;
+}
+
+function buildRoster(rows){
+  const header = rows[0].map(h => h.trim());
+  const idx = {
+    name: header.indexOf('이름'),
+    cohort: header.indexOf('동기'),
+    team: header.indexOf('현재소속팀'),
+    role: header.indexOf('현재역할'),
+    tenure: header.indexOf('등록연차'),
+  };
+  const attIdx = header.findIndex(h => h.indexOf('출석률') !== -1);
+  const courseIdx = header.indexOf('양육과정수료');
+  const eligIdx = header.indexOf('가능등급');
+  const remarkIdx = header.indexOf('비고');
+
+  const roster = [];
+  for (let i = 1; i < rows.length; i++){
+    const r = rows[i];
+    if (!r || !r[idx.name]) continue;
+    const name = r[idx.name].trim();
+    let cohort = (r[idx.cohort] || '').trim();
+    if (cohort === '0') cohort = '00';
+    let roles = [(r[idx.role] || '').trim()];
+    if (BUJOJANG.has(name)) roles = ['부조장'];
+    if (MYEONRYEOHOE.has(name) && roles.indexOf('면려회') === -1) roles.push('면려회');
+    const attRaw = (r[attIdx] || '').trim();
+    roster.push({
+      n: name,
+      c: cohort,
+      t: (r[idx.team] || '').trim(),
+      r: roles,
+      ten: (r[idx.tenure] || '').trim(),
+      att: attRaw === '' ? null : attRaw,
+      co: (r[courseIdx] || '').trim(),
+      e: (r[eligIdx] || '').trim(),
+      rm: cleanRemark((r[remarkIdx] || '').trim()),
+    });
+  }
+  ROSTER = roster;
+
+  COUNTS = {total: roster.length};
+  ['팀장/조장/부조장 가능','조장/부조장 가능','부조장 가능','해당없음'].forEach(tier => {
+    COUNTS[tier] = roster.filter(m => m.e === tier).length;
+  });
+  TEAM_LIST = Array.from(new Set(roster.map(m => m.t))).filter(Boolean).sort((a,b) => a.localeCompare(b,'ko'));
+  COHORT_PRESENT = COHORT_ORDER_FULL.filter(c => roster.some(m => m.c === c));
+}
+
+function cleanRemark(rm){
+  return rm.split(';').map(s => s.trim()).filter(s => s && s !== '등반일 미기재(장기 등록 추정)').join('; ');
+}
+
+/* ---------- gate ---------- */
+document.getElementById('gate-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  const val = document.getElementById('gate-input').value.trim();
+  if (val === ACCESS_CODE){
+    try { sessionStorage.setItem('mkr_gate_ok','1'); } catch(err){}
+    document.getElementById('gate').style.display = 'none';
+    loadData();
+  } else {
+    const err = document.getElementById('gate-error');
+    err.textContent = '코드가 일치하지 않습니다.';
+    const card = document.querySelector('.gate-card');
+    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+  }
 });
 
-function currentFilters(){
-  return {
-    q: document.getElementById('q').value.trim(),
-    team: document.getElementById('f-team').value,
-    role: document.getElementById('f-role').value,
-    elig: document.getElementById('f-elig').value,
-    course: document.getElementById('f-course').value,
-    sort: document.getElementById('sort').value,
-  };
+(function(){
+  let unlocked = false;
+  try { unlocked = sessionStorage.getItem('mkr_gate_ok') === '1'; } catch(e){}
+  if (unlocked){
+    document.getElementById('gate').style.display = 'none';
+    loadData();
+  }
+})();
+
+/* ---------- app ---------- */
+function showApp(){
+  document.getElementById('meta-date').textContent = '총 ' + COUNTS.total + '명 · 방금 갱신됨';
+  document.getElementById('footer-total').textContent = '총 ' + COUNTS.total + '명 · 구글 시트 실시간 연동 · 개인 열람용';
+  renderStats();
+  populateFilterOptions();
+  bindFilterEvents();
+  if (window.innerWidth < 860) document.getElementById('filters').removeAttribute('open');
+  render();
+  renderApplicants();
+  document.getElementById('app').style.display = 'block';
 }
 
-function sortRows(rows, mode){
+function switchTab(tab){
+  document.getElementById('tab-btn-roster').classList.toggle('active', tab === 'roster');
+  document.getElementById('tab-btn-apply').classList.toggle('active', tab === 'apply');
+  document.getElementById('panel-roster').style.display = tab === 'roster' ? 'block' : 'none';
+  document.getElementById('panel-apply').style.display = tab === 'apply' ? 'block' : 'none';
+}
+
+function renderApplicants(){
+  document.getElementById('apply-tab-count').textContent = APPLICANTS.length ? `(${APPLICANTS.length})` : '';
+
+  const byElig = {};
+  APPLICANTS.forEach(a => { byElig[a.team] = (byElig[a.team] || 0) + 1; });
+  const summaryEl = document.getElementById('apply-summary');
+  const teamKeys = Object.keys(byElig);
+  summaryEl.innerHTML = `
+    <div class="stat total"><div class="num tnum">${APPLICANTS.length}</div><div class="lbl">총 지원 건수</div></div>
+    ${teamKeys.map(k => `<div class="stat"><div class="num tnum">${byElig[k]}</div><div class="lbl">${escapeHtml(k || '미기재')} 지원</div></div>`).join('')}
+  `;
+
+  const listEl = document.getElementById('apply-list');
+  if (!APPLICANTS.length){
+    listEl.innerHTML = '<div class="empty">아직 접수된 지원서가 없습니다. 지원서가 접수되면 이 페이지를 새로고침할 때 자동으로 표시됩니다.</div>';
+    return;
+  }
+  listEl.innerHTML = APPLICANTS.map(applicantCard).join('');
+}
+
+function applicantCard(a){
+  const isMismatch = a.check && a.check.indexOf('불일치') !== -1;
+  const matchBadge = a.check
+    ? `<span class="badge ${isMismatch ? 'match-warn' : 'match-ok'}">${escapeHtml(a.check)}</span>`
+    : '';
+  const fields = [
+    ['현재역할(시트 기준)', a.curRole],
+    ['가능한 직분', a.eligible],
+    ['출석률', a.att ? a.att + '%' : ''],
+    ['등록연차', a.tenure],
+    ['양육과정수료', a.course],
+    ['연락처', a.phone],
+  ].filter(([,v]) => v);
+  const essays = [
+    ['리더사역 경험', [a.exp, a.expDetail].filter(Boolean).join(' — ')],
+    ['은사·강점', a.gift],
+    ['지원 이유', a.reason],
+    ['목표·다짐', a.goal],
+  ].filter(([,v]) => v);
+
+  return `
+    <div class="app-card">
+      <div class="app-head">
+        <div>
+          <div class="app-name">${escapeHtml(a.name)} <span style="font-weight:600;color:var(--ink-faint);font-size:12.5px">${escapeHtml(a.cohort)}동기</span></div>
+          <div class="app-meta">지원: ${escapeHtml(a.team || '미기재')} · 접수일시 ${escapeHtml(a.ts || '-')}</div>
+        </div>
+        <div class="app-badges">${matchBadge}</div>
+      </div>
+      <div class="app-fields">
+        ${fields.map(([k,v]) => `<div class="app-field"><b>${escapeHtml(k)}</b>${escapeHtml(v)}</div>`).join('')}
+        ${essays.map(([k,v]) => `<div class="app-field wide"><b>${escapeHtml(k)}</b>${escapeHtml(v)}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderStats(){
+  const wrap = document.getElementById('stats');
+  const items = [
+    {cls:'total', num:COUNTS.total, lbl:'전체 인원', pct:100},
+    {cls:'tier1', num:COUNTS['팀장/조장/부조장 가능'], lbl:'팀장·조장·부조장\n모두 가능', pct:COUNTS['팀장/조장/부조장 가능']/COUNTS.total*100},
+    {cls:'tier2', num:COUNTS['조장/부조장 가능'], lbl:'조장·부조장\n가능', pct:COUNTS['조장/부조장 가능']/COUNTS.total*100},
+    {cls:'tier3', num:COUNTS['부조장 가능'], lbl:'부조장만\n가능', pct:COUNTS['부조장 가능']/COUNTS.total*100},
+    {cls:'tier4', num:COUNTS['해당없음'], lbl:'해당없음\n(1년 미만 등록 등)', pct:COUNTS['해당없음']/COUNTS.total*100},
+  ];
+  wrap.innerHTML = items.map(it => `
+    <div class="stat ${it.cls}">
+      <div class="num tnum">${it.num}</div>
+      <div class="lbl">${it.lbl.replace('\n','<br>')}</div>
+      <div class="bar"><i style="width:${it.pct}%"></i></div>
+    </div>
+  `).join('');
+}
+
+function populateFilterOptions(){
+  const cSel = document.getElementById('f-cohort');
+  cSel.innerHTML = '<option value="">동기 전체</option>' + COHORT_PRESENT.map(c => `<option value="${c}">${c}동기</option>`).join('');
+  const tSel = document.getElementById('f-team');
+  tSel.innerHTML = '<option value="">현재 팀 전체</option>' + TEAM_LIST.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+}
+
+function bindFilterEvents(){
+  ['f-cohort','f-team','f-role','f-elig','f-course','f-sort'].forEach(id => {
+    document.getElementById(id).addEventListener('change', render);
+  });
+  document.getElementById('f-search').addEventListener('input', render);
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    ['f-cohort','f-team','f-role','f-elig','f-course','f-sort'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-search').value = '';
+    render();
+  });
+}
+
+function eligClass(e){
+  if (e === '팀장/조장/부조장 가능') return 'elig-1';
+  if (e === '조장/부조장 가능') return 'elig-2';
+  if (e === '부조장 가능') return 'elig-3';
+  return 'elig-4';
+}
+function eligShort(e){
+  if (e === '팀장/조장/부조장 가능') return '팀장·조장·부조장';
+  if (e === '조장/부조장 가능') return '조장·부조장';
+  if (e === '부조장 가능') return '부조장만';
+  return '해당없음';
+}
+function attNum(m){ return m.att === null ? null : parseFloat(m.att); }
+
+function applyFilters(){
+  const cohort = document.getElementById('f-cohort').value;
+  const team = document.getElementById('f-team').value;
+  const role = document.getElementById('f-role').value;
+  const elig = document.getElementById('f-elig').value;
+  const course = document.getElementById('f-course').value;
+  const q = document.getElementById('f-search').value.trim();
+  return ROSTER.filter(m => {
+    if (cohort && m.c !== cohort) return false;
+    if (team && m.t !== team) return false;
+    if (role && m.r.indexOf(role) === -1) return false;
+    if (elig && m.e !== elig) return false;
+    if (course && m.co !== course) return false;
+    if (q && m.n.indexOf(q) === -1) return false;
+    return true;
+  });
+}
+
+function sortRows(rows){
+  const sort = document.getElementById('f-sort').value;
   const arr = rows.slice();
-  if(mode === "name") arr.sort((a,b)=> a.name.localeCompare(b.name,'ko'));
-  if(mode === "att-desc") arr.sort((a,b)=> (parseFloat(b.attendance||-1)) - (parseFloat(a.attendance||-1)));
-  if(mode === "att-asc") arr.sort((a,b)=> {
-    const av = a.attendance===""?9999:parseFloat(a.attendance);
-    const bv = b.attendance===""?9999:parseFloat(b.attendance);
-    return av-bv;
-  });
-  if(mode === "tenure-desc") arr.sort((a,b)=>{
-    const av = a.tenure==="장기(2년+)" ? 999 : parseFloat(a.tenure||0);
-    const bv = b.tenure==="장기(2년+)" ? 999 : parseFloat(b.tenure||0);
-    return bv-av;
-  });
+  if (sort === 'name') arr.sort((a,b) => a.n.localeCompare(b.n, 'ko'));
+  else if (sort === 'att-desc') arr.sort((a,b) => (attNum(b) ?? -1) - (attNum(a) ?? -1));
+  else if (sort === 'att-asc') arr.sort((a,b) => (attNum(a) ?? 9999) - (attNum(b) ?? 9999));
+  else if (sort === 'tenure-desc') arr.sort((a,b) => tenureNum(b) - tenureNum(a));
   return arr;
+}
+function tenureNum(m){
+  const t = m.ten;
+  if (!t) return 0;
+  if (t.indexOf('장기') !== -1) return 2.0;
+  const f = parseFloat(t);
+  return isNaN(f) ? 0 : f;
+}
+
+function rowHtml(m){
+  const att = attNum(m);
+  const attHtml = att === null
+    ? '<span class="att-none">데이터 없음</span>'
+    : `<div class="att-wrap"><span class="att-num tnum">${att.toFixed(1)}%</span><span class="att-bar"><i style="width:${Math.min(att,100)}%"></i></span></div>`;
+  const roleHtml = m.r.map(r => `<span class="badge b-${r}">${escapeHtml(r)}</span>`).join('');
+  const courseHtml = m.co === '수료' ? '<span class="course-badge course-yes">수료</span>' : '<span class="course-badge course-no">미수료</span>';
+  const rmk = m.rm ? `<span class="rmk">${escapeHtml(m.rm)}</span>` : '';
+  return `
+    <div class="row">
+      <div class="name">${escapeHtml(m.n)}${rmk}</div>
+      <div><span class="team-pill" title="${escapeHtml(m.t)}">${escapeHtml(m.t)}</span></div>
+      <div class="roles">${roleHtml}</div>
+      <div>${attHtml}</div>
+      <div class="tenure-col tnum">${escapeHtml(m.ten)}</div>
+      <div>${courseHtml}</div>
+      <div><span class="elig-badge ${eligClass(m.e)}">${eligShort(m.e)}</span></div>
+    </div>
+  `;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function activeFilterCount(){
+  const ids = ['f-cohort','f-team','f-role','f-elig','f-course'];
+  let n = ids.filter(id => document.getElementById(id).value).length;
+  if (document.getElementById('f-search').value.trim()) n++;
+  return n;
+}
+function updateFiltCountBadge(){
+  const n = activeFilterCount();
+  document.getElementById('filt-count').textContent = n ? `(${n})` : '';
 }
 
 function render(){
-  const f = currentFilters();
-  let rows = ROSTER.filter(r=>{
-    if(f.q && !r.name.includes(f.q)) return false;
-    if(f.team && r.team !== f.team) return false;
-    if(f.role && r.role !== f.role) return false;
-    if(f.elig !== "" && String(eligRank[r.eligible]) !== f.elig) return false;
-    if(f.course && r.course !== f.course) return false;
-    return true;
-  });
+  const filtered = applyFilters();
+  const sorted = sortRows(filtered);
+  updateFiltCountBadge();
 
-  document.getElementById('count').textContent = rows.length + " / " + ROSTER.length + "명 표시 중";
+  document.getElementById('result-count').innerHTML = `<b>${filtered.length}</b> / ${COUNTS.total}명 표시 중`;
 
-  // group by team
-  const byTeam = {};
-  rows.forEach(r=>{ (byTeam[r.team] = byTeam[r.team] || []).push(r); });
-  const teamKeys = Object.keys(byTeam).sort();
-
-  const container = document.getElementById('groups');
-  container.innerHTML = "";
-
-  if(teamKeys.length === 0){
-    container.innerHTML = '<div class="group"><table><tbody><tr class="empty-row"><td>조건에 맞는 인원이 없습니다.</td></tr></tbody></table></div>';
+  const groupsEl = document.getElementById('groups');
+  if (filtered.length === 0){
+    groupsEl.innerHTML = '<div class="empty">조건에 맞는 인원이 없습니다.</div>';
     return;
   }
 
-  teamKeys.forEach(team=>{
-    const list = sortRows(byTeam[team], f.sort);
-    const details = document.createElement('details');
-    details.className = 'group';
-    details.open = (f.q !== "" || f.team !== "" || f.role !== "" || f.elig !== "" || f.course !== "");
+  const bySort = document.getElementById('f-sort').value;
+  if (bySort !== 'cohort'){
+    groupsEl.innerHTML = `
+      <div class="group open">
+        <div class="row headrow"><div>이름</div><div>팀</div><div>역할</div><div>출석률</div><div>연차</div><div>양육</div><div>가능등급</div></div>
+        <div class="group-body" style="display:block">${sorted.map(rowHtml).join('')}</div>
+      </div>`;
+    return;
+  }
 
-    const summary = document.createElement('summary');
-    summary.innerHTML = `${team}동기 <span class="gcount">${list.length}명</span><span class="arrow">▶</span>`;
-    details.appendChild(summary);
+  const byCohort = {};
+  sorted.forEach(m => { (byCohort[m.c] = byCohort[m.c] || []).push(m); });
 
-    const tblwrap = document.createElement('div');
-    tblwrap.className = 'tblwrap';
-    const table = document.createElement('table');
-    table.innerHTML = `
-      <thead><tr>
-        <th>이름</th><th>현재역할</th><th>등록</th><th>출석률</th><th>양육과정</th><th>지원 가능 직분</th><th>비고</th>
-      </tr></thead>`;
-    const tbody = document.createElement('tbody');
-    list.forEach(r=>{
-      const ac = attClass(r.attendance);
-      const attText = r.attendance === "" ? "데이터 없음" : r.attendance + "%";
-      const attWidth = r.attendance === "" ? 0 : Math.min(100, parseFloat(r.attendance));
-      const rank = eligRank[r.eligible];
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${r.name}</td>
-        <td><span class="role-badge role-${r.role}">${r.role}</span></td>
-        <td class="mono">${tenureLabel(r)}</td>
-        <td><div class="att-cell att-${ac}">
-              <div class="att-bar"><i style="width:${attWidth}%"></i></div>
-              <span class="att-num mono">${attText}</span>
-            </div></td>
-        <td>${r.course}</td>
-        <td><span class="elig elig-${rank}">${eligLabel[rank]}</span></td>
-        <td class="remark">${r.remark || ""}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-    table.appendChild(tbody);
-    tblwrap.appendChild(table);
-    details.appendChild(tblwrap);
-    container.appendChild(details);
-  });
+  groupsEl.innerHTML = COHORT_PRESENT
+    .filter(c => byCohort[c] && byCohort[c].length)
+    .map(c => {
+      const items = byCohort[c];
+      const isOpen = openGroups.has(c);
+      return `
+      <div class="group ${isOpen ? 'open' : ''}" data-cohort="${c}">
+        <div class="group-head" onclick="toggleGroup('${c}')">
+          <span class="car">▶</span>
+          <span class="cohort-tag">${c}동기</span>
+          <span class="cohort-count">${items.length}명</span>
+        </div>
+        <div class="group-body">
+          <div class="row headrow"><div>이름</div><div>팀</div><div>역할</div><div>출석률</div><div>연차</div><div>양육</div><div>가능등급</div></div>
+          ${items.map(rowHtml).join('')}
+        </div>
+      </div>`;
+    }).join('');
 }
 
-function updateKpis(){
-  const counts = {3:0,2:0,1:0,0:0};
-  ROSTER.forEach(r=> counts[eligRank[r.eligible]]++ );
-  document.getElementById('kpi-total').textContent = ROSTER.length;
-  document.getElementById('kpi-3').textContent = counts[3];
-  document.getElementById('kpi-2').textContent = counts[2];
-  document.getElementById('kpi-1').textContent = counts[1];
-  document.getElementById('kpi-0').textContent = counts[0];
+function toggleGroup(c){
+  if (openGroups.has(c)) openGroups.delete(c); else openGroups.add(c);
+  const el = document.querySelector(`.group[data-cohort="${c}"]`);
+  if (el) el.classList.toggle('open');
 }
-
-['q','f-team','f-role','f-elig','f-course','sort'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', render);
-  document.getElementById(id).addEventListener('change', render);
-});
-document.getElementById('reset').addEventListener('click', ()=>{
-  document.getElementById('q').value = "";
-  document.getElementById('f-team').value = "";
-  document.getElementById('f-role').value = "";
-  document.getElementById('f-elig').value = "";
-  document.getElementById('f-course').value = "";
-  document.getElementById('sort').value = "name";
-  render();
-});
-
-updateKpis();
-render();
-</script>
-</div>
-<script>
-(function(){
-  var CODE = "0906";
-  var ss = null;
-  try { ss = sessionStorage.getItem('gate-ok'); } catch(e) {}
-  if (ss === '1') {
-    document.getElementById('gate-overlay').style.display = 'none';
-    document.getElementById('page-content').style.display = 'block';
-  }
-  function tryUnlock(){
-    var val = document.getElementById('gate-input').value.trim();
-    if (val === CODE) {
-      try { sessionStorage.setItem('gate-ok', '1'); } catch(e) {}
-      document.getElementById('gate-overlay').style.display = 'none';
-      document.getElementById('page-content').style.display = 'block';
-    } else {
-      document.getElementById('gate-error').textContent = '코드가 올바르지 않습니다.';
-      var box = document.getElementById('gate-box');
-      box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
-    }
-  }
-  document.getElementById('gate-submit').addEventListener('click', tryUnlock);
-  document.getElementById('gate-input').addEventListener('keydown', function(e){
-    if (e.key === 'Enter') tryUnlock();
-  });
-})();
 </script>
 </body>
 </html>
