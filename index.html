@@ -90,8 +90,11 @@ h1.title{font-size:26px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
 .tab-btn.active{color:var(--accent-ink);border-bottom-color:var(--accent)}
 .tab-btn span{font-weight:800;color:var(--gold)}
 
-.apply-summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-.apply-summary .stat{flex:1;min-width:120px}
+.apply-summary{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.cohort-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cohort-chips-lbl{font-size:11.5px;font-weight:700;color:var(--ink-faint);margin-right:2px}
+.cohort-chip{display:inline-flex;align-items:baseline;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-size:12.5px;color:var(--ink-soft);font-weight:600}
+.cohort-chip b{color:var(--accent-ink);font-weight:800;font-size:13px}
 
 .app-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px}
 .app-card .app-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
@@ -336,6 +339,10 @@ let COUNTS = {};
 let TEAM_LIST = [];
 let COHORT_PRESENT = [];
 const openGroups = new Set();
+const openApplyGroups = new Set();
+const ELIG_TIERS = ['팀장/조장/부조장 가능','조장/부조장 가능','부조장 가능','해당없음'];
+/* 지원 현황 탭은 전체 명단 탭(00→92)과 반대로 92→00(입회 순) 순서로 표시 */
+const COHORT_ORDER_APPLY = COHORT_ORDER_FULL.slice().reverse();
 
 /* ---------- CSV parsing (RFC4180 minimal) ---------- */
 function parseCSV(text){
@@ -549,21 +556,77 @@ function switchTab(tab){
 function renderApplicants(){
   document.getElementById('apply-tab-count').textContent = APPLICANTS.length ? `(${APPLICANTS.length})` : '';
 
-  const byElig = {};
-  APPLICANTS.forEach(a => { byElig[a.team] = (byElig[a.team] || 0) + 1; });
   const summaryEl = document.getElementById('apply-summary');
-  const teamKeys = Object.keys(byElig);
-  summaryEl.innerHTML = `
-    <div class="stat total"><div class="num tnum">${APPLICANTS.length}</div><div class="lbl">총 지원 건수</div></div>
-    ${teamKeys.map(k => `<div class="stat"><div class="num tnum">${byElig[k]}</div><div class="lbl">${escapeHtml(k || '미기재')} 지원</div></div>`).join('')}
-  `;
-
   const listEl = document.getElementById('apply-list');
+
   if (!APPLICANTS.length){
+    summaryEl.innerHTML = '';
     listEl.innerHTML = '<div class="empty">아직 접수된 지원서가 없습니다. 지원서가 접수되면 이 페이지를 새로고침할 때 자동으로 표시됩니다.</div>';
     return;
   }
-  listEl.innerHTML = APPLICANTS.map(applicantCard).join('');
+
+  const total = APPLICANTS.length;
+  const tierCount = {};
+  ELIG_TIERS.forEach(t => { tierCount[t] = APPLICANTS.filter(a => a.eligible === t).length; });
+  const tierClass = {'팀장/조장/부조장 가능':'tier1','조장/부조장 가능':'tier2','부조장 가능':'tier3','해당없음':'tier4'};
+  const tierLabel = {'팀장/조장/부조장 가능':'팀장·조장·부조장\n모두 가능','조장/부조장 가능':'조장·부조장\n가능','부조장 가능':'부조장만\n가능','해당없음':'해당없음'};
+  const statItems = [{cls:'total', num:total, lbl:'총 지원 건수', pct:100}]
+    .concat(ELIG_TIERS.map(t => ({cls:tierClass[t], num:tierCount[t], lbl:tierLabel[t], pct: total ? tierCount[t]/total*100 : 0})));
+
+  const byCohort = {};
+  APPLICANTS.forEach(a => { const c = a.cohort || '미기재'; byCohort[c] = (byCohort[c] || 0) + 1; });
+  const cohortKeys = Object.keys(byCohort).sort((a,b) => {
+    const ia = COHORT_ORDER_APPLY.indexOf(a), ib = COHORT_ORDER_APPLY.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b,'ko');
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+
+  summaryEl.innerHTML = `
+    <div class="stats">
+      ${statItems.map(it => `
+        <div class="stat ${it.cls}">
+          <div class="num tnum">${it.num}</div>
+          <div class="lbl">${it.lbl.replace('\n','<br>')}</div>
+          <div class="bar"><i style="width:${it.pct}%"></i></div>
+        </div>`).join('')}
+    </div>
+    <div class="cohort-chips">
+      <span class="cohort-chips-lbl">동기별 지원</span>
+      ${cohortKeys.map(c => `<span class="cohort-chip">${escapeHtml(c === '미기재' ? c : c + '동기')} <b>${byCohort[c]}</b></span>`).join('')}
+    </div>
+  `;
+
+  const byCohortList = {};
+  APPLICANTS.forEach(a => { const c = a.cohort || '미기재'; (byCohortList[c] = byCohortList[c] || []).push(a); });
+  const listOrder = Object.keys(byCohortList).sort((a,b) => {
+    const ia = COHORT_ORDER_APPLY.indexOf(a), ib = COHORT_ORDER_APPLY.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b,'ko');
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+
+  listEl.innerHTML = listOrder.map(c => {
+    const items = byCohortList[c];
+    const isOpen = openApplyGroups.has(c) || listOrder.length <= 3;
+    return `
+    <div class="group ${isOpen ? 'open' : ''}" data-apply-cohort="${escapeHtml(c)}">
+      <div class="group-head" onclick="toggleApplyGroup('${c.replace(/'/g,"\\'")}')">
+        <span class="car">▶</span>
+        <span class="cohort-tag">${escapeHtml(c === '미기재' ? c : c + '동기')}</span>
+        <span class="cohort-count">${items.length}명</span>
+      </div>
+      <div class="group-body">${items.map(applicantCard).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleApplyGroup(c){
+  if (openApplyGroups.has(c)) openApplyGroups.delete(c); else openApplyGroups.add(c);
+  const el = document.querySelector(`.group[data-apply-cohort="${c}"]`);
+  if (el) el.classList.toggle('open');
 }
 
 function applicantCard(a){
