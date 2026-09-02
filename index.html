@@ -81,8 +81,12 @@ header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:2
 .top-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
 h1.title{font-size:26px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
 .top-sub{font-size:13.5px;color:var(--ink-soft);max-width:560px}
-.top-meta{font-size:12.5px;color:var(--ink-faint);text-align:right;white-space:nowrap}
+.top-meta{font-size:12.5px;color:var(--ink-faint);text-align:right;white-space:nowrap;display:flex;align-items:center;gap:10px;justify-content:flex-end}
 .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3aa373;margin-right:5px;vertical-align:1px}
+.btn-refresh{font-family:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent-soft-2);border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.btn-refresh:hover{opacity:.82}
+.btn-refresh:disabled{opacity:.6;cursor:default}
+.btn-refresh .spin-ico{display:inline-block}
 
 .tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--border)}
 .tab-btn{font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink-faint);background:none;border:none;border-bottom:2px solid transparent;padding:9px 4px;margin-bottom:-1px;cursor:pointer}
@@ -110,7 +114,10 @@ h1.title{font-size:26px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
 @media (max-width:700px){.app-fields{grid-template-columns:1fr}}
 
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 16px 14px;position:relative;overflow:hidden}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 16px 14px;position:relative;overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .12s;text-align:left;font:inherit}
+.stat:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.stat:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stat.total:hover{box-shadow:0 4px 14px rgba(0,0,0,.18)}
 .stat .num{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
 .stat .lbl{font-size:12px;color:var(--ink-soft);margin-top:6px;font-weight:600;line-height:1.4}
 .stat .bar{height:4px;border-radius:3px;background:var(--surface-2);margin-top:12px;overflow:hidden}
@@ -142,6 +149,9 @@ details.filters[open] summary::after{transform:rotate(180deg)}
 .toolbar select:focus, .toolbar input[type="text"]:focus{outline:none;border-color:var(--accent)}
 #reset-btn{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-soft);background:transparent;border:1px solid transparent;border-radius:9px;padding:8px 10px;cursor:pointer}
 #reset-btn:hover{color:var(--ink);background:var(--surface-2)}
+.chk-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;user-select:none}
+.chk-toggle:hover{border-color:var(--ink-faint)}
+.chk-toggle input{cursor:pointer;accent-color:var(--accent)}
 .result-count{font-size:12.5px;color:var(--ink-faint);font-weight:600;margin:14px 2px 10px}
 .result-count b{color:var(--ink)}
 
@@ -218,6 +228,12 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   .row .att-wrap{grid-area:att}
   .row .course-badge{grid-area:course;justify-self:start}
   .row .tenure-col{grid-area:tenure;justify-self:end;font-size:11.5px;color:var(--ink-faint)}
+  .top-meta{justify-content:flex-start}
+}
+@media (prefers-reduced-motion: reduce){
+  .stat{transition:none}
+  .stat:hover{transform:none}
+  .btn-refresh .spin-ico{animation:none !important}
 }
 </style>
 </head>
@@ -253,7 +269,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
       <h1 class="title">2027년도 리더 지원 현황</h1>
       <div class="top-sub">청년2부 전체 명단과 팀장·조장·부조장 지원 자격을 한눈에 확인할 수 있는 표입니다. 마스터 워크북과 실시간으로 연결되어 있어 시트가 갱신되면 이 페이지도 새로고침 시 최신 내용으로 반영됩니다.</div>
     </div>
-    <div class="top-meta"><span class="live-dot"></span><span id="meta-date"></span></div>
+    <div class="top-meta"><span class="live-dot"></span><span id="meta-date"></span><button id="btn-refresh" class="btn-refresh" onclick="manualRefresh()" title="구글 시트에서 최신 데이터를 다시 불러옵니다"><span class="spin-ico">↻</span> 새로고침</button></div>
   </header>
 
   <div class="tabs">
@@ -298,6 +314,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
         <option value="att-asc">출석률 낮은순</option>
         <option value="tenure-desc">등록연차 긴순</option>
       </select>
+      <label class="chk-toggle"><input type="checkbox" id="f-exclude-applied"> 미지원자만 보기</label>
       <button id="reset-btn">필터 초기화</button>
     </div>
   </details>
@@ -324,7 +341,7 @@ const SHEET_ID = "1UPUpBLJtt_ke2ViB-bRH-zVz2X3H8o9rWhoagBTIhjA";
 const SHEET_TAB = "2026 메이커스";
 const RESP_SHEET_ID = "1j9OXTouq5hWOdpfCH2OJLzI-zpTtjTU2EdLvd35TShE";
 const RESP_GID = "1908492599";
-const COHORT_ORDER_FULL = ["00","99","98","97","96","95","94","93","92","91"];
+const COHORT_ORDER_FULL = ["91","92","93","94","95","96","97","98","99","00"];
 
 let APPLICANTS = [];
 
@@ -341,8 +358,6 @@ let COHORT_PRESENT = [];
 const openGroups = new Set();
 const openApplyGroups = new Set();
 const ELIG_TIERS = ['팀장/조장/부조장 가능','조장/부조장 가능','부조장 가능','해당없음'];
-/* 지원 현황 탭은 전체 명단 탭(00→92)과 반대로 92→00(입회 순) 순서로 표시 */
-const COHORT_ORDER_APPLY = COHORT_ORDER_FULL.slice().reverse();
 
 /* ---------- CSV parsing (RFC4180 minimal) ---------- */
 function parseCSV(text){
@@ -373,38 +388,67 @@ function respCsvUrl(){
   return `https://docs.google.com/spreadsheets/d/${RESP_SHEET_ID}/export?format=csv&gid=${RESP_GID}`;
 }
 
+let lastFetchTime = null;
+
+function formatFetchTime(d){
+  if (!d) return '';
+  return d.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+}
+
+/* 마스터 명단 + 응답 시트를 fetch해서 ROSTER/APPLICANTS를 새로 채움 (최초 로딩·수동 새로고침 공용) */
+async function fetchAndBuild(){
+  const res = await fetch(gvizCsvUrl(), {cache:'no-store'});
+  if (!res.ok) throw new Error('http ' + res.status);
+  const text = await res.text();
+  const rows = parseCSV(text);
+  if (!rows.length || rows[0].indexOf('이름') === -1 || rows[0].indexOf('가능등급') === -1){
+    throw new Error('unexpected sheet content — check sharing permission (anyone with link, viewer)');
+  }
+  buildRoster(rows);
+
+  try {
+    const res2 = await fetch(respCsvUrl(), {cache:'no-store'});
+    if (res2.ok){
+      const text2 = await res2.text();
+      buildApplicants(parseCSV(text2));
+    } else {
+      APPLICANTS = [];
+    }
+  } catch (e2){
+    console.error('applicants fetch failed', e2);
+    APPLICANTS = [];
+  }
+  lastFetchTime = new Date();
+}
+
 async function loadData(){
   document.getElementById('load-error').style.display = 'none';
   document.getElementById('loading').style.display = 'flex';
   try {
-    const res = await fetch(gvizCsvUrl(), {cache:'no-store'});
-    if (!res.ok) throw new Error('http ' + res.status);
-    const text = await res.text();
-    const rows = parseCSV(text);
-    if (!rows.length || rows[0].indexOf('이름') === -1 || rows[0].indexOf('가능등급') === -1){
-      throw new Error('unexpected sheet content — check sharing permission (anyone with link, viewer)');
-    }
-    buildRoster(rows);
-
-    try {
-      const res2 = await fetch(respCsvUrl(), {cache:'no-store'});
-      if (res2.ok){
-        const text2 = await res2.text();
-        buildApplicants(parseCSV(text2));
-      } else {
-        APPLICANTS = [];
-      }
-    } catch (e2){
-      console.error('applicants fetch failed', e2);
-      APPLICANTS = [];
-    }
-
+    await fetchAndBuild();
     document.getElementById('loading').style.display = 'none';
     showApp();
   } catch (e){
     console.error(e);
     document.getElementById('loading').style.display = 'none';
     document.getElementById('load-error').style.display = 'flex';
+  }
+}
+
+/* 페이지를 다시 열지 않고, 화면 안 새로고침 버튼으로 최신 데이터만 다시 받아오기 */
+async function manualRefresh(){
+  const btn = document.getElementById('btn-refresh');
+  if (btn){ btn.disabled = true; btn.innerHTML = '<span class="spin-ico" style="animation:spin .8s linear infinite">↻</span> 새로고침 중...'; }
+  try {
+    await fetchAndBuild();
+    showApp();
+    if (btn){
+      btn.innerHTML = '<span class="spin-ico">✓</span> 완료';
+      setTimeout(() => { btn.innerHTML = '<span class="spin-ico">↻</span> 새로고침'; btn.disabled = false; }, 1400);
+    }
+  } catch (e){
+    console.error(e);
+    if (btn){ btn.innerHTML = '<span class="spin-ico">⚠</span> 실패(재시도)'; btn.disabled = false; }
   }
 }
 
@@ -534,13 +578,15 @@ document.getElementById('gate-form').addEventListener('submit', function(e){
 })();
 
 /* ---------- app ---------- */
+let filtersBound = false;
+
 function showApp(){
-  document.getElementById('meta-date').textContent = '총 ' + COUNTS.total + '명 · 방금 갱신됨';
-  document.getElementById('footer-total').textContent = '총 ' + COUNTS.total + '명 · 구글 시트 실시간 연동 · 개인 열람용';
+  const t = formatFetchTime(lastFetchTime);
+  document.getElementById('meta-date').textContent = '총 ' + COUNTS.total + '명 · ' + t + ' 갱신';
+  document.getElementById('footer-total').textContent = '총 ' + COUNTS.total + '명 · 구글 시트 실시간 연동 · ' + t + ' 기준 · 개인 열람용';
   renderStats();
   populateFilterOptions();
-  bindFilterEvents();
-  if (window.innerWidth < 860) document.getElementById('filters').removeAttribute('open');
+  if (!filtersBound){ bindFilterEvents(); filtersBound = true; }
   render();
   renderApplicants();
   document.getElementById('app').style.display = 'block';
@@ -570,13 +616,13 @@ function renderApplicants(){
   ELIG_TIERS.forEach(t => { tierCount[t] = APPLICANTS.filter(a => a.eligible === t).length; });
   const tierClass = {'팀장/조장/부조장 가능':'tier1','조장/부조장 가능':'tier2','부조장 가능':'tier3','해당없음':'tier4'};
   const tierLabel = {'팀장/조장/부조장 가능':'팀장·조장·부조장\n모두 가능','조장/부조장 가능':'조장·부조장\n가능','부조장 가능':'부조장만\n가능','해당없음':'해당없음'};
-  const statItems = [{cls:'total', num:total, lbl:'총 지원 건수', pct:100}]
-    .concat(ELIG_TIERS.map(t => ({cls:tierClass[t], num:tierCount[t], lbl:tierLabel[t], pct: total ? tierCount[t]/total*100 : 0})));
+  const statItems = [{cls:'total', elig:'', num:total, lbl:'총 지원 건수', pct:100}]
+    .concat(ELIG_TIERS.map(t => ({cls:tierClass[t], elig:t, num:tierCount[t], lbl:tierLabel[t], pct: total ? tierCount[t]/total*100 : 0})));
 
   const byCohort = {};
   APPLICANTS.forEach(a => { const c = a.cohort || '미기재'; byCohort[c] = (byCohort[c] || 0) + 1; });
   const cohortKeys = Object.keys(byCohort).sort((a,b) => {
-    const ia = COHORT_ORDER_APPLY.indexOf(a), ib = COHORT_ORDER_APPLY.indexOf(b);
+    const ia = COHORT_ORDER_FULL.indexOf(a), ib = COHORT_ORDER_FULL.indexOf(b);
     if (ia === -1 && ib === -1) return a.localeCompare(b,'ko');
     if (ia === -1) return 1;
     if (ib === -1) return -1;
@@ -586,7 +632,7 @@ function renderApplicants(){
   summaryEl.innerHTML = `
     <div class="stats">
       ${statItems.map(it => `
-        <div class="stat ${it.cls}">
+        <div class="stat ${it.cls}" role="button" tabindex="0" title="클릭하면 전체 명단 탭에서 이 등급의 미지원자만 보여줍니다" onclick="crossFilterToRoster('${it.elig}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();crossFilterToRoster('${it.elig}')}">
           <div class="num tnum">${it.num}</div>
           <div class="lbl">${it.lbl.replace('\n','<br>')}</div>
           <div class="bar"><i style="width:${it.pct}%"></i></div>
@@ -601,7 +647,7 @@ function renderApplicants(){
   const byCohortList = {};
   APPLICANTS.forEach(a => { const c = a.cohort || '미기재'; (byCohortList[c] = byCohortList[c] || []).push(a); });
   const listOrder = Object.keys(byCohortList).sort((a,b) => {
-    const ia = COHORT_ORDER_APPLY.indexOf(a), ib = COHORT_ORDER_APPLY.indexOf(b);
+    const ia = COHORT_ORDER_FULL.indexOf(a), ib = COHORT_ORDER_FULL.indexOf(b);
     if (ia === -1 && ib === -1) return a.localeCompare(b,'ko');
     if (ia === -1) return 1;
     if (ib === -1) return -1;
@@ -669,14 +715,14 @@ function applicantCard(a){
 function renderStats(){
   const wrap = document.getElementById('stats');
   const items = [
-    {cls:'total', num:COUNTS.total, lbl:'전체 인원', pct:100},
-    {cls:'tier1', num:COUNTS['팀장/조장/부조장 가능'], lbl:'팀장·조장·부조장\n모두 가능', pct:COUNTS['팀장/조장/부조장 가능']/COUNTS.total*100},
-    {cls:'tier2', num:COUNTS['조장/부조장 가능'], lbl:'조장·부조장\n가능', pct:COUNTS['조장/부조장 가능']/COUNTS.total*100},
-    {cls:'tier3', num:COUNTS['부조장 가능'], lbl:'부조장만\n가능', pct:COUNTS['부조장 가능']/COUNTS.total*100},
-    {cls:'tier4', num:COUNTS['해당없음'], lbl:'해당없음\n(1년 미만 등록 등)', pct:COUNTS['해당없음']/COUNTS.total*100},
+    {cls:'total', elig:'', num:COUNTS.total, lbl:'전체 인원', pct:100},
+    {cls:'tier1', elig:'팀장/조장/부조장 가능', num:COUNTS['팀장/조장/부조장 가능'], lbl:'팀장·조장·부조장\n모두 가능', pct:COUNTS['팀장/조장/부조장 가능']/COUNTS.total*100},
+    {cls:'tier2', elig:'조장/부조장 가능', num:COUNTS['조장/부조장 가능'], lbl:'조장·부조장\n가능', pct:COUNTS['조장/부조장 가능']/COUNTS.total*100},
+    {cls:'tier3', elig:'부조장 가능', num:COUNTS['부조장 가능'], lbl:'부조장만\n가능', pct:COUNTS['부조장 가능']/COUNTS.total*100},
+    {cls:'tier4', elig:'해당없음', num:COUNTS['해당없음'], lbl:'해당없음\n(1년 미만 등록 등)', pct:COUNTS['해당없음']/COUNTS.total*100},
   ];
   wrap.innerHTML = items.map(it => `
-    <div class="stat ${it.cls}">
+    <div class="stat ${it.cls}" role="button" tabindex="0" title="클릭하면 이 등급으로 명단이 필터링됩니다" onclick="filterByElig('${it.elig}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByElig('${it.elig}')}">
       <div class="num tnum">${it.num}</div>
       <div class="lbl">${it.lbl.replace('\n','<br>')}</div>
       <div class="bar"><i style="width:${it.pct}%"></i></div>
@@ -684,11 +730,17 @@ function renderStats(){
   `).join('');
 }
 
+/* 새로고침 시에도 사용자가 고른 동기/팀 필터가 초기화되지 않도록 기존 선택값을 보존 */
 function populateFilterOptions(){
   const cSel = document.getElementById('f-cohort');
+  const prevCohort = cSel.value;
   cSel.innerHTML = '<option value="">동기 전체</option>' + COHORT_PRESENT.map(c => `<option value="${c}">${c}동기</option>`).join('');
+  if (COHORT_PRESENT.indexOf(prevCohort) !== -1) cSel.value = prevCohort;
+
   const tSel = document.getElementById('f-team');
+  const prevTeam = tSel.value;
   tSel.innerHTML = '<option value="">현재 팀 전체</option>' + TEAM_LIST.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+  if (TEAM_LIST.indexOf(prevTeam) !== -1) tSel.value = prevTeam;
 }
 
 function bindFilterEvents(){
@@ -696,11 +748,38 @@ function bindFilterEvents(){
     document.getElementById(id).addEventListener('change', render);
   });
   document.getElementById('f-search').addEventListener('input', render);
+  document.getElementById('f-exclude-applied').addEventListener('change', render);
   document.getElementById('reset-btn').addEventListener('click', () => {
-    ['f-cohort','f-team','f-role','f-elig','f-course','f-sort'].forEach(id => document.getElementById(id).value = '');
+    ['f-cohort','f-team','f-role','f-elig','f-course'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-sort').value = 'cohort';
     document.getElementById('f-search').value = '';
+    document.getElementById('f-exclude-applied').checked = false;
     render();
   });
+}
+
+/* 이름+동기 키로 "이미 지원한 사람" 집합 생성 — 지원 현황 탭 데이터 기준 */
+function appliedKeySet(){
+  const set = new Set();
+  APPLICANTS.forEach(a => set.add((a.name || '').trim() + '|' + (a.cohort || '').trim()));
+  return set;
+}
+
+/* 통계 카드 클릭 → 전체 명단 탭을 해당 자격 등급으로 필터링 */
+function filterByElig(elig){
+  switchTab('roster');
+  document.getElementById('f-elig').value = elig;
+  render();
+  document.getElementById('panel-roster').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* 지원 현황 탭 통계 카드 클릭 → 전체 명단 탭에서 "그 등급인데 아직 지원 안 한 사람"만 필터링 */
+function crossFilterToRoster(elig){
+  switchTab('roster');
+  document.getElementById('f-elig').value = elig;
+  document.getElementById('f-exclude-applied').checked = true;
+  render();
+  document.getElementById('panel-roster').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function eligClass(e){
@@ -724,6 +803,8 @@ function applyFilters(){
   const elig = document.getElementById('f-elig').value;
   const course = document.getElementById('f-course').value;
   const q = document.getElementById('f-search').value.trim();
+  const excludeApplied = document.getElementById('f-exclude-applied').checked;
+  const applied = excludeApplied ? appliedKeySet() : null;
   return ROSTER.filter(m => {
     if (cohort && m.c !== cohort) return false;
     if (team && m.t !== team) return false;
@@ -731,6 +812,7 @@ function applyFilters(){
     if (elig && m.e !== elig) return false;
     if (course && m.co !== course) return false;
     if (q && m.n.indexOf(q) === -1) return false;
+    if (applied && applied.has((m.n || '').trim() + '|' + (m.c || '').trim())) return false;
     return true;
   });
 }
@@ -781,6 +863,7 @@ function activeFilterCount(){
   const ids = ['f-cohort','f-team','f-role','f-elig','f-course'];
   let n = ids.filter(id => document.getElementById(id).value).length;
   if (document.getElementById('f-search').value.trim()) n++;
+  if (document.getElementById('f-exclude-applied').checked) n++;
   return n;
 }
 function updateFiltCountBadge(){
