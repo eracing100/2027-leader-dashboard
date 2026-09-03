@@ -133,15 +133,19 @@ h1.title{font-family:var(--font-display);font-size:27px;font-weight:400;margin:0
 .cohort-chip:hover{border-color:var(--accent-soft-2)}
 .cohort-chip b{color:var(--accent-ink);font-weight:800;font-size:13px}
 
-.app-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;box-shadow:var(--shadow);transition:box-shadow .2s var(--ease),transform .2s var(--ease)}
+.app-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:10px;box-shadow:var(--shadow);transition:box-shadow .2s var(--ease),transform .2s var(--ease)}
 .app-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
-.app-card .app-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.app-card .app-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;cursor:pointer;user-select:none;border-radius:var(--radius-sm)}
+.app-card .app-head:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .app-card .app-name{font-family:var(--font-display);font-size:16.5px;font-weight:400;letter-spacing:0}
 .app-card .app-meta{font-size:12px;color:var(--ink-faint);margin-top:2px}
-.app-card .app-badges{display:flex;gap:5px;flex-wrap:wrap}
+.app-card .app-badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.app-card .app-badges .car{width:14px;height:14px;flex:none;color:var(--ink-faint);transition:transform .2s var(--ease);display:flex;align-items:center;justify-content:center;font-size:10px;margin-left:2px}
+.app-card.open .app-badges .car{transform:rotate(90deg)}
 .match-ok{background:var(--accent-soft);color:var(--accent-ink)}
 .match-warn{background:#fbeddb;color:#b3701e}
-.app-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
+.app-fields{display:none;grid-template-columns:1fr 1fr;gap:8px 20px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
+.app-card.open .app-fields{display:grid}
 .app-field{font-size:12.5px}
 .app-field b{display:block;font-size:11px;color:var(--ink-faint);font-weight:700;margin-bottom:2px}
 .app-field.wide{grid-column:1 / -1;white-space:pre-wrap;line-height:1.6}
@@ -196,8 +200,8 @@ details.filters[open] summary::after{transform:rotate(180deg)}
 .toolbar input[type="text"]{cursor:text;font-weight:500;min-width:150px}
 .toolbar select:hover, .toolbar input[type="text"]:hover{border-color:var(--ink-faint)}
 .toolbar select:focus, .toolbar input[type="text"]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-#reset-btn{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-soft);background:transparent;border:1px solid transparent;border-radius:9px;padding:8px 10px;cursor:pointer;transition:color .2s var(--ease),background .2s var(--ease)}
-#reset-btn:hover{color:var(--ink);background:var(--surface-2)}
+#reset-btn,.toolbar-reset-btn{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-soft);background:transparent;border:1px solid transparent;border-radius:9px;padding:8px 10px;cursor:pointer;transition:color .2s var(--ease),background .2s var(--ease)}
+#reset-btn:hover,.toolbar-reset-btn:hover{color:var(--ink);background:var(--surface-2)}
 .chk-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;user-select:none;transition:border-color .2s var(--ease)}
 .chk-toggle:hover{border-color:var(--ink-faint)}
 .chk-toggle input{cursor:pointer;accent-color:var(--accent)}
@@ -272,7 +276,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   .top-meta{text-align:left;order:-1;margin-bottom:2px}
   .toolbar{flex-direction:column;align-items:stretch;padding-top:4px}
   .toolbar select,.toolbar input[type="text"]{width:100%}
-  #reset-btn{align-self:flex-end}
+  #reset-btn,.toolbar-reset-btn{align-self:flex-end}
   .group-head{padding:14px 14px}
   .row{
     display:grid;grid-template-columns:1fr 1fr;
@@ -396,6 +400,22 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
       <span>구글 폼으로 접수된 지원서만 모아 보여줍니다. 응답 시트에 새 지원서가 들어오면 이 페이지를 새로고침할 때 자동으로 반영됩니다.</span>
     </div>
     <div id="apply-summary" class="apply-summary"></div>
+
+    <div class="toolbar" id="apply-toolbar">
+      <input id="af-search" type="text" placeholder="이름 검색">
+      <select id="af-cohort"><option value="">동기 전체</option></select>
+      <select id="af-elig">
+        <option value="">지원가능 전체</option>
+        <option value="팀장/조장/부조장 가능">팀장·조장·부조장 가능</option>
+        <option value="조장/부조장 가능">조장·부조장 가능</option>
+        <option value="부조장 가능">부조장만 가능</option>
+        <option value="해당없음">해당없음</option>
+      </select>
+      <button id="apply-expand-toggle" class="btn-refresh" type="button" onclick="toggleAllApplyCards()">모두 펼치기</button>
+      <button id="apply-reset-btn" class="toolbar-reset-btn" type="button" onclick="resetApplyFilters()">필터 초기화</button>
+    </div>
+    <div class="result-count" id="apply-result-count"></div>
+
     <div id="apply-list"></div>
   </div>
 
@@ -444,6 +464,10 @@ let COUNTS = {};
 let TEAM_LIST = [];
 let COHORT_PRESENT = [];
 const openGroups = new Set();
+/* 지원 현황 탭 카드 펼침 상태 — 지원자가 몰려도 각 카드는 기본 접힘 상태로 시작해
+   이름·동기·접수시각·자격등급만 한눈에 훑어보고, 필요한 카드만 눌러서 펼쳐 봅니다. */
+const openApplyCards = new Set();
+function applyCardKey(a){ return (a.name || '') + '|' + (a.cohort || '') + '|' + (a.ts || ''); }
 const ELIG_TIERS = ['팀장/조장/부조장 가능','조장/부조장 가능','부조장 가능','해당없음'];
 
 /* ---------- CSV parsing (RFC4180 minimal) ---------- */
@@ -723,7 +747,8 @@ function showApp(){
   document.getElementById('footer-total').textContent = '총 ' + COUNTS.total + '명 · 구글 시트 실시간 연동 · ' + t + ' 기준 · 개인 열람용';
   renderStats();
   populateFilterOptions();
-  if (!filtersBound){ bindFilterEvents(); filtersBound = true; }
+  populateApplyFilterOptions();
+  if (!filtersBound){ bindFilterEvents(); bindApplyFilterEvents(); filtersBound = true; }
   render();
   renderApplicants();
   renderStatsTab();
@@ -784,16 +809,92 @@ function renderApplicants(){
     </div>
   `;
 
-  /* 접수일시 최신순 — 위원회가 새로 들어온 지원서를 바로 확인할 수 있도록 동기별 접기 없이
-     하나의 목록으로 보여줍니다(동기별 인원은 위 "동기별 지원" 칩으로 확인). */
-  const sorted = APPLICANTS.slice().sort((a, b) => parseTs(b.ts) - parseTs(a.ts));
-  listEl.innerHTML = sorted.map(applicantCard).join('');
+  /* 지원가능 필터 옵션도 동기 옵션처럼 실제 데이터가 있는 동기만 채워둠 (전체 명단 필터와 별개) */
+  populateApplyFilterOptions();
+
+  /* 검색/동기/자격등급 필터 적용 → 접수일시 최신순 정렬. 지원자가 몰려도 카드는 기본 접힘 상태로 시작해
+     이름·동기·접수시각·자격등급만 한눈에 훑어보고, 필요한 카드만 눌러서 펼쳐 봅니다
+     (동기별 전체 인원은 위 "동기별 지원" 칩에서 필터와 무관하게 항상 확인 가능). */
+  const q = (document.getElementById('af-search').value || '').trim();
+  const cohortF = document.getElementById('af-cohort').value;
+  const eligF = document.getElementById('af-elig').value;
+  const filtered = APPLICANTS.filter(a => {
+    if (q && a.name.indexOf(q) === -1) return false;
+    if (cohortF && a.cohort !== cohortF) return false;
+    if (eligF && a.eligible !== eligF) return false;
+    return true;
+  });
+  const sorted = filtered.slice().sort((a, b) => parseTs(b.ts) - parseTs(a.ts));
+
+  const countEl = document.getElementById('apply-result-count');
+  if (countEl){
+    countEl.innerHTML = (q || cohortF || eligF)
+      ? `<b>${sorted.length}</b> / ${total}명 표시 중`
+      : `총 <b>${sorted.length}</b>명`;
+  }
+
+  /* 최초 로딩 시(펼친 카드가 하나도 없을 때)는 가장 최근 지원서 1건만 자동으로 펼쳐서 보여줌 */
+  if (!openApplyCards.size && sorted.length) openApplyCards.add(applyCardKey(sorted[0]));
+
+  listEl.innerHTML = sorted.length
+    ? sorted.map(a => applicantCard(a, openApplyCards.has(applyCardKey(a)))).join('')
+    : '<div class="empty">조건에 맞는 지원서가 없습니다.</div>';
 }
 
-function applicantCard(a){
+function populateApplyFilterOptions(){
+  const cSel = document.getElementById('af-cohort');
+  if (!cSel) return;
+  const prev = cSel.value;
+  const cohortsPresent = COHORT_ORDER_FULL.filter(c => APPLICANTS.some(a => a.cohort === c));
+  cSel.innerHTML = '<option value="">동기 전체</option>' + cohortsPresent.map(c => `<option value="${c}">${c}동기</option>`).join('');
+  if (cohortsPresent.indexOf(prev) !== -1) cSel.value = prev;
+}
+
+function bindApplyFilterEvents(){
+  document.getElementById('af-search').addEventListener('input', renderApplicants);
+  document.getElementById('af-cohort').addEventListener('change', renderApplicants);
+  document.getElementById('af-elig').addEventListener('change', renderApplicants);
+}
+
+function resetApplyFilters(){
+  document.getElementById('af-search').value = '';
+  document.getElementById('af-cohort').value = '';
+  document.getElementById('af-elig').value = '';
+  renderApplicants();
+}
+
+/* 카드 하나 펼치기/접기 */
+function toggleApplyCard(key){
+  if (openApplyCards.has(key)) openApplyCards.delete(key); else openApplyCards.add(key);
+  const el = document.querySelector(`.app-card[data-key="${cssEscape(key)}"]`);
+  if (el) el.classList.toggle('open');
+}
+
+/* 지금 보이는 카드 전부를 한번에 펼치거나 접기 — 이미 절반 이상 펼쳐져 있으면 전부 접기로 동작 */
+function toggleAllApplyCards(){
+  const cards = document.querySelectorAll('#apply-list .app-card');
+  const openCount = document.querySelectorAll('#apply-list .app-card.open').length;
+  const shouldOpen = openCount < cards.length / 2;
+  cards.forEach(el => {
+    const key = el.getAttribute('data-key');
+    if (shouldOpen) openApplyCards.add(key); else openApplyCards.delete(key);
+    el.classList.toggle('open', shouldOpen);
+  });
+  const btn = document.getElementById('apply-expand-toggle');
+  if (btn) btn.textContent = shouldOpen ? '모두 접기' : '모두 펼치기';
+}
+
+function cssEscape(s){
+  return String(s).replace(/["\\]/g, '\\$&');
+}
+
+function applicantCard(a, isOpen){
   const isMismatch = a.check && a.check.indexOf('불일치') !== -1;
   const matchBadge = a.check
     ? `<span class="badge ${isMismatch ? 'match-warn' : 'match-ok'}">${escapeHtml(a.check)}</span>`
+    : '';
+  const eligBadge = a.eligible
+    ? `<span class="elig-badge ${eligClass(a.eligible)}">${escapeHtml(eligShort(a.eligible))}</span>`
     : '';
   const fields = [
     ['현재역할(시트 기준)', a.curRole],
@@ -810,14 +911,16 @@ function applicantCard(a){
     ['목표·다짐', a.goal],
   ].filter(([,v]) => v);
 
+  const key = applyCardKey(a);
   return `
-    <div class="app-card">
-      <div class="app-head">
+    <div class="app-card ${isOpen ? 'open' : ''}" data-key="${escapeHtml(key)}">
+      <div class="app-head" onclick="toggleApplyCard('${key.replace(/'/g,"\\'")}')" role="button" tabindex="0"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleApplyCard('${key.replace(/'/g,"\\'")}')}">
         <div>
           <div class="app-name">${escapeHtml(a.name)} <span style="font-weight:600;color:var(--ink-faint);font-size:12.5px">${escapeHtml(a.cohort)}동기</span></div>
           <div class="app-meta">지원: ${escapeHtml(a.team || '미기재')} · 접수일시 ${escapeHtml(a.ts || '-')}</div>
         </div>
-        <div class="app-badges">${matchBadge}</div>
+        <div class="app-badges">${eligBadge}${matchBadge}<span class="car">▶</span></div>
       </div>
       <div class="app-fields">
         ${fields.map(([k,v]) => `<div class="app-field"><b>${escapeHtml(k)}</b>${escapeHtml(v)}</div>`).join('')}
