@@ -170,6 +170,17 @@ h1.title{font-family:var(--font-display);font-size:27px;font-weight:400;margin:0
 .stat.total .bar{background:rgba(255,255,255,.22)}
 .stat.total .bar i{background:#fff}
 
+.stat-donut{display:flex;flex-direction:column;align-items:center;text-align:center;cursor:default}
+.stat-donut:hover{transform:none;box-shadow:var(--shadow);border-color:var(--border)}
+.donut-wrap{position:relative;width:76px;height:76px;margin:0 auto 6px}
+.donut-wrap svg{display:block}
+.donut-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.donut-center .dc-num{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.donut-legend{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-bottom:2px}
+.donut-legend span{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-soft);font-weight:700}
+.donut-legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.stat-donut .lbl{text-align:center}
+
 .notice{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius-sm);padding:12px 14px;font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin-bottom:22px}
 .notice b{color:var(--ink);font-weight:700}
 .notice .dot{color:var(--gold);flex:none;font-size:15px;line-height:1.5}
@@ -391,7 +402,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <div id="panel-stats" style="display:none">
     <div class="notice">
       <span class="dot">●</span>
-      <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다.</span>
+      <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다. "2026년 현 리더 인원 대비"는 2026년 상반기에 실제로 활동한 팀장·조장·부조장 51명(노션 비교자료 기준)과 비교한 수치이며, 성비는 구글시트 DB 매칭 기준으로 매칭되지 않는 이름은 "미확인"으로 표시됩니다.</span>
     </div>
     <div id="stats-content"></div>
   </div>
@@ -415,12 +426,24 @@ let APPLICANTS = [];
 const MYEONRYEOHOE = new Set(["김한나A","구나연","민주현","이채현","김연주","이용권","서덕민"]);
 const BUJOJANG = new Set(["박재형","박지현","편예림"]);
 
+/* 통계 탭 "지원자 성비"용 이름|동기 → 성별 매핑. 응답 시트/가능등급 시트에는 성별 컬럼이 없어,
+   마스터 워크북의 "26메이커스 DB(하반기)" 탭에서 추출해 하드코딩했습니다(2026-09-02 기준, 443명).
+   위 두 세트와 같은 방식 — 원본에 성별 컬럼이 추가되면 이 표 대신 시트 컬럼을 바로 읽도록 바꾸면 됩니다. */
+const GENDER_MAP = {"강신의|97":"남","김현철|91":"남","이신혜|91":"여","김준성|95":"남","이사라|95":"여","이채현|97":"남","김지현|99":"여","안재범|99":"남","최성찬|99":"여","김가현|00":"여","민지원|00":"여","정형민|00":"남","표성하|00":"남","남은혜|92":"여","박지웅|92":"남","박동규|94":"남","윤영진|94":"남","공윤상|95":"남","이은미|95":"여","전동환|97":"남","김영우|98":"남","이원진|99":"남","김민지B|00":"여","김수진|00":"여","김주원|00":"여","박수민|00":"여","오명주|95":"여","김유웅|91":"남","김지일|92":"남","안성인|95":"남","임혜린|95":"여","김준희|96":"남","김태연|98":"여","이승현|98":"남","문채은|99":"여","한수영|99":"여","김혜주|00":"여","장지인|00":"여","김선웅|98":"남","정예주|91":"여","심연석|92":"남","최찬휘|92":"남","박지윤|93":"여","화은지|93":"여","김에스더|94":"여","최재환|95":"남","김진실|96":"여","문하영|96":"여","권오율|98":"남","홍수정|98":"여","이현석|99":"남","양지은|99":"여","민사라|92":"여","송종범|92":"남","유승현|93":"여","이무일|93":"남","설재윤|96":"남","김민석A|97":"남","최용훈|97":"남","이지우|98":"여","윤하림|99":"여","황예광|99":"남","조수연B|00":"여","이정인|93":"남","강진구|93":"남","이명훈|92":"남","조승현|92":"남","지동호|92":"남","김유진|94":"여","박진범|94":"남","임장훈|94":"남","조윤계|94":"여","김영진|96":"여","이원혁|96":"남","김혜연|98":"여","임동욱|98":"남","김지수|00":"여","이해형|00":"남","최한나|95":"여","박은빈|92":"여","우렁찬|93":"남","김광희|94":"남","임하늘|94":"여","편예림|94":"여","박재희|96":"여","한희정|96":"남","박지은|97":"여","남궁석|98":"남","조성완|99":"남","김나연|00":"여","이정우|00":"남","원혜연|97":"여","박정환|92":"남","백승우|92":"남","김성은|94":"여","박소희|96":"여","최예진B|96":"여","김민정B|97":"여","노슬비|97":"여","민주현|97":"여","윤찬미|97":"여","이예인|97":"여","이한결|98":"여","박형민|99":"남","박형규|00":"남","백재은|00":"여","최다민|97":"여","오하경|93":"여","이연호|93":"남","이원준|94":"남","황금준|96":"남","박지현|97":"여","조하진|98":"여","김하민|99":"남","박주한|99":"남","변해준|99":"남","최현수|99":"남","송수한|00":"남","임충규|93":"남","이정현|94":"남","김준석A|91":"남","박성휘|92":"여","최용현|92":"남","양현모|93":"남","최신애|95":"여","이초희|96":"여","최승우|96":"남","이효주|97":"여","마민우|99":"남","박예림|99":"여","김희윤|96":"여","이시온A|97":"남","전아현|99":"여","성효경|97":"여","이건희|91":"남","이지현A|91":"여","양정모|92":"남","지은혜|93":"여","박예나|94":"여","최정현|94":"여","최지현|95":"여","김미현|96":"여","신은진|96":"여","조형래|96":"남","손종환|97":"남","조창현|98":"남","김건|99":"남","박규리|99":"여","문길수|00":"남","이시온B|00":"남","박채원B|99":"여","정수연|92":"남","황산성|92":"남","김진규|95":"남","설예원|95":"여","김수빈|96":"여","오데니스|96":"남","한지은|96":"여","최진혁|98":"남","원유미|99":"여","정근모|99":"남","김주영|00":"여","박한성|00":"남","이도연|00":"남","이유진B|99":"여","권지연|92":"여","조진태|92":"남","장태훈|93":"남","강석진|94":"남","정문종|94":"남","박민나|95":"여","지현경|95":"여","구나연|96":"여","한준택|97":"남","현명한|97":"남","김민찬|99":"남","황찬미|99":"여","박지희B|00":"여","장유민|00":"여","이경원|94":"여","이지원|92":"여","조혜경|92":"여","기도영|94":"남","황래혁|94":"남","김성경|95":"여","원은진|97":"여","이성우|97":"남","이진우|98":"남","김태영|99":"남","장은서|00":"여","한지원|00":"여","박선용|94":"남","고현정|92":"여","강민규|95":"남","최한길|95":"남","김승환|96":"남","홍직경|96":"여","강동근|98":"남","박승민|98":"남","전윤|98":"남","신금하|00":"여","홍자경|97":"여","노태영|92":"남","신지혜|92":"여","박채원A|95":"여","이다운|96":"남","홍민형|96":"여","윤진우|98":"남","이현지|98":"여","강건|00":"남","전하정|00":"여","김수현|98":"여","박재형|96":"남","신은식|92":"남","신지현|94":"여","오현석|94":"남","김주환|95":"남","한수아|97":"여","홍민주|98":"여","김혜준|00":"남","장효민|98":"여","김찬우|94":"남","김민지A|95":"여","노하은|95":"여","신선우|98":"남","김민석B|99":"남","김하림|99":"여","백서윤|99":"여","김상은|00":"여","장민지|99":"여","황금산|91":"남","이찬용|93":"남","김재욱|98":"남","이용권|98":"남","손영혜|99":"여","홍가은|99":"여","유수민|00":"여","김예림|97":"여","임지수|91":"여","이홍재|91":"남","탁나연|94":"여","변다윤|95":"여","손다몬|95":"남","송예림|95":"여","이진솔|95":"여","이태영|96":"여","장유진|98":"여","최소연|98":"여","조헌재|99":"남","한정원|99":"여","주지혜|00":"여","주재윤|91":"남","김상준|91":"남","남기훈|91":"남","이성재|91":"남","서덕민|93":"남","문주영|94":"여","원승연|94":"여","권하빈|95":"남","남의지|95":"여","김지원|98":"여","이승주|98":"여","황성진|98":"남","안예진|99":"여","송인태|00":"남","강하영|96":"여","박진솔|91":"여","한민아|91":"여","황서현|92":"여","최시은|93":"여","이현주|95":"여","장예진|95":"여","채예현|95":"여","변주희|97":"여","김이삭|98":"남","김정윤|99":"남","류현식|99":"남","정태민|99":"남","신철진|97":"남","김호경|92":"여","유인석|95":"남","윤세라|95":"여","이현정|95":"여","정현욱|96":"남","김현애|97":"여","강준영|00":"남","김성현|00":"남","이소윤|00":"여","차혁진|00":"남","송수현|98":"남","이재명|91":"남","구연희|94":"여","강해우|95":"남","김경현|95":"여","김준석B|95":"남","박민규|95":"남","이예진|96":"여","이준엽|98":"남","김미조|99":"여","박예준|99":"남","신민선|00":"남","조예준|00":"남","최서연|97":"여","유소리나|92":"여","정한비|95":"여","김건희|96":"여","정명|98":"남","박재석|99":"남","이민환|99":"남","조현웅|99":"남","정수연|99":"여","이재은|00":"남","김민정A|91":"여","이민지|95":"여","정진우|95":"남","남규태|96":"남","옥동경|97":"남","임채린|98":"여","이지예|99":"여","강하은|00":"여","권유리|00":"여","이경찬|00":"남","문영진|94":"남","민승빈|93":"남","안예린|93":"여","박충현|94":"남","이수빈|94":"여","이지민B|94":"여","김자윤|95":"여","이윤석|96":"남","김정호|97":"남","문채규|99":"남","김영국|00":"남","정경진|94":"여","김홍균|92":"남","박은진|93":"여","김성빈|94":"남","권선영|95":"여","명시온|95":"여","서그린|95":"여","성유빈|99":"남","임수진|00":"여","장동찬|00":"남","박지희A|96":"여","김한나A|92":"여","김종욱|94":"남","김기연|96":"여","김도현|95":"남","정동영|95":"남","이경지|97":"여","이지현B|98":"여","서예린|99":"여","이건주|98":"여","김혜린|95":"여","윤선관|95":"남","이유진A|96":"여","조혜지|97":"여","김성호|98":"남","김영수|98":"남","김수아|99":"여","이서연|00":"여","최지원|00":"남","김재원|98":"남","신종민|91":"남","이경진|92":"여","이창희|92":"남","김광록|93":"남","양시몬|93":"남","윤준영|93":"남","구태송|94":"남","이승현|95":"여","김서아|96":"여","전혜린|96":"여","유승진|97":"남","강은석|99":"남","이희태|99":"남","홍은애|00":"여","한희승|93":"남","전동섭|91":"남","정용석|91":"남","정준영|92":"남","최원준|93":"남","김현수A|94":"남","신철민|95":"남","김슬기|96":"여","신선민|96":"여","유은이|96":"여","정유진|98":"여","황예진|98":"여","안서현|00":"여","김하영|94":"여","조현수|91":"남","고요한|93":"남","방미나|93":"여","유송희|93":"여","류한종|95":"남","김연주|98":"여","김상훈|99":"남","김수윤|99":"여","최윤지|99":"여","김현수B|00":"남","윤여빈|00":"여","이예지|94":"여","김성욱|92":"남","김누리|94":"여","손현영|94":"남","이지민A|94":"여","임소정|94":"여","강연우|98":"여","김민경|98":"여","김요셉|98":"남","조예찬|98":"남","황가현|99":"여","김보현|00":"남","최이레|00":"여","김희주|96":"여","장성훈|91":"남","전예찬|93":"남","조수연A|93":"여","양한현|95":"남","류연주|97":"여","김한나B|99":"여","박예진|99":"여","설동현|99":"남","전서연|99":"여","조민서|00":"남","홍희진|00":"여","문영광|91":"남","배윤지|92":"여","박소현|94":"여","박지인A|94":"여","박지홍|94":"여","장한나|96":"여","강주석|97":"남","김한솔|99":"여","김병훈|92":"남","강청솔|93":"여","최예진A|91":"여","이선영|92":"여","최현호|92":"남","윤권능|97":"여","김규현|98":"남","강승협|99":"남"};
+function genderOf(name, cohort){
+  return GENDER_MAP[(name || '').trim() + '|' + (cohort || '').trim()] || null;
+}
+
+/* 2026년 상반기 실제 활동 리더 인원 (노션 "2026년 상반기 리더 현황(비교 참고용)" 표, 2026-09-02 확인).
+   면려회·히엘은 회칙상 리더 선출 대상이 아니므로 제외하고 팀장·조장·부조장만 더했습니다. */
+const LEADER_2026 = { '팀장': 10, '조장': 30, '부조장': 11 };
+const LEADER_2026_TOTAL = LEADER_2026['팀장'] + LEADER_2026['조장'] + LEADER_2026['부조장'];
+
 let ROSTER = [];
 let COUNTS = {};
 let TEAM_LIST = [];
 let COHORT_PRESENT = [];
 const openGroups = new Set();
-const openApplyGroups = new Set();
 const ELIG_TIERS = ['팀장/조장/부조장 가능','조장/부조장 가능','부조장 가능','해당없음'];
 
 /* ---------- CSV parsing (RFC4180 minimal) ---------- */
@@ -616,6 +639,56 @@ function cleanRemark(rm){
   return rm.split(';').map(s => s.trim()).filter(s => s && s !== '등반일 미기재(장기 등록 추정)').join('; ');
 }
 
+/* 구글 폼 기본 타임스탬프 형식("2026. 9. 3 오후 3:01:00")을 정렬용 숫자로 변환.
+   형식이 안 맞으면(수동 입력 오류 등) 0을 반환해 목록 맨 뒤로 보냅니다. */
+function parseTs(ts){
+  if (!ts) return 0;
+  const m = String(ts).match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\s*(오전|오후)\s*(\d{1,2}):(\d{2}):(\d{2})/);
+  if (!m) return 0;
+  let [, y, mo, d, ap, h, mi, s] = m;
+  h = parseInt(h, 10);
+  if (ap === '오후' && h !== 12) h += 12;
+  if (ap === '오전' && h === 12) h = 0;
+  return new Date(+y, +mo - 1, +d, h, +mi, +s).getTime();
+}
+
+/* 단일 값(0~100%) 진행률 도넛 — "목표 대비 현재" 같은 비교용 */
+function donutSVG(pct, color, opts){
+  opts = opts || {};
+  const size = opts.size || 76, stroke = opts.stroke || 9;
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const clamped = Math.max(0, Math.min(100, pct || 0));
+  const off = c * (1 - clamped / 100);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${stroke}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}"
+      stroke-linecap="round" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}"
+      transform="rotate(-90 ${size/2} ${size/2})"/>
+  </svg>`;
+}
+
+/* 여러 항목으로 구성된 도넛 — "전체를 구성하는 비율"용 (예: 성비) */
+function multiDonutSVG(segments, opts){
+  opts = opts || {};
+  const size = opts.size || 76, stroke = opts.stroke || 9;
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const total = segments.reduce((s, x) => s + x.value, 0);
+  if (!total) return donutSVG(0, 'var(--surface-2)', opts);
+  let acc = 0;
+  const circles = segments.filter(s => s.value > 0).map(s => {
+    const frac = s.value / total;
+    const dash = c * frac, gap = c - dash;
+    const rotate = -90 + (acc / total) * 360;
+    acc += s.value;
+    return `<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${stroke}"
+      stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}" transform="rotate(${rotate.toFixed(2)} ${size/2} ${size/2})"/>`;
+  }).join('');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${stroke}"/>
+    ${circles}
+  </svg>`;
+}
+
 /* ---------- gate ---------- */
 document.getElementById('gate-form').addEventListener('submit', function(e){
   e.preventDefault();
@@ -711,35 +784,10 @@ function renderApplicants(){
     </div>
   `;
 
-  const byCohortList = {};
-  APPLICANTS.forEach(a => { const c = a.cohort || '미기재'; (byCohortList[c] = byCohortList[c] || []).push(a); });
-  const listOrder = Object.keys(byCohortList).sort((a,b) => {
-    const ia = COHORT_ORDER_FULL.indexOf(a), ib = COHORT_ORDER_FULL.indexOf(b);
-    if (ia === -1 && ib === -1) return a.localeCompare(b,'ko');
-    if (ia === -1) return 1;
-    if (ib === -1) return -1;
-    return ia - ib;
-  });
-
-  listEl.innerHTML = listOrder.map(c => {
-    const items = byCohortList[c];
-    const isOpen = openApplyGroups.has(c) || listOrder.length <= 3;
-    return `
-    <div class="group ${isOpen ? 'open' : ''}" data-apply-cohort="${escapeHtml(c)}">
-      <div class="group-head" onclick="toggleApplyGroup('${c.replace(/'/g,"\\'")}')">
-        <span class="car">▶</span>
-        <span class="cohort-tag">${escapeHtml(c === '미기재' ? c : c + '동기')}</span>
-        <span class="cohort-count">${items.length}명</span>
-      </div>
-      <div class="group-body">${items.map(applicantCard).join('')}</div>
-    </div>`;
-  }).join('');
-}
-
-function toggleApplyGroup(c){
-  if (openApplyGroups.has(c)) openApplyGroups.delete(c); else openApplyGroups.add(c);
-  const el = document.querySelector(`.group[data-apply-cohort="${c}"]`);
-  if (el) el.classList.toggle('open');
+  /* 접수일시 최신순 — 위원회가 새로 들어온 지원서를 바로 확인할 수 있도록 동기별 접기 없이
+     하나의 목록으로 보여줍니다(동기별 인원은 위 "동기별 지원" 칩으로 확인). */
+  const sorted = APPLICANTS.slice().sort((a, b) => parseTs(b.ts) - parseTs(a.ts));
+  listEl.innerHTML = sorted.map(applicantCard).join('');
 }
 
 function applicantCard(a){
@@ -750,7 +798,7 @@ function applicantCard(a){
   const fields = [
     ['현재역할(시트 기준)', a.curRole],
     ['가능한 직분', a.eligible],
-    ['출석률', a.att ? a.att + '%' : ''],
+    ['출석률', a.att ? (/^[\d.]+$/.test(a.att) ? a.att + '%' : a.att) : ''],
     ['등록연차', a.tenure],
     ['양육과정수료', a.course],
     ['연락처', a.phone],
@@ -806,9 +854,17 @@ function renderStatsTab(){
   }
 
   const eligiblePool = ROSTER.filter(m => m.e !== '해당없음');
-  const totalEligible = eligiblePool.length;
   const totalApplied = APPLICANTS.length;
-  const overallRate = totalEligible ? (totalApplied / totalEligible * 100) : 0;
+
+  /* 자격자 pool 전체가 아니라, 2026년 상반기에 실제로 활동한 리더 인원(51명)을 기준으로 비교 */
+  const vs2026Pct = LEADER_2026_TOTAL ? (totalApplied / LEADER_2026_TOTAL * 100) : 0;
+
+  /* 지원자 성비 — 구글시트 DB(26메이커스 DB(하반기) 탭)에서 뽑아둔 이름|동기 매핑으로 조회 */
+  const genderCount = { '남': 0, '여': 0, '미확인': 0 };
+  APPLICANTS.forEach(a => {
+    const g = genderOf(a.name, a.cohort);
+    genderCount[g === '남' || g === '여' ? g : '미확인']++;
+  });
 
   let expYes = 0, expNo = 0;
   APPLICANTS.forEach(a => {
@@ -822,9 +878,27 @@ function renderStatsTab(){
         <div class="num tnum">${totalApplied}</div>
         <div class="lbl">총 지원 건수</div>
       </div>
-      <div class="stat tier1">
-        <div class="num tnum">${overallRate.toFixed(1)}%</div>
-        <div class="lbl">자격자 대비 지원율<br>(${totalApplied}/${totalEligible}명)</div>
+      <div class="stat tier1 stat-donut" title="2026년 상반기 실제 활동 리더: 팀장 ${LEADER_2026['팀장']}·조장 ${LEADER_2026['조장']}·부조장 ${LEADER_2026['부조장']} = 총 ${LEADER_2026_TOTAL}명">
+        <div class="donut-wrap">
+          ${donutSVG(vs2026Pct, 'var(--accent)')}
+          <div class="donut-center"><div class="dc-num tnum">${vs2026Pct.toFixed(0)}%</div></div>
+        </div>
+        <div class="lbl">2026년 현 리더 인원 대비<br>(${totalApplied}/${LEADER_2026_TOTAL}명)</div>
+      </div>
+      <div class="stat stat-donut" title="구글시트 DB 기준 매칭 결과 — 매칭 안 되면 미확인으로 표시">
+        <div class="donut-wrap">
+          ${multiDonutSVG([
+            {value: genderCount['남'], color:'#5c86a8'},
+            {value: genderCount['여'], color:'#c17a90'},
+            {value: genderCount['미확인'], color:'var(--surface-2)'},
+          ])}
+        </div>
+        <div class="donut-legend">
+          <span><i style="background:#5c86a8"></i>남 ${genderCount['남']}</span>
+          <span><i style="background:#c17a90"></i>여 ${genderCount['여']}</span>
+          ${genderCount['미확인'] ? `<span><i style="background:var(--ink-faint)"></i>미확인 ${genderCount['미확인']}</span>` : ''}
+        </div>
+        <div class="lbl">지원자 성비</div>
       </div>
       <div class="stat tier2">
         <div class="num tnum">${expYes}</div>
@@ -874,10 +948,6 @@ function renderStatsTab(){
     <div class="stat-section">
       <div class="stat-section-title">현재역할별 지원 현황<span class="stat-section-sub">해당 역할 인원 대비 지원 인원</span></div>
       ${roleRows || '<div class="empty" style="padding:16px 0">표시할 데이터가 없습니다.</div>'}
-    </div>
-    <div class="notice">
-      <span class="dot">●</span>
-      <span>성비 등은 현재 지원서 양식에서 수집하지 않는 항목이라 표시하지 않았습니다.</span>
     </div>
   `;
 }
