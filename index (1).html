@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2027 리더 지원 현황</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap">
+<style>
+:root{
+  --bg:#f3f4f7;
+  --surface:#ffffff;
+  --surface-2:#eceef3;
+  --ink:#181f2e;
+  --ink-soft:#5c6474;
+  --ink-faint:#8790a0;
+  --border:#dfe2e9;
+  --accent:#2c5c50;
+  --accent-ink:#1d3f37;
+  --accent-soft:#e2ece8;
+  --accent-soft-2:#cfe0d9;
+  --gold:#b8862f;
+  --danger:#c1473f;
+  --radius:14px;
+  --radius-sm:9px;
+  --font-body:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;
+  --font-display:'Gowun Dodum','Pretendard Variable',Pretendard,sans-serif;
+  --ease:cubic-bezier(.22,.75,.28,1);
+  --shadow:0 1px 2px rgba(23,38,32,.05), 0 10px 28px -14px rgba(23,38,32,.16);
+  --shadow-lg:0 4px 10px rgba(23,38,32,.05), 0 24px 48px -20px rgba(23,38,32,.24);
+  --shadow-accent:0 12px 26px -14px rgba(44,92,80,.28);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#12151c;
+    --surface:#191d27;
+    --surface-2:#20242f;
+    --ink:#eef0f4;
+    --ink-soft:#a6acba;
+    --ink-faint:#727a8c;
+    --border:#2b303c;
+    --accent:#5ea38f;
+    --accent-ink:#a9d3c6;
+    --accent-soft:#1c2b26;
+    --accent-soft-2:#22392f;
+    --gold:#d7ab61;
+    --danger:#e0776f;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 14px 32px -16px rgba(0,0,0,.55);
+    --shadow-lg:0 4px 10px rgba(0,0,0,.3), 0 28px 56px -22px rgba(0,0,0,.6);
+    --shadow-accent:0 12px 28px -14px rgba(94,163,143,.24);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-feature-settings:'tnum' 1,'case' 1;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+  position:relative;
+}
+.tnum{font-feature-settings:'tnum' 1}
+::selection{background:var(--accent-soft-2)}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:50;
+  opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+@media (prefers-color-scheme: dark){
+  body::before{opacity:.05}
+}
+
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden}
+#gate::before{
+  content:'';position:absolute;width:640px;height:640px;border-radius:50%;
+  background:radial-gradient(circle,var(--accent-soft) 0%,transparent 68%);
+  top:50%;left:50%;transform:translate(-50%,-58%);opacity:.55;pointer-events:none;
+}
+.gate-card{position:relative;width:100%;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:38px 32px 34px;box-shadow:var(--shadow-lg);text-align:center}
+.gate-mark{width:44px;height:44px;border-radius:13px;margin:0 auto 20px;background:var(--accent);box-shadow:0 8px 20px -10px rgba(44,92,80,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:400;font-family:var(--font-display);font-size:19px;letter-spacing:.01em}
+.gate-card h1{font-family:var(--font-display);font-weight:400;font-size:20px;margin:0 0 8px;letter-spacing:0}
+.gate-card p{font-size:13px;color:var(--ink-soft);margin:0 0 24px;line-height:1.6}
+#gate-form{display:flex;flex-direction:column;gap:10px}
+#gate-input{width:100%;padding:13px 14px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--ink);font-size:16px;text-align:center;letter-spacing:.15em;font-weight:600;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+#gate-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+#gate-form button{padding:12px 14px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;transition:opacity .2s var(--ease),transform .12s var(--ease);font-family:inherit}
+#gate-form button:hover{opacity:.9}
+#gate-form button:active{transform:scale(.97)}
+#gate-error{font-size:12.5px;color:var(--danger);min-height:16px;margin-top:2px}
+.shake{animation:shake .32s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+#loading, #load-error{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center}
+.spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--accent-soft);border-top-color:var(--accent);animation:spin .9s var(--ease) infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p, #load-error p{font-size:13px;color:var(--ink-soft);max-width:320px;line-height:1.6}
+#load-error button{padding:10px 18px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:transform .12s var(--ease)}
+#load-error button:active{transform:scale(.97)}
+
+#app{display:none;max-width:1180px;margin:0 auto;padding:28px 20px 80px}
+header.top{position:relative;z-index:0;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--border)}
+header.top::before{
+  content:'';position:absolute;top:-28px;left:-20px;width:420px;height:220px;
+  background:radial-gradient(ellipse at top left,var(--accent-soft) 0%,transparent 70%);
+  opacity:.4;pointer-events:none;z-index:-1;
+}
+.top-eyebrow{font-size:11.5px;font-weight:700;color:var(--accent-ink);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.top-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;box-shadow:0 0 0 3px var(--accent-soft)}
+h1.title{font-family:var(--font-display);font-size:27px;font-weight:400;margin:0 0 7px;letter-spacing:0}
+.top-sub{font-size:13.5px;color:var(--ink-soft);max-width:560px}
+.top-meta{font-size:12.5px;color:var(--ink-faint);text-align:right;white-space:nowrap;display:flex;align-items:center;gap:10px;justify-content:flex-end}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3aa373;margin-right:5px;vertical-align:1px;box-shadow:0 0 0 3px rgba(58,163,115,.18)}
+.btn-refresh{font-family:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent-soft-2);border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap;transition:opacity .2s var(--ease),transform .12s var(--ease),box-shadow .2s var(--ease)}
+.btn-refresh:hover{opacity:.85;box-shadow:0 4px 12px -4px rgba(44,92,80,.3)}
+.btn-refresh:active{transform:scale(.96)}
+.btn-refresh:disabled{opacity:.6;cursor:default;transform:none}
+.btn-refresh .spin-ico{display:inline-block}
+
+.tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--border)}
+.tab-btn{font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink-faint);background:none;border:none;border-bottom:2px solid transparent;padding:9px 4px;margin-bottom:-1px;cursor:pointer;transition:color .2s var(--ease),border-color .2s var(--ease)}
+.tab-btn:hover{color:var(--ink-soft)}
+.tab-btn.active{color:var(--accent-ink);border-bottom-color:var(--accent)}
+.tab-btn span{font-weight:800;color:var(--gold)}
+
+.apply-summary{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.cohort-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cohort-chips-lbl{font-size:11.5px;font-weight:700;color:var(--ink-faint);margin-right:2px}
+.cohort-chip{display:inline-flex;align-items:baseline;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-size:12.5px;color:var(--ink-soft);font-weight:600;transition:border-color .2s var(--ease)}
+.cohort-chip:hover{border-color:var(--accent-soft-2)}
+.cohort-chip b{color:var(--accent-ink);font-weight:800;font-size:13px}
+
+.app-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;box-shadow:var(--shadow);transition:box-shadow .2s var(--ease),transform .2s var(--ease)}
+.app-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+.app-card .app-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.app-card .app-name{font-family:var(--font-display);font-size:16.5px;font-weight:400;letter-spacing:0}
+.app-card .app-meta{font-size:12px;color:var(--ink-faint);margin-top:2px}
+.app-card .app-badges{display:flex;gap:5px;flex-wrap:wrap}
+.match-ok{background:var(--accent-soft);color:var(--accent-ink)}
+.match-warn{background:#fbeddb;color:#b3701e}
+.app-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
+.app-field{font-size:12.5px}
+.app-field b{display:block;font-size:11px;color:var(--ink-faint);font-weight:700;margin-bottom:2px}
+.app-field.wide{grid-column:1 / -1;white-space:pre-wrap;line-height:1.6}
+@media (max-width:700px){.app-fields{grid-template-columns:1fr}}
+
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 16px 14px;position:relative;overflow:hidden;cursor:pointer;transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .2s var(--ease);text-align:left;font:inherit}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--accent-soft-2)}
+.stat:active{transform:translateY(-1px) scale(.99)}
+.stat:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stat.total:hover{box-shadow:var(--shadow-accent)}
+.stat .num{font-family:var(--font-body);font-size:27px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.stat .lbl{font-size:12px;color:var(--ink-soft);margin-top:6px;font-weight:600;line-height:1.4}
+.stat .bar{height:4px;border-radius:3px;background:var(--surface-2);margin-top:12px;overflow:hidden}
+.stat .bar i{display:block;height:100%;border-radius:3px;transition:width .5s var(--ease)}
+.stat.tier1 .num{color:var(--accent-ink)}
+.stat.tier1 .bar i{background:var(--accent)}
+.stat.tier2 .bar i{background:#5c8f7f}
+.stat.tier3 .bar i{background:#93b6ab}
+.stat.tier4 .bar i{background:var(--ink-faint)}
+.stat.total{
+  background:radial-gradient(130% 160% at 12% -20%,rgba(255,255,255,.12),transparent 55%),var(--accent);
+  color:#fff;border-color:var(--accent);box-shadow:var(--shadow-accent);
+}
+.stat.total .lbl{color:rgba(255,255,255,.82)}
+.stat.total .bar{background:rgba(255,255,255,.22)}
+.stat.total .bar i{background:#fff}
+
+.stat-donut{display:flex;flex-direction:column;align-items:center;text-align:center;cursor:default}
+.stat-donut:hover{transform:none;box-shadow:var(--shadow);border-color:var(--border)}
+.donut-wrap{position:relative;width:76px;height:76px;margin:0 auto 6px}
+.donut-wrap svg{display:block}
+.donut-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.donut-center .dc-num{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.donut-legend{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-bottom:2px}
+.donut-legend span{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-soft);font-weight:700}
+.donut-legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.stat-donut .lbl{text-align:center}
+
+.notice{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius-sm);padding:12px 14px;font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin-bottom:22px}
+.notice b{color:var(--ink);font-weight:700}
+.notice .dot{color:var(--gold);flex:none;font-size:15px;line-height:1.5}
+
+details.filters{margin-bottom:6px}
+details.filters summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink-soft);padding:9px 4px}
+details.filters summary::-webkit-details-marker{display:none}
+details.filters summary::after{content:'▾';margin-left:2px;color:var(--ink-faint);font-size:11px;transition:transform .15s}
+details.filters[open] summary::after{transform:rotate(180deg)}
+.filt-count{color:var(--ink-faint);font-weight:600}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px;padding:2px 2px 10px}
+.toolbar select, .toolbar input[type="text"]{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+.toolbar input[type="text"]{cursor:text;font-weight:500;min-width:150px}
+.toolbar select:hover, .toolbar input[type="text"]:hover{border-color:var(--ink-faint)}
+.toolbar select:focus, .toolbar input[type="text"]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+#reset-btn{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-soft);background:transparent;border:1px solid transparent;border-radius:9px;padding:8px 10px;cursor:pointer;transition:color .2s var(--ease),background .2s var(--ease)}
+#reset-btn:hover{color:var(--ink);background:var(--surface-2)}
+.chk-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;user-select:none;transition:border-color .2s var(--ease)}
+.chk-toggle:hover{border-color:var(--ink-faint)}
+.chk-toggle input{cursor:pointer;accent-color:var(--accent)}
+.result-count{font-size:12.5px;color:var(--ink-faint);font-weight:600;margin:14px 2px 10px}
+.result-count b{color:var(--ink)}
+
+.stat-section{margin-bottom:24px}
+.stat-section-title{font-family:var(--font-display);font-size:14.5px;font-weight:400;color:var(--ink);margin-bottom:10px;display:flex;align-items:baseline;gap:8px}
+.stat-section-sub{font-family:var(--font-body);font-size:11.5px;font-weight:600;color:var(--ink-faint)}
+.stat-row{display:grid;grid-template-columns:104px 1fr 140px;align-items:center;gap:12px;padding:7px 2px}
+.stat-row-lbl{font-size:12.5px;font-weight:600;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat-row-bar{height:7px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.stat-row-bar i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .5s var(--ease)}
+.stat-row-val{font-size:12px;color:var(--ink-faint);text-align:right;white-space:nowrap}
+
+.group{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .2s var(--ease)}
+.group.open{box-shadow:var(--shadow-lg)}
+.group-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .15s var(--ease)}
+.group-head:hover{background:var(--surface-2)}
+.group-head .car{width:16px;height:16px;flex:none;color:var(--ink-faint);transition:transform .2s var(--ease);display:flex;align-items:center;justify-content:center}
+.group.open .group-head .car{transform:rotate(90deg)}
+.group-head .cohort-tag{font-family:var(--font-display);font-size:15.5px;font-weight:400;color:var(--ink);letter-spacing:0}
+.group-head .cohort-count{font-size:12px;color:var(--ink-faint);font-weight:600}
+.group-body{display:none}
+.group.open .group-body{display:block}
+
+.row{display:grid;grid-template-columns:116px 112px 140px minmax(130px,1fr) 74px 70px 128px;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--border);font-size:12.8px;transition:background .15s var(--ease)}
+.row:not(.headrow):hover{background:var(--surface-2)}
+.row.headrow{background:var(--surface-2);font-size:11px;color:var(--ink-faint);font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:8px 16px;border-top:none}
+.row .name{font-weight:700;color:var(--ink)}
+.row .rmk{display:block;font-weight:400;color:var(--ink-faint);font-size:11px;margin-top:1px}
+.applied-tag{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent-soft-2);border-radius:5px;padding:1px 6px;vertical-align:2px;white-space:nowrap}
+.team-pill{display:inline-block;font-size:11.5px;font-weight:600;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px 7px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.roles{display:flex;gap:4px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;border-radius:6px;padding:2.5px 7px;white-space:nowrap}
+.b-팀장{background:#f1e8f2;color:#6f4d78}
+.b-조장{background:#e6eef0;color:#3f6b73}
+.b-부조장{background:#f6ecd9;color:#8a6423}
+.b-조원{background:var(--surface-2);color:var(--ink-soft)}
+.b-면려회{background:#f3e6ea;color:#8a4a5c}
+@media (prefers-color-scheme: dark){
+  .b-팀장{background:#2a2233;color:#cbabd4}
+  .b-조장{background:#1f2c2f;color:#95c4cb}
+  .b-부조장{background:#372c17;color:#d9b876}
+  .b-조원{background:var(--surface-2);color:var(--ink-soft)}
+  .b-면려회{background:#33232a;color:#d99bad}
+}
+.att-wrap{display:flex;align-items:center;gap:6px}
+.att-num{font-weight:700;font-size:12px;min-width:34px}
+.att-bar{flex:1;height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden;min-width:28px}
+.att-bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.att-none{color:var(--ink-faint);font-size:11px}
+.course-badge{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px}
+.course-yes{background:var(--accent-soft);color:var(--accent-ink)}
+.course-no{background:var(--surface-2);color:var(--ink-faint)}
+.elig-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;display:inline-block}
+.elig-1{background:var(--accent);color:#fff}
+.elig-2{background:var(--accent-soft-2);color:var(--accent-ink)}
+.elig-3{background:var(--accent-soft);color:var(--accent-ink)}
+.elig-4{background:var(--surface-2);color:var(--ink-faint)}
+
+.empty{padding:40px 16px;text-align:center;color:var(--ink-faint);font-size:13px}
+footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--ink-faint);text-align:center}
+
+@media (max-width:860px){
+  #app{padding:18px 14px 60px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat{padding:13px 13px 11px}
+  .stat .num{font-size:22px}
+  header.top{align-items:flex-start}
+  h1.title{font-size:21px}
+  .top-meta{text-align:left;order:-1;margin-bottom:2px}
+  .toolbar{flex-direction:column;align-items:stretch;padding-top:4px}
+  .toolbar select,.toolbar input[type="text"]{width:100%}
+  #reset-btn{align-self:flex-end}
+  .group-head{padding:14px 14px}
+  .row{
+    display:grid;grid-template-columns:1fr 1fr;
+    column-gap:14px;row-gap:9px;padding:14px 16px 13px;
+  }
+  .row.headrow{display:none}
+  .row .name{order:1;grid-column:1 / -1;font-family:var(--font-display);font-size:15.5px;font-weight:400;letter-spacing:0;color:var(--ink)}
+  .row .roles{order:2;display:flex;gap:5px;flex-wrap:wrap;align-items:center;align-self:center}
+  .row .elig-cell{order:3;justify-self:end;align-self:center}
+  .row .team-cell{order:4;padding-top:11px;border-top:1px solid var(--border);min-width:0}
+  .row .att-cell{order:5;padding-top:11px;border-top:1px solid var(--border);min-width:0}
+  .row .course-cell{order:6;min-width:0}
+  .row .tenure-col{order:7;color:var(--ink-faint);min-width:0}
+  .row .team-cell::before, .row .att-cell::before, .row .course-cell::before, .row .tenure-col::before{
+    content:attr(data-lbl);display:block;font-size:9.5px;font-weight:700;letter-spacing:.04em;
+    color:var(--ink-faint);margin-bottom:4px;text-transform:uppercase;
+  }
+  .top-meta{justify-content:flex-start}
+  .stat-row{grid-template-columns:1fr auto;grid-template-areas:"lbl val" "bar bar";row-gap:5px;padding:9px 2px}
+  .stat-row-lbl{grid-area:lbl;white-space:normal}
+  .stat-row-val{grid-area:val}
+  .stat-row-bar{grid-area:bar}
+}
+@media (prefers-reduced-motion: reduce){
+  .stat,.app-card,.group,.row,#gate-input,.toolbar select,.toolbar input,.btn-refresh{transition:none !important}
+  .stat:hover,.stat:active,.app-card:hover{transform:none !important}
+  .btn-refresh .spin-ico,.spinner{animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark">M</div>
+    <h1>청년2부 리더선출</h1>
+    <p>리더선출위원회 전용 페이지입니다.<br>전달받은 접속 코드를 입력해주세요.</p>
+    <form id="gate-form">
+      <input id="gate-input" type="password" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="접속 코드">
+      <div id="gate-error"></div>
+      <button type="submit">입장하기</button>
+    </form>
+  </div>
+</div>
+
+<div id="loading" style="display:none">
+  <div class="spinner"></div>
+  <p>구글 시트에서 최신 명단을 불러오는 중입니다...</p>
+</div>
+
+<div id="load-error" style="display:none">
+  <p><b>데이터를 불러오지 못했습니다.</b><br>원본 시트 접근에 문제가 있을 수 있습니다. 잠시 후 다시 시도해주세요.</p>
+  <button onclick="loadData()">다시 시도</button>
+</div>
+
+<div id="app">
+  <header class="top">
+    <div>
+      <div class="top-eyebrow">청년2부 리더선출위원회</div>
+      <h1 class="title">2027년도 리더 지원 현황</h1>
+      <div class="top-sub">청년2부 전체 명단과 팀장·조장·부조장 지원 자격을 한눈에 확인할 수 있는 표입니다. 마스터 워크북과 실시간으로 연결되어 있어 시트가 갱신되면 이 페이지도 새로고침 시 최신 내용으로 반영됩니다.</div>
+    </div>
+    <div class="top-meta"><span class="live-dot"></span><span id="meta-date"></span><button id="btn-refresh" class="btn-refresh" onclick="manualRefresh()" title="구글 시트에서 최신 데이터를 다시 불러옵니다"><span class="spin-ico">↻</span> 새로고침</button></div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-btn-roster" onclick="switchTab('roster')">전체 명단</button>
+    <button class="tab-btn" id="tab-btn-apply" onclick="switchTab('apply')">지원 현황 <span id="apply-tab-count"></span></button>
+    <button class="tab-btn" id="tab-btn-stats" onclick="switchTab('stats')">통계</button>
+  </div>
+
+  <div id="panel-roster">
+  <div class="stats" id="stats"></div>
+
+  <div class="notice">
+    <span class="dot">●</span>
+    <span>이 표는 <b>지원자 명단이 아니라</b> 등록연차·출석률을 기준으로 지원 가능 여부를 미리 확인할 수 있는 청년2부 전체 명단입니다. 실제 지원 접수 현황은 옆의 "지원 현황" 탭에서 확인해주세요. 최근 등록자 일부는 출석부 데이터가 아직 없어 "데이터 없음"으로 표기됩니다.</span>
+  </div>
+
+  <details class="filters" id="filters" open>
+    <summary><span class="filt-ico">☰</span> 필터 · 정렬 <span class="filt-count" id="filt-count"></span></summary>
+    <div class="toolbar">
+      <input id="f-search" type="text" placeholder="이름 검색">
+      <select id="f-cohort"><option value="">동기 전체</option></select>
+      <select id="f-team"><option value="">현재 팀 전체</option></select>
+      <select id="f-role">
+        <option value="">현재역할 전체</option>
+        <option value="팀장">팀장</option>
+        <option value="조장">조장</option>
+        <option value="부조장">부조장</option>
+        <option value="조원">조원</option>
+        <option value="면려회">면려회</option>
+      </select>
+      <select id="f-elig">
+        <option value="">지원가능 전체</option>
+        <option value="팀장/조장/부조장 가능">팀장·조장·부조장 가능</option>
+        <option value="조장/부조장 가능">조장·부조장 가능</option>
+        <option value="부조장 가능">부조장만 가능</option>
+        <option value="해당없음">해당없음</option>
+      </select>
+      <select id="f-course"><option value="">양육과정 전체</option><option value="수료">수료</option><option value="미수료">미수료</option></select>
+      <select id="f-sort">
+        <option value="cohort">동기순</option>
+        <option value="name">이름순</option>
+        <option value="att-desc">출석률 높은순</option>
+        <option value="att-asc">출석률 낮은순</option>
+        <option value="tenure-desc">등록연차 긴순</option>
+      </select>
+      <label class="chk-toggle"><input type="checkbox" id="f-exclude-applied"> 미지원자만 보기</label>
+      <button id="reset-btn">필터 초기화</button>
+    </div>
+  </details>
+
+  <div class="result-count" id="result-count"></div>
+  <div id="groups"></div>
+  </div>
+
+  <div id="panel-apply" style="display:none">
+    <div class="notice">
+      <span class="dot">●</span>
+      <span>구글 폼으로 접수된 지원서만 모아 보여줍니다. 응답 시트에 새 지원서가 들어오면 이 페이지를 새로고침할 때 자동으로 반영됩니다.</span>
+    </div>
+    <div id="apply-summary" class="apply-summary"></div>
+    <div id="apply-list"></div>
+  </div>
+
+  <div id="panel-stats" style="display:none">
+    <div class="notice">
+      <span class="dot">●</span>
+      <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다. "2026년 현 리더 인원 대비"는 2026년 상반기에 실제로 활동한 팀장·조장·부조장 51명(노션 비교자료 기준)과 비교한 수치이며, 성비는 구글시트 DB 매칭 기준으로 매칭되지 않는 이름은 "미확인"으로 표시됩니다.</span>
+    </div>
+    <div id="stats-content"></div>
+  </div>
+
+  <footer class="foot" id="footer-total"></footer>
+</div>
+
+<script>
+const ACCESS_CODE = "0906";
+const SHEET_ID = "1UPUpBLJtt_ke2ViB-bRH-zVz2X3H8o9rWhoagBTIhjA";
+const SHEET_TAB = "2026 메이커스";
+const RESP_SHEET_ID = "1j9OXTouq5hWOdpfCH2OJLzI-zpTtjTU2EdLvd35TShE";
+const RESP_GID = "1908492599";
+const COHORT_ORDER_FULL = ["91","92","93","94","95","96","97","98","99","00"];
+
+let APPLICANTS = [];
+
+/* 팀 내 직책과 별개로 겸직하는 면려회, 그리고 회칙상 별도 트랙인 부조장 —
+   원본 시트의 "현재역할" 컬럼에는 아직 반영되어 있지 않아 여기서 보정합니다.
+   (위원회가 실제 부조장/면려회 명단을 바꾸면 이 두 줄만 갱신하면 됩니다.) */
+const MYEONRYEOHOE = new Set(["김한나A","구나연","민주현","이채현","김연주","이용권","서덕민"]);
+const BUJOJANG = new Set(["박재형","박지현","편예림"]);
+
+/* 통계 탭 "지원자 성비"용 이름|동기 → 성별 매핑. 응답 시트/가능등급 시트에는 성별 컬럼이 없어,
+   마스터 워크북의 "26메이커스 DB(하반기)" 탭에서 추출해 하드코딩했습니다(2026-09-02 기준, 443명).
+   위 두 세트와 같은 방식 — 원본에 성별 컬럼이 추가되면 이 표 대신 시트 컬럼을 바로 읽도록 바꾸면 됩니다. */
+const GENDER_MAP = {"강신의|97":"남","김현철|91":"남","이신혜|91":"여","김준성|95":"남","이사라|95":"여","이채현|97":"남","김지현|99":"여","안재범|99":"남","최성찬|99":"여","김가현|00":"여","민지원|00":"여","정형민|00":"남","표성하|00":"남","남은혜|92":"여","박지웅|92":"남","박동규|94":"남","윤영진|94":"남","공윤상|95":"남","이은미|95":"여","전동환|97":"남","김영우|98":"남","이원진|99":"남","김민지B|00":"여","김수진|00":"여","김주원|00":"여","박수민|00":"여","오명주|95":"여","김유웅|91":"남","김지일|92":"남","안성인|95":"남","임혜린|95":"여","김준희|96":"남","김태연|98":"여","이승현|98":"남","문채은|99":"여","한수영|99":"여","김혜주|00":"여","장지인|00":"여","김선웅|98":"남","정예주|91":"여","심연석|92":"남","최찬휘|92":"남","박지윤|93":"여","화은지|93":"여","김에스더|94":"여","최재환|95":"남","김진실|96":"여","문하영|96":"여","권오율|98":"남","홍수정|98":"여","이현석|99":"남","양지은|99":"여","민사라|92":"여","송종범|92":"남","유승현|93":"여","이무일|93":"남","설재윤|96":"남","김민석A|97":"남","최용훈|97":"남","이지우|98":"여","윤하림|99":"여","황예광|99":"남","조수연B|00":"여","이정인|93":"남","강진구|93":"남","이명훈|92":"남","조승현|92":"남","지동호|92":"남","김유진|94":"여","박진범|94":"남","임장훈|94":"남","조윤계|94":"여","김영진|96":"여","이원혁|96":"남","김혜연|98":"여","임동욱|98":"남","김지수|00":"여","이해형|00":"남","최한나|95":"여","박은빈|92":"여","우렁찬|93":"남","김광희|94":"남","임하늘|94":"여","편예림|94":"여","박재희|96":"여","한희정|96":"남","박지은|97":"여","남궁석|98":"남","조성완|99":"남","김나연|00":"여","이정우|00":"남","원혜연|97":"여","박정환|92":"남","백승우|92":"남","김성은|94":"여","박소희|96":"여","최예진B|96":"여","김민정B|97":"여","노슬비|97":"여","민주현|97":"여","윤찬미|97":"여","이예인|97":"여","이한결|98":"여","박형민|99":"남","박형규|00":"남","백재은|00":"여","최다민|97":"여","오하경|93":"여","이연호|93":"남","이원준|94":"남","황금준|96":"남","박지현|97":"여","조하진|98":"여","김하민|99":"남","박주한|99":"남","변해준|99":"남","최현수|99":"남","송수한|00":"남","임충규|93":"남","이정현|94":"남","김준석A|91":"남","박성휘|92":"여","최용현|92":"남","양현모|93":"남","최신애|95":"여","이초희|96":"여","최승우|96":"남","이효주|97":"여","마민우|99":"남","박예림|99":"여","김희윤|96":"여","이시온A|97":"남","전아현|99":"여","성효경|97":"여","이건희|91":"남","이지현A|91":"여","양정모|92":"남","지은혜|93":"여","박예나|94":"여","최정현|94":"여","최지현|95":"여","김미현|96":"여","신은진|96":"여","조형래|96":"남","손종환|97":"남","조창현|98":"남","김건|99":"남","박규리|99":"여","문길수|00":"남","이시온B|00":"남","박채원B|99":"여","정수연|92":"남","황산성|92":"남","김진규|95":"남","설예원|95":"여","김수빈|96":"여","오데니스|96":"남","한지은|96":"여","최진혁|98":"남","원유미|99":"여","정근모|99":"남","김주영|00":"여","박한성|00":"남","이도연|00":"남","이유진B|99":"여","권지연|92":"여","조진태|92":"남","장태훈|93":"남","강석진|94":"남","정문종|94":"남","박민나|95":"여","지현경|95":"여","구나연|96":"여","한준택|97":"남","현명한|97":"남","김민찬|99":"남","황찬미|99":"여","박지희B|00":"여","장유민|00":"여","이경원|94":"여","이지원|92":"여","조혜경|92":"여","기도영|94":"남","황래혁|94":"남","김성경|95":"여","원은진|97":"여","이성우|97":"남","이진우|98":"남","김태영|99":"남","장은서|00":"여","한지원|00":"여","박선용|94":"남","고현정|92":"여","강민규|95":"남","최한길|95":"남","김승환|96":"남","홍직경|96":"여","강동근|98":"남","박승민|98":"남","전윤|98":"남","신금하|00":"여","홍자경|97":"여","노태영|92":"남","신지혜|92":"여","박채원A|95":"여","이다운|96":"남","홍민형|96":"여","윤진우|98":"남","이현지|98":"여","강건|00":"남","전하정|00":"여","김수현|98":"여","박재형|96":"남","신은식|92":"남","신지현|94":"여","오현석|94":"남","김주환|95":"남","한수아|97":"여","홍민주|98":"여","김혜준|00":"남","장효민|98":"여","김찬우|94":"남","김민지A|95":"여","노하은|95":"여","신선우|98":"남","김민석B|99":"남","김하림|99":"여","백서윤|99":"여","김상은|00":"여","장민지|99":"여","황금산|91":"남","이찬용|93":"남","김재욱|98":"남","이용권|98":"남","손영혜|99":"여","홍가은|99":"여","유수민|00":"여","김예림|97":"여","임지수|91":"여","이홍재|91":"남","탁나연|94":"여","변다윤|95":"여","손다몬|95":"남","송예림|95":"여","이진솔|95":"여","이태영|96":"여","장유진|98":"여","최소연|98":"여","조헌재|99":"남","한정원|99":"여","주지혜|00":"여","주재윤|91":"남","김상준|91":"남","남기훈|91":"남","이성재|91":"남","서덕민|93":"남","문주영|94":"여","원승연|94":"여","권하빈|95":"남","남의지|95":"여","김지원|98":"여","이승주|98":"여","황성진|98":"남","안예진|99":"여","송인태|00":"남","강하영|96":"여","박진솔|91":"여","한민아|91":"여","황서현|92":"여","최시은|93":"여","이현주|95":"여","장예진|95":"여","채예현|95":"여","변주희|97":"여","김이삭|98":"남","김정윤|99":"남","류현식|99":"남","정태민|99":"남","신철진|97":"남","김호경|92":"여","유인석|95":"남","윤세라|95":"여","이현정|95":"여","정현욱|96":"남","김현애|97":"여","강준영|00":"남","김성현|00":"남","이소윤|00":"여","차혁진|00":"남","송수현|98":"남","이재명|91":"남","구연희|94":"여","강해우|95":"남","김경현|95":"여","김준석B|95":"남","박민규|95":"남","이예진|96":"여","이준엽|98":"남","김미조|99":"여","박예준|99":"남","신민선|00":"남","조예준|00":"남","최서연|97":"여","유소리나|92":"여","정한비|95":"여","김건희|96":"여","정명|98":"남","박재석|99":"남","이민환|99":"남","조현웅|99":"남","정수연|99":"여","이재은|00":"남","김민정A|91":"여","이민지|95":"여","정진우|95":"남","남규태|96":"남","옥동경|97":"남","임채린|98":"여","이지예|99":"여","강하은|00":"여","권유리|00":"여","이경찬|00":"남","문영진|94":"남","민승빈|93":"남","안예린|93":"여","박충현|94":"남","이수빈|94":"여","이지민B|94":"여","김자윤|95":"여","이윤석|96":"남","김정호|97":"남","문채규|99":"남","김영국|00":"남","정경진|94":"여","김홍균|92":"남","박은진|93":"여","김성빈|94":"남","권선영|95":"여","명시온|95":"여","서그린|95":"여","성유빈|99":"남","임수진|00":"여","장동찬|00":"남","박지희A|96":"여","김한나A|92":"여","김종욱|94":"남","김기연|96":"여","김도현|95":"남","정동영|95":"남","이경지|97":"여","이지현B|98":"여","서예린|99":"여","이건주|98":"여","김혜린|95":"여","윤선관|95":"남","이유진A|96":"여","조혜지|97":"여","김성호|98":"남","김영수|98":"남","김수아|99":"여","이서연|00":"여","최지원|00":"남","김재원|98":"남","신종민|91":"남","이경진|92":"여","이창희|92":"남","김광록|93":"남","양시몬|93":"남","윤준영|93":"남","구태송|94":"남","이승현|95":"여","김서아|96":"여","전혜린|96":"여","유승진|97":"남","강은석|99":"남","이희태|99":"남","홍은애|00":"여","한희승|93":"남","전동섭|91":"남","정용석|91":"남","정준영|92":"남","최원준|93":"남","김현수A|94":"남","신철민|95":"남","김슬기|96":"여","신선민|96":"여","유은이|96":"여","정유진|98":"여","황예진|98":"여","안서현|00":"여","김하영|94":"여","조현수|91":"남","고요한|93":"남","방미나|93":"여","유송희|93":"여","류한종|95":"남","김연주|98":"여","김상훈|99":"남","김수윤|99":"여","최윤지|99":"여","김현수B|00":"남","윤여빈|00":"여","이예지|94":"여","김성욱|92":"남","김누리|94":"여","손현영|94":"남","이지민A|94":"여","임소정|94":"여","강연우|98":"여","김민경|98":"여","김요셉|98":"남","조예찬|98":"남","황가현|99":"여","김보현|00":"남","최이레|00":"여","김희주|96":"여","장성훈|91":"남","전예찬|93":"남","조수연A|93":"여","양한현|95":"남","류연주|97":"여","김한나B|99":"여","박예진|99":"여","설동현|99":"남","전서연|99":"여","조민서|00":"남","홍희진|00":"여","문영광|91":"남","배윤지|92":"여","박소현|94":"여","박지인A|94":"여","박지홍|94":"여","장한나|96":"여","강주석|97":"남","김한솔|99":"여","김병훈|92":"남","강청솔|93":"여","최예진A|91":"여","이선영|92":"여","최현호|92":"남","윤권능|97":"여","김규현|98":"남","강승협|99":"남"};
+function genderOf(name, cohort){
+  return GENDER_MAP[(name || '').trim() + '|' + (cohort || '').trim()] || null;
+}
+
+/* 2026년 상반기 실제 활동 리더 인원 (노션 "2026년 상반기 리더 현황(비교 참고용)" 표, 2026-09-02 확인).
+   면려회·히엘은 회칙상 리더 선출 대상이 아니므로 제외하고 팀장·조장·부조장만 더했습니다. */
+const LEADER_2026 = { '팀장': 10, '조장': 30, '부조장': 11 };
+const LEADER_2026_TOTAL = LEADER_2026['팀장'] + LEADER_2026['조장'] + LEADER_2026['부조장'];
+
+let ROSTER = [];
+let COUNTS = {};
+let TEAM_LIST = [];
+let COHORT_PRESENT = [];
+const openGroups = new Set();
+const ELIG_TIERS = ['팀장/조장/부조장 가능','조장/부조장 가능','부조장 가능','해당없음'];
+
+/* ---------- CSV parsing (RFC4180 minimal) ---------- */
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i], next = text[i+1];
+    if (inQuotes){
+      if (c === '"' && next === '"'){ field += '"'; i++; }
+      else if (c === '"'){ inQuotes = false; }
+      else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ','){ row.push(field); field = ''; }
+      else if (c === '\r'){ /* skip */ }
+      else if (c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.length > 1 || (r.length === 1 && r[0] !== ''));
+}
+
+function gvizCsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`;
+}
+function respCsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${RESP_SHEET_ID}/export?format=csv&gid=${RESP_GID}`;
+}
+
+let lastFetchTime = null;
+
+function formatFetchTime(d){
+  if (!d) return '';
+  return d.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+}
+
+/* 마스터 명단 + 응답 시트를 fetch해서 ROSTER/APPLICANTS를 새로 채움 (최초 로딩·수동 새로고침 공용) */
+async function fetchAndBuild(){
+  const res = await fetch(gvizCsvUrl(), {cache:'no-store'});
+  if (!res.ok) throw new Error('http ' + res.status);
+  const text = await res.text();
+  const rows = parseCSV(text);
+  if (!rows.length || rows[0].indexOf('이름') === -1 || rows[0].indexOf('가능등급') === -1){
+    throw new Error('unexpected sheet content — check sharing permission (anyone with link, viewer)');
+  }
+  buildRoster(rows);
+
+  try {
+    const res2 = await fetch(respCsvUrl(), {cache:'no-store'});
+    if (res2.ok){
+      const text2 = await res2.text();
+      buildApplicants(parseCSV(text2));
+    } else {
+      APPLICANTS = [];
+    }
+  } catch (e2){
+    console.error('applicants fetch failed', e2);
+    APPLICANTS = [];
+  }
+  lastFetchTime = new Date();
+}
+
+async function loadData(){
+  document.getElementById('load-error').style.display = 'none';
+  document.getElementById('loading').style.display = 'flex';
+  try {
+    await fetchAndBuild();
+    document.getElementById('loading').style.display = 'none';
+    showApp();
+  } catch (e){
+    console.error(e);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('load-error').style.display = 'flex';
+  }
+}
+
+/* 페이지를 다시 열지 않고, 화면 안 새로고침 버튼으로 최신 데이터만 다시 받아오기 */
+async function manualRefresh(){
+  const btn = document.getElementById('btn-refresh');
+  if (btn){ btn.disabled = true; btn.innerHTML = '<span class="spin-ico" style="animation:spin .8s linear infinite">↻</span> 새로고침 중...'; }
+  try {
+    await fetchAndBuild();
+    showApp();
+    if (btn){
+      btn.innerHTML = '<span class="spin-ico">✓</span> 완료';
+      setTimeout(() => { btn.innerHTML = '<span class="spin-ico">↻</span> 새로고침'; btn.disabled = false; }, 1400);
+    }
+  } catch (e){
+    console.error(e);
+    if (btn){ btn.innerHTML = '<span class="spin-ico">⚠</span> 실패(재시도)'; btn.disabled = false; }
+  }
+}
+
+function buildApplicants(rows){
+  if (!rows.length){ APPLICANTS = []; return; }
+  const header = rows[0].map(h => h.trim());
+  const col = name => header.indexOf(name);
+  const idx = {
+    ts: col('타임스탬프'),
+    team: col('1-1. 팀'),
+    cohort: col('1-2. 동기'),
+    name: col('1-3. 이름'),
+    phone: col('1-4. 연락처'),
+    exp: col('2. 리더사역 경험'),
+    expDetail: col('2-1. 어떤 사역을 하셨었나요?'),
+    gift: header.findIndex(h => h.indexOf('은사나 경험') !== -1),
+    reason: header.findIndex(h => h.indexOf('지원하게 된 이유') !== -1),
+    goal: header.findIndex(h => h.indexOf('이루고 싶은 목표') !== -1),
+    curRole: col('현재역할'),
+    att: col('출석률'),
+    tenure: col('등록연차'),
+    course: col('양육과정수료'),
+    eligible: col('가능한 직분'),
+    check: col('대조결과'),
+  };
+  const out = [];
+  for (let i = 1; i < rows.length; i++){
+    const r = rows[i];
+    const name = (r[idx.name] || '').trim();
+    if (!name) continue;
+    out.push({
+      ts: (r[idx.ts] || '').trim(),
+      team: (r[idx.team] || '').trim(),
+      cohort: (r[idx.cohort] || '').trim(),
+      name: name,
+      phone: (r[idx.phone] || '').trim(),
+      exp: (r[idx.exp] || '').trim(),
+      expDetail: (r[idx.expDetail] || '').trim(),
+      gift: idx.gift >= 0 ? (r[idx.gift] || '').trim() : '',
+      reason: idx.reason >= 0 ? (r[idx.reason] || '').trim() : '',
+      goal: idx.goal >= 0 ? (r[idx.goal] || '').trim() : '',
+      curRole: (r[idx.curRole] || '').trim(),
+      att: (r[idx.att] || '').trim(),
+      tenure: (r[idx.tenure] || '').trim(),
+      course: (r[idx.course] || '').trim(),
+      eligible: (r[idx.eligible] || '').trim(),
+      check: (r[idx.check] || '').trim(),
+    });
+  }
+  APPLICANTS = out;
+}
+
+function buildRoster(rows){
+  const header = rows[0].map(h => h.trim());
+  const idx = {
+    name: header.indexOf('이름'),
+    cohort: header.indexOf('동기'),
+    team: header.indexOf('현재소속팀'),
+    role: header.indexOf('현재역할'),
+    tenure: header.indexOf('등록연차'),
+  };
+  const attIdx = header.findIndex(h => h.indexOf('출석률') !== -1);
+  const courseIdx = header.indexOf('양육과정수료');
+  const eligIdx = header.indexOf('가능등급');
+  const remarkIdx = header.indexOf('비고');
+
+  const roster = [];
+  for (let i = 1; i < rows.length; i++){
+    const r = rows[i];
+    if (!r || !r[idx.name]) continue;
+    const name = r[idx.name].trim();
+    let cohort = (r[idx.cohort] || '').trim();
+    if (cohort === '0') cohort = '00';
+    let roles = [(r[idx.role] || '').trim()];
+    if (BUJOJANG.has(name)) roles = ['부조장'];
+    if (MYEONRYEOHOE.has(name) && roles.indexOf('면려회') === -1) roles.push('면려회');
+    const attRaw = (r[attIdx] || '').trim();
+    roster.push({
+      n: name,
+      c: cohort,
+      t: (r[idx.team] || '').trim(),
+      r: roles,
+      ten: (r[idx.tenure] || '').trim(),
+      att: attRaw === '' ? null : attRaw,
+      co: (r[courseIdx] || '').trim(),
+      e: (r[eligIdx] || '').trim(),
+      rm: cleanRemark((r[remarkIdx] || '').trim()),
+    });
+  }
+  ROSTER = roster;
+
+  COUNTS = {total: roster.length};
+  ['팀장/조장/부조장 가능','조장/부조장 가능','부조장 가능','해당없음'].forEach(tier => {
+    COUNTS[tier] = roster.filter(m => m.e === tier).length;
+  });
+  TEAM_LIST = Array.from(new Set(roster.map(m => m.t))).filter(Boolean).sort((a,b) => a.localeCompare(b,'ko'));
+  COHORT_PRESENT = COHORT_ORDER_FULL.filter(c => roster.some(m => m.c === c));
+}
+
+function cleanRemark(rm){
+  return rm.split(';').map(s => s.trim()).filter(s => s && s !== '등반일 미기재(장기 등록 추정)').join('; ');
+}
+
+/* 구글 폼 기본 타임스탬프 형식("2026. 9. 3 오후 3:01:00")을 정렬용 숫자로 변환.
+   형식이 안 맞으면(수동 입력 오류 등) 0을 반환해 목록 맨 뒤로 보냅니다. */
+function parseTs(ts){
+  if (!ts) return 0;
+  const m = String(ts).match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\s*(오전|오후)\s*(\d{1,2}):(\d{2}):(\d{2})/);
+  if (!m) return 0;
+  let [, y, mo, d, ap, h, mi, s] = m;
+  h = parseInt(h, 10);
+  if (ap === '오후' && h !== 12) h += 12;
+  if (ap === '오전' && h === 12) h = 0;
+  return new Date(+y, +mo - 1, +d, h, +mi, +s).getTime();
+}
+
+/* 단일 값(0~100%) 진행률 도넛 — "목표 대비 현재" 같은 비교용 */
+function donutSVG(pct, color, opts){
+  opts = opts || {};
+  const size = opts.size || 76, stroke = opts.stroke || 9;
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const clamped = Math.max(0, Math.min(100, pct || 0));
+  const off = c * (1 - clamped / 100);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${stroke}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}"
+      stroke-linecap="round" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}"
+      transform="rotate(-90 ${size/2} ${size/2})"/>
+  </svg>`;
+}
+
+/* 여러 항목으로 구성된 도넛 — "전체를 구성하는 비율"용 (예: 성비) */
+function multiDonutSVG(segments, opts){
+  opts = opts || {};
+  const size = opts.size || 76, stroke = opts.stroke || 9;
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const total = segments.reduce((s, x) => s + x.value, 0);
+  if (!total) return donutSVG(0, 'var(--surface-2)', opts);
+  let acc = 0;
+  const circles = segments.filter(s => s.value > 0).map(s => {
+    const frac = s.value / total;
+    const dash = c * frac, gap = c - dash;
+    const rotate = -90 + (acc / total) * 360;
+    acc += s.value;
+    return `<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${stroke}"
+      stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}" transform="rotate(${rotate.toFixed(2)} ${size/2} ${size/2})"/>`;
+  }).join('');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${stroke}"/>
+    ${circles}
+  </svg>`;
+}
+
+/* ---------- gate ---------- */
+document.getElementById('gate-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  const val = document.getElementById('gate-input').value.trim();
+  if (val === ACCESS_CODE){
+    try { sessionStorage.setItem('mkr_gate_ok','1'); } catch(err){}
+    document.getElementById('gate').style.display = 'none';
+    loadData();
+  } else {
+    const err = document.getElementById('gate-error');
+    err.textContent = '코드가 일치하지 않습니다.';
+    const card = document.querySelector('.gate-card');
+    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+  }
+});
+
+(function(){
+  let unlocked = false;
+  try { unlocked = sessionStorage.getItem('mkr_gate_ok') === '1'; } catch(e){}
+  if (unlocked){
+    document.getElementById('gate').style.display = 'none';
+    loadData();
+  }
+})();
+
+/* ---------- app ---------- */
+let filtersBound = false;
+
+function showApp(){
+  const t = formatFetchTime(lastFetchTime);
+  document.getElementById('meta-date').textContent = '총 ' + COUNTS.total + '명 · ' + t + ' 갱신';
+  document.getElementById('footer-total').textContent = '총 ' + COUNTS.total + '명 · 구글 시트 실시간 연동 · ' + t + ' 기준 · 개인 열람용';
+  renderStats();
+  populateFilterOptions();
+  if (!filtersBound){ bindFilterEvents(); filtersBound = true; }
+  render();
+  renderApplicants();
+  renderStatsTab();
+  document.getElementById('app').style.display = 'block';
+}
+
+function switchTab(tab){
+  document.getElementById('tab-btn-roster').classList.toggle('active', tab === 'roster');
+  document.getElementById('tab-btn-apply').classList.toggle('active', tab === 'apply');
+  document.getElementById('tab-btn-stats').classList.toggle('active', tab === 'stats');
+  document.getElementById('panel-roster').style.display = tab === 'roster' ? 'block' : 'none';
+  document.getElementById('panel-apply').style.display = tab === 'apply' ? 'block' : 'none';
+  document.getElementById('panel-stats').style.display = tab === 'stats' ? 'block' : 'none';
+}
+
+function renderApplicants(){
+  document.getElementById('apply-tab-count').textContent = APPLICANTS.length ? `(${APPLICANTS.length})` : '';
+
+  const summaryEl = document.getElementById('apply-summary');
+  const listEl = document.getElementById('apply-list');
+
+  if (!APPLICANTS.length){
+    summaryEl.innerHTML = '';
+    listEl.innerHTML = '<div class="empty">아직 접수된 지원서가 없습니다. 지원서가 접수되면 이 페이지를 새로고침할 때 자동으로 표시됩니다.</div>';
+    return;
+  }
+
+  const total = APPLICANTS.length;
+  const tierCount = {};
+  ELIG_TIERS.forEach(t => { tierCount[t] = APPLICANTS.filter(a => a.eligible === t).length; });
+  const tierClass = {'팀장/조장/부조장 가능':'tier1','조장/부조장 가능':'tier2','부조장 가능':'tier3','해당없음':'tier4'};
+  const tierLabel = {'팀장/조장/부조장 가능':'팀장·조장·부조장\n모두 가능','조장/부조장 가능':'조장·부조장\n가능','부조장 가능':'부조장만\n가능','해당없음':'해당없음'};
+  const statItems = [{cls:'total', elig:'', num:total, lbl:'총 지원 건수', pct:100}]
+    .concat(ELIG_TIERS.map(t => ({cls:tierClass[t], elig:t, num:tierCount[t], lbl:tierLabel[t], pct: total ? tierCount[t]/total*100 : 0})));
+
+  const byCohort = {};
+  APPLICANTS.forEach(a => { const c = a.cohort || '미기재'; byCohort[c] = (byCohort[c] || 0) + 1; });
+  const cohortKeys = Object.keys(byCohort).sort((a,b) => {
+    const ia = COHORT_ORDER_FULL.indexOf(a), ib = COHORT_ORDER_FULL.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b,'ko');
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+
+  summaryEl.innerHTML = `
+    <div class="stats">
+      ${statItems.map(it => `
+        <div class="stat ${it.cls}" role="button" tabindex="0" title="클릭하면 전체 명단 탭에서 이 등급의 미지원자만 보여줍니다" onclick="crossFilterToRoster('${it.elig}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();crossFilterToRoster('${it.elig}')}">
+          <div class="num tnum">${it.num}</div>
+          <div class="lbl">${it.lbl.replace('\n','<br>')}</div>
+          <div class="bar"><i style="width:${it.pct}%"></i></div>
+        </div>`).join('')}
+    </div>
+    <div class="cohort-chips">
+      <span class="cohort-chips-lbl">동기별 지원</span>
+      ${cohortKeys.map(c => `<span class="cohort-chip">${escapeHtml(c === '미기재' ? c : c + '동기')} <b>${byCohort[c]}</b></span>`).join('')}
+    </div>
+  `;
+
+  /* 접수일시 최신순 — 위원회가 새로 들어온 지원서를 바로 확인할 수 있도록 동기별 접기 없이
+     하나의 목록으로 보여줍니다(동기별 인원은 위 "동기별 지원" 칩으로 확인). */
+  const sorted = APPLICANTS.slice().sort((a, b) => parseTs(b.ts) - parseTs(a.ts));
+  listEl.innerHTML = sorted.map(applicantCard).join('');
+}
+
+function applicantCard(a){
+  const isMismatch = a.check && a.check.indexOf('불일치') !== -1;
+  const matchBadge = a.check
+    ? `<span class="badge ${isMismatch ? 'match-warn' : 'match-ok'}">${escapeHtml(a.check)}</span>`
+    : '';
+  const fields = [
+    ['현재역할(시트 기준)', a.curRole],
+    ['가능한 직분', a.eligible],
+    ['출석률', a.att ? (/^[\d.]+$/.test(a.att) ? a.att + '%' : a.att) : ''],
+    ['등록연차', a.tenure],
+    ['양육과정수료', a.course],
+    ['연락처', a.phone],
+  ].filter(([,v]) => v);
+  const essays = [
+    ['리더사역 경험', [a.exp, a.expDetail].filter(Boolean).join(' — ')],
+    ['은사·강점', a.gift],
+    ['지원 이유', a.reason],
+    ['목표·다짐', a.goal],
+  ].filter(([,v]) => v);
+
+  return `
+    <div class="app-card">
+      <div class="app-head">
+        <div>
+          <div class="app-name">${escapeHtml(a.name)} <span style="font-weight:600;color:var(--ink-faint);font-size:12.5px">${escapeHtml(a.cohort)}동기</span></div>
+          <div class="app-meta">지원: ${escapeHtml(a.team || '미기재')} · 접수일시 ${escapeHtml(a.ts || '-')}</div>
+        </div>
+        <div class="app-badges">${matchBadge}</div>
+      </div>
+      <div class="app-fields">
+        ${fields.map(([k,v]) => `<div class="app-field"><b>${escapeHtml(k)}</b>${escapeHtml(v)}</div>`).join('')}
+        ${essays.map(([k,v]) => `<div class="app-field wide"><b>${escapeHtml(k)}</b>${escapeHtml(v)}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderStats(){
+  const wrap = document.getElementById('stats');
+  const items = [
+    {cls:'total', elig:'', num:COUNTS.total, lbl:'전체 인원', pct:100},
+    {cls:'tier1', elig:'팀장/조장/부조장 가능', num:COUNTS['팀장/조장/부조장 가능'], lbl:'팀장·조장·부조장\n모두 가능', pct:COUNTS['팀장/조장/부조장 가능']/COUNTS.total*100},
+    {cls:'tier2', elig:'조장/부조장 가능', num:COUNTS['조장/부조장 가능'], lbl:'조장·부조장\n가능', pct:COUNTS['조장/부조장 가능']/COUNTS.total*100},
+    {cls:'tier3', elig:'부조장 가능', num:COUNTS['부조장 가능'], lbl:'부조장만\n가능', pct:COUNTS['부조장 가능']/COUNTS.total*100},
+    {cls:'tier4', elig:'해당없음', num:COUNTS['해당없음'], lbl:'해당없음\n(1년 미만 등록 등)', pct:COUNTS['해당없음']/COUNTS.total*100},
+  ];
+  wrap.innerHTML = items.map(it => `
+    <div class="stat ${it.cls}" role="button" tabindex="0" title="클릭하면 이 등급으로 명단이 필터링됩니다" onclick="filterByElig('${it.elig}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByElig('${it.elig}')}">
+      <div class="num tnum">${it.num}</div>
+      <div class="lbl">${it.lbl.replace('\n','<br>')}</div>
+      <div class="bar"><i style="width:${it.pct}%"></i></div>
+    </div>
+  `).join('');
+}
+
+/* "통계" 탭 — 지원 현황 데이터를 기준으로 계산한 통계. 자격자 수는 전체 명단(ROSTER) 기준 */
+function renderStatsTab(){
+  const wrap = document.getElementById('stats-content');
+  if (!APPLICANTS.length){
+    wrap.innerHTML = '<div class="empty">아직 접수된 지원서가 없습니다. 지원서가 접수되면 통계가 자동으로 표시됩니다.</div>';
+    return;
+  }
+
+  const eligiblePool = ROSTER.filter(m => m.e !== '해당없음');
+  const totalApplied = APPLICANTS.length;
+
+  /* 자격자 pool 전체가 아니라, 2026년 상반기에 실제로 활동한 리더 인원(51명)을 기준으로 비교 */
+  const vs2026Pct = LEADER_2026_TOTAL ? (totalApplied / LEADER_2026_TOTAL * 100) : 0;
+
+  /* 지원자 성비 — 구글시트 DB(26메이커스 DB(하반기) 탭)에서 뽑아둔 이름|동기 매핑으로 조회 */
+  const genderCount = { '남': 0, '여': 0, '미확인': 0 };
+  APPLICANTS.forEach(a => {
+    const g = genderOf(a.name, a.cohort);
+    genderCount[g === '남' || g === '여' ? g : '미확인']++;
+  });
+
+  let expYes = 0, expNo = 0;
+  APPLICANTS.forEach(a => {
+    if (a.exp.indexOf('있음') !== -1) expYes++;
+    else if (a.exp.indexOf('없음') !== -1) expNo++;
+  });
+
+  const summaryHtml = `
+    <div class="stats">
+      <div class="stat total">
+        <div class="num tnum">${totalApplied}</div>
+        <div class="lbl">총 지원 건수</div>
+      </div>
+      <div class="stat tier1 stat-donut" title="2026년 상반기 실제 활동 리더: 팀장 ${LEADER_2026['팀장']}·조장 ${LEADER_2026['조장']}·부조장 ${LEADER_2026['부조장']} = 총 ${LEADER_2026_TOTAL}명">
+        <div class="donut-wrap">
+          ${donutSVG(vs2026Pct, 'var(--accent)')}
+          <div class="donut-center"><div class="dc-num tnum">${vs2026Pct.toFixed(0)}%</div></div>
+        </div>
+        <div class="lbl">2026년 현 리더 인원 대비<br>(${totalApplied}/${LEADER_2026_TOTAL}명)</div>
+      </div>
+      <div class="stat stat-donut" title="구글시트 DB 기준 매칭 결과 — 매칭 안 되면 미확인으로 표시">
+        <div class="donut-wrap">
+          ${multiDonutSVG([
+            {value: genderCount['남'], color:'#5c86a8'},
+            {value: genderCount['여'], color:'#c17a90'},
+            {value: genderCount['미확인'], color:'var(--surface-2)'},
+          ])}
+        </div>
+        <div class="donut-legend">
+          <span><i style="background:#5c86a8"></i>남 ${genderCount['남']}</span>
+          <span><i style="background:#c17a90"></i>여 ${genderCount['여']}</span>
+          ${genderCount['미확인'] ? `<span><i style="background:var(--ink-faint)"></i>미확인 ${genderCount['미확인']}</span>` : ''}
+        </div>
+        <div class="lbl">지원자 성비</div>
+      </div>
+      <div class="stat tier2">
+        <div class="num tnum">${expYes}</div>
+        <div class="lbl">리더사역 경험 있음<br>(지원자 중 ${totalApplied ? Math.round(expYes/totalApplied*100) : 0}%)</div>
+      </div>
+      <div class="stat tier3">
+        <div class="num tnum">${expNo}</div>
+        <div class="lbl">리더사역 경험 없음<br>(지원자 중 ${totalApplied ? Math.round(expNo/totalApplied*100) : 0}%)</div>
+      </div>
+    </div>`;
+
+  function barRow(label, applied, pool){
+    const pct = pool ? Math.min(applied / pool * 100, 100) : 0;
+    const val = pool != null ? `${applied} / ${pool}명 (${pct.toFixed(0)}%)` : `${applied}명`;
+    return `
+      <div class="stat-row">
+        <div class="stat-row-lbl">${escapeHtml(label)}</div>
+        <div class="stat-row-bar"><i style="width:${pct}%"></i></div>
+        <div class="stat-row-val tnum">${val}</div>
+      </div>`;
+  }
+
+  const cohortRows = COHORT_PRESENT
+    .map(c => ({ c, pool: eligiblePool.filter(m => m.c === c).length, applied: APPLICANTS.filter(a => (a.cohort || '') === c).length }))
+    .filter(r => r.pool > 0)
+    .map(r => barRow(r.c + '동기', r.applied, r.pool)).join('');
+
+  const eligRows = ELIG_TIERS.filter(t => t !== '해당없음')
+    .map(t => ({ t, pool: ROSTER.filter(m => m.e === t).length, applied: APPLICANTS.filter(a => a.eligible === t).length }))
+    .map(r => barRow(eligShort(r.t), r.applied, r.pool)).join('');
+
+  const ROLE_ORDER = ['팀장','조장','부조장','조원','면려회'];
+  const roleRows = ROLE_ORDER
+    .map(role => ({ role, pool: ROSTER.filter(m => m.r.indexOf(role) !== -1).length, applied: APPLICANTS.filter(a => a.curRole === role).length }))
+    .filter(r => r.pool > 0)
+    .map(r => barRow(r.role, r.applied, r.pool)).join('');
+
+  wrap.innerHTML = summaryHtml + `
+    <div class="stat-section">
+      <div class="stat-section-title">동기별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원</span></div>
+      ${cohortRows || '<div class="empty" style="padding:16px 0">표시할 데이터가 없습니다.</div>'}
+    </div>
+    <div class="stat-section">
+      <div class="stat-section-title">자격등급별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원</span></div>
+      ${eligRows}
+    </div>
+    <div class="stat-section">
+      <div class="stat-section-title">현재역할별 지원 현황<span class="stat-section-sub">해당 역할 인원 대비 지원 인원</span></div>
+      ${roleRows || '<div class="empty" style="padding:16px 0">표시할 데이터가 없습니다.</div>'}
+    </div>
+  `;
+}
+
+/* 새로고침 시에도 사용자가 고른 동기/팀 필터가 초기화되지 않도록 기존 선택값을 보존 */
+function populateFilterOptions(){
+  const cSel = document.getElementById('f-cohort');
+  const prevCohort = cSel.value;
+  cSel.innerHTML = '<option value="">동기 전체</option>' + COHORT_PRESENT.map(c => `<option value="${c}">${c}동기</option>`).join('');
+  if (COHORT_PRESENT.indexOf(prevCohort) !== -1) cSel.value = prevCohort;
+
+  const tSel = document.getElementById('f-team');
+  const prevTeam = tSel.value;
+  tSel.innerHTML = '<option value="">현재 팀 전체</option>' + TEAM_LIST.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+  if (TEAM_LIST.indexOf(prevTeam) !== -1) tSel.value = prevTeam;
+}
+
+function bindFilterEvents(){
+  ['f-cohort','f-team','f-role','f-elig','f-course','f-sort'].forEach(id => {
+    document.getElementById(id).addEventListener('change', render);
+  });
+  document.getElementById('f-search').addEventListener('input', render);
+  document.getElementById('f-exclude-applied').addEventListener('change', render);
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    ['f-cohort','f-team','f-role','f-elig','f-course'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-sort').value = 'cohort';
+    document.getElementById('f-search').value = '';
+    document.getElementById('f-exclude-applied').checked = false;
+    render();
+  });
+}
+
+/* 이름+동기 키로 "이미 지원한 사람" 집합 생성 — 지원 현황 탭 데이터 기준 */
+function appliedKeySet(){
+  const set = new Set();
+  APPLICANTS.forEach(a => set.add((a.name || '').trim() + '|' + (a.cohort || '').trim()));
+  return set;
+}
+
+/* 통계 카드 클릭 → 전체 명단 탭을 해당 자격 등급으로 필터링 */
+function filterByElig(elig){
+  switchTab('roster');
+  document.getElementById('f-elig').value = elig;
+  render();
+  document.getElementById('panel-roster').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* 지원 현황 탭 통계 카드 클릭 → 전체 명단 탭에서 "그 등급인데 아직 지원 안 한 사람"만 필터링 */
+function crossFilterToRoster(elig){
+  switchTab('roster');
+  document.getElementById('f-elig').value = elig;
+  document.getElementById('f-exclude-applied').checked = true;
+  render();
+  document.getElementById('panel-roster').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function eligClass(e){
+  if (e === '팀장/조장/부조장 가능') return 'elig-1';
+  if (e === '조장/부조장 가능') return 'elig-2';
+  if (e === '부조장 가능') return 'elig-3';
+  return 'elig-4';
+}
+function eligShort(e){
+  if (e === '팀장/조장/부조장 가능') return '팀장·조장·부조장';
+  if (e === '조장/부조장 가능') return '조장·부조장';
+  if (e === '부조장 가능') return '부조장만';
+  return '해당없음';
+}
+function attNum(m){ return m.att === null ? null : parseFloat(m.att); }
+
+function applyFilters(){
+  const cohort = document.getElementById('f-cohort').value;
+  const team = document.getElementById('f-team').value;
+  const role = document.getElementById('f-role').value;
+  const elig = document.getElementById('f-elig').value;
+  const course = document.getElementById('f-course').value;
+  const q = document.getElementById('f-search').value.trim();
+  const excludeApplied = document.getElementById('f-exclude-applied').checked;
+  const applied = excludeApplied ? appliedKeySet() : null;
+  return ROSTER.filter(m => {
+    if (cohort && m.c !== cohort) return false;
+    if (team && m.t !== team) return false;
+    if (role && m.r.indexOf(role) === -1) return false;
+    if (elig && m.e !== elig) return false;
+    if (course && m.co !== course) return false;
+    if (q && m.n.indexOf(q) === -1) return false;
+    if (applied && applied.has((m.n || '').trim() + '|' + (m.c || '').trim())) return false;
+    return true;
+  });
+}
+
+function sortRows(rows){
+  const sort = document.getElementById('f-sort').value;
+  const arr = rows.slice();
+  if (sort === 'name') arr.sort((a,b) => a.n.localeCompare(b.n, 'ko'));
+  else if (sort === 'att-desc') arr.sort((a,b) => (attNum(b) ?? -1) - (attNum(a) ?? -1));
+  else if (sort === 'att-asc') arr.sort((a,b) => (attNum(a) ?? 9999) - (attNum(b) ?? 9999));
+  else if (sort === 'tenure-desc') arr.sort((a,b) => tenureNum(b) - tenureNum(a));
+  return arr;
+}
+function tenureNum(m){
+  const t = m.ten;
+  if (!t) return 0;
+  if (t.indexOf('장기') !== -1) return 2.0;
+  const f = parseFloat(t);
+  return isNaN(f) ? 0 : f;
+}
+
+function rowHtml(m, appliedSet){
+  const att = attNum(m);
+  const attHtml = att === null
+    ? '<span class="att-none">데이터 없음</span>'
+    : `<div class="att-wrap"><span class="att-num tnum">${att.toFixed(1)}%</span><span class="att-bar"><i style="width:${Math.min(att,100)}%"></i></span></div>`;
+  const roleHtml = m.r.map(r => `<span class="badge b-${r}">${escapeHtml(r)}</span>`).join('');
+  const courseHtml = m.co === '수료' ? '<span class="course-badge course-yes">수료</span>' : '<span class="course-badge course-no">미수료</span>';
+  const rmk = m.rm ? `<span class="rmk">${escapeHtml(m.rm)}</span>` : '';
+  const applied = appliedSet && appliedSet.has((m.n || '').trim() + '|' + (m.c || '').trim());
+  const appliedTag = applied ? '<span class="applied-tag">지원완료</span>' : '';
+  return `
+    <div class="row">
+      <div class="name">${escapeHtml(m.n)}${appliedTag}${rmk}</div>
+      <div class="team-cell" data-lbl="소속팀"><span class="team-pill" title="${escapeHtml(m.t)}">${escapeHtml(m.t)}</span></div>
+      <div class="roles" data-lbl="현재역할">${roleHtml}</div>
+      <div class="att-cell" data-lbl="출석률">${attHtml}</div>
+      <div class="tenure-col tnum" data-lbl="등록연차">${escapeHtml(m.ten)}</div>
+      <div class="course-cell" data-lbl="양육과정">${courseHtml}</div>
+      <div class="elig-cell" data-lbl="지원가능등급"><span class="elig-badge ${eligClass(m.e)}">${eligShort(m.e)}</span></div>
+    </div>
+  `;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function activeFilterCount(){
+  const ids = ['f-cohort','f-team','f-role','f-elig','f-course'];
+  let n = ids.filter(id => document.getElementById(id).value).length;
+  if (document.getElementById('f-search').value.trim()) n++;
+  if (document.getElementById('f-exclude-applied').checked) n++;
+  return n;
+}
+function updateFiltCountBadge(){
+  const n = activeFilterCount();
+  document.getElementById('filt-count').textContent = n ? `(${n})` : '';
+}
+
+function render(){
+  const filtered = applyFilters();
+  const sorted = sortRows(filtered);
+  updateFiltCountBadge();
+
+  document.getElementById('result-count').innerHTML = `<b>${filtered.length}</b> / ${COUNTS.total}명 표시 중`;
+
+  const groupsEl = document.getElementById('groups');
+  if (filtered.length === 0){
+    groupsEl.innerHTML = '<div class="empty">조건에 맞는 인원이 없습니다.</div>';
+    return;
+  }
+
+  const appliedSet = appliedKeySet();
+
+  const bySort = document.getElementById('f-sort').value;
+  if (bySort !== 'cohort'){
+    groupsEl.innerHTML = `
+      <div class="group open">
+        <div class="row headrow"><div>이름</div><div>팀</div><div>역할</div><div>출석률</div><div>연차</div><div>양육</div><div>가능등급</div></div>
+        <div class="group-body" style="display:block">${sorted.map(m => rowHtml(m, appliedSet)).join('')}</div>
+      </div>`;
+    return;
+  }
+
+  const byCohort = {};
+  sorted.forEach(m => { (byCohort[m.c] = byCohort[m.c] || []).push(m); });
+
+  groupsEl.innerHTML = COHORT_PRESENT
+    .filter(c => byCohort[c] && byCohort[c].length)
+    .map(c => {
+      const items = byCohort[c];
+      const isOpen = openGroups.has(c);
+      return `
+      <div class="group ${isOpen ? 'open' : ''}" data-cohort="${c}">
+        <div class="group-head" onclick="toggleGroup('${c}')">
+          <span class="car">▶</span>
+          <span class="cohort-tag">${c}동기</span>
+          <span class="cohort-count">${items.length}명</span>
+        </div>
+        <div class="group-body">
+          <div class="row headrow"><div>이름</div><div>팀</div><div>역할</div><div>출석률</div><div>연차</div><div>양육</div><div>가능등급</div></div>
+          ${items.map(m => rowHtml(m, appliedSet)).join('')}
+        </div>
+      </div>`;
+    }).join('');
+}
+
+function toggleGroup(c){
+  if (openGroups.has(c)) openGroups.delete(c); else openGroups.add(c);
+  const el = document.querySelector(`.group[data-cohort="${c}"]`);
+  if (el) el.classList.toggle('open');
+}
+</script>
+</body>
+</html>
