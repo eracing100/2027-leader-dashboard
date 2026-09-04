@@ -454,8 +454,10 @@ const COHORT_ORDER_FULL = ["91","92","93","94","95","96","97","98","99","00"];
 
 let APPLICANTS = [];
 
-/* 팀 내 직책과 별개로 겸직하는 면려회, 그리고 회칙상 별도 트랙인 부조장 —
-   원본 시트의 "현재역할" 컬럼에는 아직 반영되어 있지 않아 여기서 보정합니다.
+/* 회칙상 별도 트랙인 부조장, 그리고 면려회 — 원본 시트의 "현재역할" 컬럼에는 아직
+   반영되어 있지 않아 여기서 보정합니다. 두 역할 모두 원래 컬럼 값(대개 "조원")을
+   덮어써서 역할이 하나만 표시되도록 합니다(예: 면려회 인원은 "면려회"로만 표시,
+   "조원, 면려회"처럼 같이 뜨지 않음 — 통계의 역할별 인원 집계도 중복 없이 계산됨).
    (위원회가 실제 부조장/면려회 명단을 바꾸면 이 두 줄만 갱신하면 됩니다.) */
 const MYEONRYEOHOE = new Set(["김한나A","구나연","민주현","이채현","김연주","이용권","서덕민"]);
 const BUJOJANG = new Set(["박재형","박지현","편예림"]);
@@ -649,7 +651,7 @@ function buildRoster(rows){
     if (cohort === '0') cohort = '00';
     let roles = [(r[idx.role] || '').trim()];
     if (BUJOJANG.has(name)) roles = ['부조장'];
-    if (MYEONRYEOHOE.has(name) && roles.indexOf('면려회') === -1) roles.push('면려회');
+    if (MYEONRYEOHOE.has(name)) roles = ['면려회'];
     const attRaw = (r[attIdx] || '').trim();
     roster.push({
       n: name,
