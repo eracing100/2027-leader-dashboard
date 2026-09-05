@@ -45,26 +45,6 @@
   --shadow-lg:0 4px 10px rgba(23,38,32,.05), 0 24px 48px -20px rgba(23,38,32,.24);
   --shadow-accent:0 12px 26px -14px rgba(44,92,80,.28);
 }
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#12151c;
-    --surface:#191d27;
-    --surface-2:#20242f;
-    --ink:#eef0f4;
-    --ink-soft:#a6acba;
-    --ink-faint:#727a8c;
-    --border:#2b303c;
-    --accent:#5ea38f;
-    --accent-ink:#a9d3c6;
-    --accent-soft:#1c2b26;
-    --accent-soft-2:#22392f;
-    --gold:#d7ab61;
-    --danger:#e0776f;
-    --shadow:0 1px 2px rgba(0,0,0,.35), 0 14px 32px -16px rgba(0,0,0,.55);
-    --shadow-lg:0 4px 10px rgba(0,0,0,.3), 0 28px 56px -22px rgba(0,0,0,.6);
-    --shadow-accent:0 12px 28px -14px rgba(94,163,143,.24);
-  }
-}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;overflow-x:hidden}
 body{
@@ -83,10 +63,6 @@ body::before{
   opacity:.035;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
-@media (prefers-color-scheme: dark){
-  body::before{opacity:.05}
-}
-
 #gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden}
 #gate::before{
   content:'';position:absolute;width:640px;height:640px;border-radius:50%;
@@ -263,14 +239,6 @@ details.filters[open] summary::after{transform:rotate(180deg)}
 .b-조원{background:var(--surface-2);color:var(--ink-soft)}
 .b-면려회{background:#f3e6ea;color:#8a4a5c}
 .b-히엘{background:#e7ecf3;color:#4f5f82}
-@media (prefers-color-scheme: dark){
-  .b-팀장{background:#2a2233;color:#cbabd4}
-  .b-조장{background:#1f2c2f;color:#95c4cb}
-  .b-부조장{background:#372c17;color:#d9b876}
-  .b-조원{background:var(--surface-2);color:var(--ink-soft)}
-  .b-면려회{background:#33232a;color:#d99bad}
-  .b-히엘{background:#232b3a;color:#a9bade}
-}
 .att-wrap{display:flex;align-items:center;gap:6px}
 .att-num{font-weight:700;font-size:12px;min-width:34px}
 .att-bar{flex:1;height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden;min-width:28px}
@@ -726,7 +694,9 @@ function buildRoster(rows){
 }
 
 function cleanRemark(rm){
-  return rm.split(';').map(s => s.trim()).filter(s => s && s !== '등반일 미기재(장기 등록 추정)').join('; ');
+  return rm.split(';').map(s => s.trim())
+    .filter(s => s && s !== '등반일 미기재(장기 등록 추정)' && !/^\(현직\s*(팀장|조장|부조장)\)$/.test(s))
+    .join('; ');
 }
 
 /* 구글 폼 기본 타임스탬프 형식("2026. 9. 3 오후 3:01:00")을 정렬용 숫자로 변환.
