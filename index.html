@@ -911,9 +911,6 @@ function renderApplicants(){
       : `총 <b>${sorted.length}</b>명`;
   }
 
-  /* 최초 로딩 시(펼친 카드가 하나도 없을 때)는 가장 최근 지원서 1건만 자동으로 펼쳐서 보여줌 */
-  if (!openApplyCards.size && sorted.length) openApplyCards.add(applyCardKey(sorted[0]));
-
   listEl.innerHTML = sorted.length
     ? sorted.map(a => applicantCard(a, openApplyCards.has(applyCardKey(a)))).join('')
     : '<div class="empty">조건에 맞는 지원서가 없습니다.</div>';
