@@ -208,16 +208,23 @@ details.filters summary::-webkit-details-marker{display:none}
 details.filters summary::after{content:'▾';margin-left:2px;color:var(--ink-faint);font-size:11px;transition:transform .15s}
 details.filters[open] summary::after{transform:rotate(180deg)}
 .filt-count{color:var(--ink-faint);font-weight:600}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px;padding:2px 2px 10px}
+.toolbar{display:flex;gap:10px 12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:2px;padding:2px 2px 10px}
+.filter-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.filter-label{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-faint);padding-left:1px}
 .toolbar select, .toolbar input[type="text"]{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
 .toolbar input[type="text"]{cursor:text;font-weight:500;min-width:150px}
 .toolbar select:hover, .toolbar input[type="text"]:hover{border-color:var(--ink-faint)}
 .toolbar select:focus, .toolbar input[type="text"]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-#reset-btn,.toolbar-reset-btn{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-soft);background:transparent;border:1px solid transparent;border-radius:9px;padding:8px 10px;cursor:pointer;transition:color .2s var(--ease),background .2s var(--ease)}
+#reset-btn,.toolbar-reset-btn{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-soft);background:transparent;border:1px solid transparent;border-radius:9px;padding:8px 10px;cursor:pointer;transition:color .2s var(--ease),background .2s var(--ease);align-self:flex-end}
 #reset-btn:hover,.toolbar-reset-btn:hover{color:var(--ink);background:var(--surface-2)}
-.chk-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;user-select:none;transition:border-color .2s var(--ease)}
+.chk-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;user-select:none;transition:border-color .2s var(--ease);align-self:flex-end}
 .chk-toggle:hover{border-color:var(--ink-faint)}
 .chk-toggle input{cursor:pointer;accent-color:var(--accent)}
+.active-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 2px 8px}
+.active-chips:empty{display:none}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent-soft-2);border-radius:20px;padding:4px 6px 4px 11px;line-height:1.3}
+.chip button{all:unset;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;cursor:pointer;font-size:10px;color:inherit;opacity:.75}
+.chip button:hover{opacity:1;background:rgba(0,0,0,.08)}
 .result-count{font-size:12.5px;color:var(--ink-faint);font-weight:600;margin:14px 2px 10px}
 .result-count b{color:var(--ink)}
 
@@ -255,12 +262,14 @@ details.filters[open] summary::after{transform:rotate(180deg)}
 .b-부조장{background:#f6ecd9;color:#8a6423}
 .b-조원{background:var(--surface-2);color:var(--ink-soft)}
 .b-면려회{background:#f3e6ea;color:#8a4a5c}
+.b-히엘{background:#e7ecf3;color:#4f5f82}
 @media (prefers-color-scheme: dark){
   .b-팀장{background:#2a2233;color:#cbabd4}
   .b-조장{background:#1f2c2f;color:#95c4cb}
   .b-부조장{background:#372c17;color:#d9b876}
   .b-조원{background:var(--surface-2);color:var(--ink-soft)}
   .b-면려회{background:#33232a;color:#d99bad}
+  .b-히엘{background:#232b3a;color:#a9bade}
 }
 .att-wrap{display:flex;align-items:center;gap:6px}
 .att-num{font-weight:700;font-size:12px;min-width:34px}
@@ -289,8 +298,11 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   h1.title{font-size:21px}
   .top-meta{text-align:left;order:-1;margin-bottom:2px}
   .toolbar{flex-direction:column;align-items:stretch;padding-top:4px}
+  .filter-field{width:100%}
   .toolbar select,.toolbar input[type="text"]{width:100%}
+  .chk-toggle{align-self:stretch;justify-content:center}
   #reset-btn,.toolbar-reset-btn{align-self:flex-end}
+  .active-chips{padding-bottom:10px}
   .group-head{padding:14px 14px}
   .row{
     display:grid;grid-template-columns:1fr 1fr;
@@ -373,35 +385,58 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <details class="filters" id="filters" open>
     <summary><span class="filt-ico">☰</span> 필터 · 정렬 <span class="filt-count" id="filt-count"></span></summary>
     <div class="toolbar">
-      <input id="f-search" type="text" placeholder="이름 검색">
-      <select id="f-cohort"><option value="">동기 전체</option></select>
-      <select id="f-team"><option value="">현재 팀 전체</option></select>
-      <select id="f-role">
-        <option value="">현재역할 전체</option>
-        <option value="팀장">팀장</option>
-        <option value="조장">조장</option>
-        <option value="부조장">부조장</option>
-        <option value="조원">조원</option>
-        <option value="면려회">면려회</option>
-      </select>
-      <select id="f-elig">
-        <option value="">지원가능 전체</option>
-        <option value="팀장/조장/부조장 가능">팀장·조장·부조장 가능</option>
-        <option value="조장/부조장 가능">조장·부조장 가능</option>
-        <option value="부조장 가능">부조장만 가능</option>
-        <option value="해당없음">해당없음</option>
-      </select>
-      <select id="f-course"><option value="">양육과정 전체</option><option value="수료">수료</option><option value="미수료">미수료</option></select>
-      <select id="f-sort">
-        <option value="cohort">동기순</option>
-        <option value="name">이름순</option>
-        <option value="att-desc">출석률 높은순</option>
-        <option value="att-asc">출석률 낮은순</option>
-        <option value="tenure-desc">등록연차 긴순</option>
-      </select>
+      <div class="filter-field filter-field-search">
+        <span class="filter-label">검색</span>
+        <input id="f-search" type="text" placeholder="이름 검색">
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">동기</span>
+        <select id="f-cohort"><option value="">전체</option></select>
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">현재 팀</span>
+        <select id="f-team"><option value="">전체</option></select>
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">현재역할</span>
+        <select id="f-role">
+          <option value="">전체</option>
+          <option value="팀장">팀장</option>
+          <option value="조장">조장</option>
+          <option value="부조장">부조장</option>
+          <option value="조원">조원</option>
+          <option value="면려회">면려회</option>
+          <option value="히엘">히엘</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">지원가능</span>
+        <select id="f-elig">
+          <option value="">전체</option>
+          <option value="팀장/조장/부조장 가능">팀장·조장·부조장 가능</option>
+          <option value="조장/부조장 가능">조장·부조장 가능</option>
+          <option value="부조장 가능">부조장만 가능</option>
+          <option value="해당없음">해당없음</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">양육과정</span>
+        <select id="f-course"><option value="">전체</option><option value="수료">수료</option><option value="미수료">미수료</option></select>
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">정렬</span>
+        <select id="f-sort">
+          <option value="cohort">동기순</option>
+          <option value="name">이름순</option>
+          <option value="att-desc">출석률 높은순</option>
+          <option value="att-asc">출석률 낮은순</option>
+          <option value="tenure-desc">등록연차 긴순</option>
+        </select>
+      </div>
       <label class="chk-toggle"><input type="checkbox" id="f-exclude-applied"> 미지원자만 보기</label>
       <button id="reset-btn">필터 초기화</button>
     </div>
+    <div class="active-chips" id="active-chips"></div>
   </details>
 
   <div class="result-count" id="result-count"></div>
@@ -416,18 +451,28 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
     <div id="apply-summary" class="apply-summary"></div>
 
     <div class="toolbar" id="apply-toolbar">
-      <input id="af-search" type="text" placeholder="이름 검색">
-      <select id="af-cohort"><option value="">동기 전체</option></select>
-      <select id="af-elig">
-        <option value="">지원가능 전체</option>
-        <option value="팀장/조장/부조장 가능">팀장·조장·부조장 가능</option>
-        <option value="조장/부조장 가능">조장·부조장 가능</option>
-        <option value="부조장 가능">부조장만 가능</option>
-        <option value="해당없음">해당없음</option>
-      </select>
+      <div class="filter-field filter-field-search">
+        <span class="filter-label">검색</span>
+        <input id="af-search" type="text" placeholder="이름 검색">
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">동기</span>
+        <select id="af-cohort"><option value="">전체</option></select>
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">지원가능</span>
+        <select id="af-elig">
+          <option value="">전체</option>
+          <option value="팀장/조장/부조장 가능">팀장·조장·부조장 가능</option>
+          <option value="조장/부조장 가능">조장·부조장 가능</option>
+          <option value="부조장 가능">부조장만 가능</option>
+          <option value="해당없음">해당없음</option>
+        </select>
+      </div>
       <button id="apply-expand-toggle" class="btn-refresh" type="button" onclick="toggleAllApplyCards()">모두 펼치기</button>
       <button id="apply-reset-btn" class="toolbar-reset-btn" type="button" onclick="resetApplyFilters()">필터 초기화</button>
     </div>
+    <div class="active-chips" id="apply-active-chips"></div>
     <div class="result-count" id="apply-result-count"></div>
 
     <div id="apply-list"></div>
@@ -461,6 +506,10 @@ let APPLICANTS = [];
    (위원회가 실제 부조장/면려회 명단을 바꾸면 이 두 줄만 갱신하면 됩니다.) */
 const MYEONRYEOHOE = new Set(["김한나A","구나연","민주현","이채현","김연주","이용권","서덕민"]);
 const BUJOJANG = new Set(["박재형","박지현","편예림"]);
+/* 히엘 — 마스터 워크북("2027 리더선출 정리") "히엘" 탭 명단(2026-09-05 기준, 21명). 위 두 세트와 같은 방식으로
+   원본 "현재역할"(대개 "조원") 값을 덮어씁니다. 91동기 전동섭은 회칙상 마스터 명단 자체에서 제외되는 동기라
+   이 목록에는 있어도 명단/대시보드에는 나타나지 않습니다(기존 91동기 제외 규칙과 동일). */
+const HIEL = new Set(["김광희","강준영","고요한","구연희","문주영","백재은","임소정","전동섭","한수영","이서연","황서현","김에스더","정문종","김자윤","김진규","이민지","황금준","강동근","신선우","박예림","이원진"]);
 
 /* 통계 탭 "지원자 성비"용 이름|동기 → 성별 매핑. 응답 시트/가능등급 시트에는 성별 컬럼이 없어,
    마스터 워크북의 "26메이커스 DB(하반기)" 탭에서 추출해 하드코딩했습니다(2026-09-02 기준, 443명).
@@ -652,6 +701,7 @@ function buildRoster(rows){
     let roles = [(r[idx.role] || '').trim()];
     if (BUJOJANG.has(name)) roles = ['부조장'];
     if (MYEONRYEOHOE.has(name)) roles = ['면려회'];
+    if (HIEL.has(name)) roles = ['히엘'];
     const attRaw = (r[attIdx] || '').trim();
     roster.push({
       n: name,
@@ -780,8 +830,20 @@ function switchTab(tab){
   document.getElementById('panel-stats').style.display = tab === 'stats' ? 'block' : 'none';
 }
 
+function applyChipsList(){
+  const items = [];
+  const q = document.getElementById('af-search').value.trim();
+  if (q) items.push({label:'검색', text:q, id:'af-search'});
+  const cohort = document.getElementById('af-cohort').value;
+  if (cohort) items.push({label:'동기', text:cohort + '동기', id:'af-cohort'});
+  const elig = document.getElementById('af-elig').value;
+  if (elig) items.push({label:'지원가능', text:eligShort(elig), id:'af-elig'});
+  return items;
+}
+
 function renderApplicants(){
   document.getElementById('apply-tab-count').textContent = APPLICANTS.length ? `(${APPLICANTS.length})` : '';
+  renderChipsInto('apply-active-chips', applyChipsList());
 
   const summaryEl = document.getElementById('apply-summary');
   const listEl = document.getElementById('apply-list');
@@ -862,7 +924,7 @@ function populateApplyFilterOptions(){
   if (!cSel) return;
   const prev = cSel.value;
   const cohortsPresent = COHORT_ORDER_FULL.filter(c => APPLICANTS.some(a => a.cohort === c));
-  cSel.innerHTML = '<option value="">동기 전체</option>' + cohortsPresent.map(c => `<option value="${c}">${c}동기</option>`).join('');
+  cSel.innerHTML = '<option value="">전체</option>' + cohortsPresent.map(c => `<option value="${c}">${c}동기</option>`).join('');
   if (cohortsPresent.indexOf(prev) !== -1) cSel.value = prev;
 }
 
@@ -1049,7 +1111,7 @@ function renderStatsTab(){
     .map(t => ({ t, pool: ROSTER.filter(m => m.e === t).length, applied: APPLICANTS.filter(a => a.eligible === t).length }))
     .map(r => barRow(eligShort(r.t), r.applied, r.pool)).join('');
 
-  const ROLE_ORDER = ['팀장','조장','부조장','조원','면려회'];
+  const ROLE_ORDER = ['팀장','조장','부조장','조원','면려회','히엘'];
   const roleRows = ROLE_ORDER
     .map(role => ({ role, pool: ROSTER.filter(m => m.r.indexOf(role) !== -1).length, applied: APPLICANTS.filter(a => a.curRole === role).length }))
     .filter(r => r.pool > 0)
@@ -1075,12 +1137,12 @@ function renderStatsTab(){
 function populateFilterOptions(){
   const cSel = document.getElementById('f-cohort');
   const prevCohort = cSel.value;
-  cSel.innerHTML = '<option value="">동기 전체</option>' + COHORT_PRESENT.map(c => `<option value="${c}">${c}동기</option>`).join('');
+  cSel.innerHTML = '<option value="">전체</option>' + COHORT_PRESENT.map(c => `<option value="${c}">${c}동기</option>`).join('');
   if (COHORT_PRESENT.indexOf(prevCohort) !== -1) cSel.value = prevCohort;
 
   const tSel = document.getElementById('f-team');
   const prevTeam = tSel.value;
-  tSel.innerHTML = '<option value="">현재 팀 전체</option>' + TEAM_LIST.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+  tSel.innerHTML = '<option value="">전체</option>' + TEAM_LIST.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
   if (TEAM_LIST.indexOf(prevTeam) !== -1) tSel.value = prevTeam;
 }
 
@@ -1214,10 +1276,41 @@ function updateFiltCountBadge(){
   document.getElementById('filt-count').textContent = n ? `(${n})` : '';
 }
 
+/* 지금 켜져있는 필터를 제거 가능한 칩으로 보여줌 — 어떤 조건이 적용 중인지 한눈에 확인, 칩의 x로 그 필터만 바로 해제 */
+function activeChipsList(){
+  const items = [];
+  const cohort = document.getElementById('f-cohort').value;
+  if (cohort) items.push({label:'동기', text:cohort + '동기', id:'f-cohort'});
+  const team = document.getElementById('f-team').value;
+  if (team) items.push({label:'현재 팀', text:team, id:'f-team'});
+  const role = document.getElementById('f-role').value;
+  if (role) items.push({label:'현재역할', text:role, id:'f-role'});
+  const elig = document.getElementById('f-elig').value;
+  if (elig) items.push({label:'지원가능', text:eligShort(elig), id:'f-elig'});
+  const course = document.getElementById('f-course').value;
+  if (course) items.push({label:'양육과정', text:course, id:'f-course'});
+  const q = document.getElementById('f-search').value.trim();
+  if (q) items.push({label:'검색', text:q, id:'f-search'});
+  if (document.getElementById('f-exclude-applied').checked) items.push({label:'', text:'미지원자만 보기', id:'f-exclude-applied'});
+  return items;
+}
+function renderChipsInto(elId, items){
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.innerHTML = items.map(it => `<span class="chip">${it.label ? escapeHtml(it.label) + ': ' : ''}${escapeHtml(it.text)}<button type="button" aria-label="${escapeHtml(it.label || it.text)} 필터 지우기" onclick="clearChip('${it.id}')">✕</button></span>`).join('');
+}
+function clearChip(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.type === 'checkbox') el.checked = false; else el.value = '';
+  if (el.id.indexOf('af-') === 0) renderApplicants(); else render();
+}
+
 function render(){
   const filtered = applyFilters();
   const sorted = sortRows(filtered);
   updateFiltCountBadge();
+  renderChipsInto('active-chips', activeChipsList());
 
   document.getElementById('result-count').innerHTML = `<b>${filtered.length}</b> / ${COUNTS.total}명 표시 중`;
 
