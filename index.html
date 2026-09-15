@@ -128,11 +128,12 @@ h1.title{font-family:var(--font-display);font-size:27px;font-weight:400;margin:0
 .app-card .app-head:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .app-card .app-name{font-family:var(--font-display);font-size:16.5px;font-weight:400;letter-spacing:0}
 .app-card .app-meta{font-size:12px;color:var(--ink-faint);margin-top:2px}
-.app-card .app-badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.app-card .app-badges{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .app-card .app-badges .car{width:14px;height:14px;flex:none;color:var(--ink-faint);transition:transform .2s var(--ease);display:flex;align-items:center;justify-content:center;font-size:10px;margin-left:2px}
 .app-card.open .app-badges .car{transform:rotate(90deg)}
 .match-ok{background:var(--accent-soft);color:var(--accent-ink)}
 .match-warn{background:#fbeddb;color:#b3701e}
+.badge-confirmed{box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}
 .app-fields{display:none;grid-template-columns:1fr 1fr;gap:8px 20px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
 .app-card.open .app-fields{display:grid}
 .app-field{font-size:12.5px}
@@ -469,7 +470,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <div id="panel-confirmed" style="display:none">
     <div class="notice">
       <span class="dot">●</span>
-      <span>"2027 확정 리더" 시트(마스터 워크북 내 별도 탭)에 위원회가 직접 입력한 확정 인원만 보여줍니다. 팀·출석률 등은 전체 명단에서 이름+동기로 자동으로 찾아온 값입니다. 아직 배정팀(조 편성)은 반영하지 않고 역할(팀장/조장/부조장)만 표시합니다.</span>
+      <span>"2027 확정 리더" 시트(마스터 워크북 내 별도 탭)에 위원회가 직접 입력한 확정 인원만 보여줍니다. 팀·출석률 등은 전체 명단에서 이름+동기로 자동으로 찾아온 값입니다. 아직 배정팀(조 편성)은 반영하지 않고 역할(팀장/조장/부조장/면려회)만 표시합니다.</span>
     </div>
     <div id="confirmed-content"></div>
   </div>
@@ -1029,16 +1030,19 @@ function cssEscape(s){
 
 function applicantCard(a, isOpen){
   const isMismatch = a.check && (a.check.indexOf('불일치') !== -1 || a.check.indexOf('명단없음') !== -1);
-  const matchBadge = a.check
-    ? `<span class="badge ${isMismatch ? 'match-warn' : 'match-ok'}">${escapeHtml(a.check)}</span>`
+  const confRole = confirmedRoleOf(a.name, a.cohort);
+  // 대조결과가 정상(조회완료)인 경우는 배지로 따로 표시하지 않고, 문제가 있을 때만 경고 배지로 표시합니다.
+  const matchBadge = isMismatch
+    ? `<span class="badge match-warn" title="대조결과: ${escapeHtml(a.check)}">${escapeHtml(a.check)}</span>`
     : '';
   const eligBadge = a.eligible
     ? `<span class="elig-badge ${eligClass(a.eligible)}">${escapeHtml(eligShort(a.eligible))}</span>`
     : '';
-  const confRole = confirmedRoleOf(a.name, a.cohort);
   const confirmedBadge = confRole
-    ? `<span class="badge b-${confRole}" title="2027년 확정 역할">2027 확정·${escapeHtml(confRole)}</span>`
+    ? `<span class="badge badge-confirmed b-${confRole}" title="2027년 확정 역할 (가능등급은 카드를 펼치면 확인할 수 있습니다)">2027 확정·${escapeHtml(confRole)}</span>`
     : '';
+  // 확정된 사람은 확정 배지를 우선 표시합니다(가능등급 배지는 생략, 펼치면 '가능한 직분'에서 확인 가능). 그 외에는 가능등급 배지를 표시합니다.
+  const primaryBadge = confirmedBadge || eligBadge;
   const fields = [
     ['현재역할(시트 기준)', a.curRole],
     ['가능한 직분', a.eligible],
@@ -1063,7 +1067,7 @@ function applicantCard(a, isOpen){
           <div class="app-name">${escapeHtml(a.name)} <span style="font-weight:600;color:var(--ink-faint);font-size:12.5px">${escapeHtml(a.cohort)}동기</span></div>
           <div class="app-meta">지원: ${escapeHtml(a.team || '미기재')} · 접수일시 ${escapeHtml(a.ts || '-')}</div>
         </div>
-        <div class="app-badges">${eligBadge}${matchBadge}${confirmedBadge}<span class="car">▶</span></div>
+        <div class="app-badges">${primaryBadge}${matchBadge}<span class="car">▶</span></div>
       </div>
       <div class="app-fields">
         ${fields.map(([k,v]) => `<div class="app-field"><b>${escapeHtml(k)}</b>${escapeHtml(v)}</div>`).join('')}
@@ -1212,8 +1216,8 @@ function renderConfirmed(){
     return;
   }
 
-  const ROLE_ORDER_C = ['팀장','조장','부조장'];
-  const roleClass = {'팀장':'tier1','조장':'tier2','부조장':'tier3'};
+  const ROLE_ORDER_C = ['팀장','조장','부조장','면려회'];
+  const roleClass = {'팀장':'tier1','조장':'tier2','부조장':'tier3','면려회':'tier4'};
   const counts = {};
   ROLE_ORDER_C.forEach(r => { counts[r] = CONFIRMED.filter(c => c.role === r).length; });
   const unmatchedCount = CONFIRMED.filter(c => !c.matched).length;
