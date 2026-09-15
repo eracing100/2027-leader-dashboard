@@ -254,6 +254,16 @@ details.filters[open] summary::after{transform:rotate(180deg)}
 .elig-4{background:var(--surface-2);color:var(--ink-faint)}
 .elig-warn{background:#fbeddb;color:#b3701e}
 
+.confirmed-group{margin-bottom:18px}
+.confirmed-group-title{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.confirmed-group-title .cohort-count{font-size:12px;color:var(--ink-faint);font-weight:600}
+.confirmed-list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.confirmed-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid var(--border);font-size:12.8px}
+.confirmed-row:first-child{border-top:none}
+.confirmed-row-name{font-weight:700;color:var(--ink)}
+.cohort-tag-sm{font-weight:600;color:var(--ink-faint);font-size:12px;margin-left:2px}
+.confirmed-row-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
 .empty{padding:40px 16px;text-align:center;color:var(--ink-faint);font-size:13px}
 footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--ink-faint);text-align:center}
 
@@ -341,6 +351,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
     <button class="tab-btn active" id="tab-btn-roster" onclick="switchTab('roster')">전체 명단</button>
     <button class="tab-btn" id="tab-btn-apply" onclick="switchTab('apply')">지원 현황 <span id="apply-tab-count"></span></button>
     <button class="tab-btn" id="tab-btn-stats" onclick="switchTab('stats')">통계</button>
+    <button class="tab-btn" id="tab-btn-confirmed" onclick="switchTab('confirmed')">확정 리더 <span id="confirmed-tab-count"></span></button>
   </div>
 
   <div id="panel-roster">
@@ -455,6 +466,14 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
     <div id="stats-content"></div>
   </div>
 
+  <div id="panel-confirmed" style="display:none">
+    <div class="notice">
+      <span class="dot">●</span>
+      <span>"2027 확정 리더" 시트(마스터 워크북 내 별도 탭)에 위원회가 직접 입력한 확정 인원만 보여줍니다. 팀·출석률 등은 전체 명단에서 이름+동기로 자동으로 찾아온 값입니다. 아직 배정팀(조 편성)은 반영하지 않고 역할(팀장/조장/부조장)만 표시합니다.</span>
+    </div>
+    <div id="confirmed-content"></div>
+  </div>
+
   <footer class="foot" id="footer-total"></footer>
 </div>
 
@@ -464,9 +483,13 @@ const SHEET_ID = "1UPUpBLJtt_ke2ViB-bRH-zVz2X3H8o9rWhoagBTIhjA";
 const SHEET_TAB = "2026 메이커스";
 const RESP_SHEET_ID = "1j9OXTouq5hWOdpfCH2OJLzI-zpTtjTU2EdLvd35TShE";
 const RESP_GID = "1908492599";
+/* 2027 확정 리더 — 마스터 워크북("2027 리더선출 정리") 안의 별도 탭. 위원회가 이름/동기/확정역할만
+   입력하면, 나머지(팀·출석률·양육과정수료)는 ROSTER에서 이름+동기로 자동으로 찾아옴(2026-09-15 신설). */
+const CONFIRMED_GID = "1174157990";
 const COHORT_ORDER_FULL = ["91","92","93","94","95","96","97","98","99","00"];
 
 let APPLICANTS = [];
+let CONFIRMED = [];
 
 /* 회칙상 별도 트랙인 부조장, 그리고 면려회 — 원본 시트의 "현재역할" 컬럼에는 아직
    반영되어 있지 않아 여기서 보정합니다. 두 역할 모두 원래 컬럼 값(대개 "조원")을
@@ -532,6 +555,9 @@ function gvizCsvUrl(){
 function respCsvUrl(){
   return `https://docs.google.com/spreadsheets/d/${RESP_SHEET_ID}/export?format=csv&gid=${RESP_GID}`;
 }
+function confirmedCsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${CONFIRMED_GID}`;
+}
 
 let lastFetchTime = null;
 
@@ -562,6 +588,19 @@ async function fetchAndBuild(){
   } catch (e2){
     console.error('applicants fetch failed', e2);
     APPLICANTS = [];
+  }
+
+  try {
+    const res3 = await fetch(confirmedCsvUrl(), {cache:'no-store'});
+    if (res3.ok){
+      const text3 = await res3.text();
+      buildConfirmed(parseCSV(text3));
+    } else {
+      CONFIRMED = [];
+    }
+  } catch (e3){
+    console.error('confirmed fetch failed', e3);
+    CONFIRMED = [];
   }
   lastFetchTime = new Date();
 }
@@ -703,6 +742,40 @@ function buildRoster(rows){
   COHORT_PRESENT = COHORT_ORDER_FULL.filter(c => roster.some(m => m.c === c));
 }
 
+/* "2027 확정 리더" 탭(이름/동기/확정역할만 입력)을 읽어서, ROSTER에서 이름+동기로 매칭되는
+   사람은 현재소속팀·출석률·양육과정수료를 자동으로 채워 넣음. 매칭 안 되면(오타 등)
+   matched:false로 남겨 화면에서 "확인 필요"로 표시(기존 지원 현황의 "명단없음" 처리와 같은 철학). */
+function buildConfirmed(rows){
+  if (!rows.length){ CONFIRMED = []; return; }
+  const header = rows[0].map(h => h.trim());
+  const idx = { name: header.indexOf('이름'), cohort: header.indexOf('동기'), role: header.indexOf('확정역할') };
+  const out = [];
+  for (let i = 1; i < rows.length; i++){
+    const r = rows[i];
+    const name = (r[idx.name] || '').trim();
+    if (!name) continue;
+    let cohort = (r[idx.cohort] || '').trim();
+    if (cohort === '0') cohort = '00';
+    const role = (r[idx.role] || '').trim();
+    if (!role) continue;
+    const m = ROSTER.find(x => x.n === name && x.c === cohort);
+    out.push({
+      name: name,
+      cohort: cohort,
+      role: role,
+      team: m ? m.t : '',
+      att: m ? m.att : null,
+      course: m ? m.co : '',
+      matched: !!m,
+    });
+  }
+  CONFIRMED = out;
+}
+function confirmedRoleOf(name, cohort){
+  const c = CONFIRMED.find(x => x.name === (name || '').trim() && x.cohort === (cohort || '').trim());
+  return c ? c.role : null;
+}
+
 function cleanRemark(rm){
   return rm.split(';').map(s => s.trim())
     .filter(s => s && s !== '등반일 미기재(장기 등록 추정)' && !/^\(현직\s*(팀장|조장|부조장)\)$/.test(s))
@@ -798,6 +871,7 @@ function showApp(){
   render();
   renderApplicants();
   renderStatsTab();
+  renderConfirmed();
   document.getElementById('app').style.display = 'block';
 }
 
@@ -805,9 +879,11 @@ function switchTab(tab){
   document.getElementById('tab-btn-roster').classList.toggle('active', tab === 'roster');
   document.getElementById('tab-btn-apply').classList.toggle('active', tab === 'apply');
   document.getElementById('tab-btn-stats').classList.toggle('active', tab === 'stats');
+  document.getElementById('tab-btn-confirmed').classList.toggle('active', tab === 'confirmed');
   document.getElementById('panel-roster').style.display = tab === 'roster' ? 'block' : 'none';
   document.getElementById('panel-apply').style.display = tab === 'apply' ? 'block' : 'none';
   document.getElementById('panel-stats').style.display = tab === 'stats' ? 'block' : 'none';
+  document.getElementById('panel-confirmed').style.display = tab === 'confirmed' ? 'block' : 'none';
 }
 
 function applyChipsList(){
@@ -959,6 +1035,10 @@ function applicantCard(a, isOpen){
   const eligBadge = a.eligible
     ? `<span class="elig-badge ${eligClass(a.eligible)}">${escapeHtml(eligShort(a.eligible))}</span>`
     : '';
+  const confRole = confirmedRoleOf(a.name, a.cohort);
+  const confirmedBadge = confRole
+    ? `<span class="badge b-${confRole}" title="2027년 확정 역할">2027 확정·${escapeHtml(confRole)}</span>`
+    : '';
   const fields = [
     ['현재역할(시트 기준)', a.curRole],
     ['가능한 직분', a.eligible],
@@ -983,7 +1063,7 @@ function applicantCard(a, isOpen){
           <div class="app-name">${escapeHtml(a.name)} <span style="font-weight:600;color:var(--ink-faint);font-size:12.5px">${escapeHtml(a.cohort)}동기</span></div>
           <div class="app-meta">지원: ${escapeHtml(a.team || '미기재')} · 접수일시 ${escapeHtml(a.ts || '-')}</div>
         </div>
-        <div class="app-badges">${eligBadge}${matchBadge}<span class="car">▶</span></div>
+        <div class="app-badges">${eligBadge}${matchBadge}${confirmedBadge}<span class="car">▶</span></div>
       </div>
       <div class="app-fields">
         ${fields.map(([k,v]) => `<div class="app-field"><b>${escapeHtml(k)}</b>${escapeHtml(v)}</div>`).join('')}
@@ -1119,6 +1199,73 @@ function renderStatsTab(){
       ${roleRows || '<div class="empty" style="padding:16px 0">표시할 데이터가 없습니다.</div>'}
     </div>
   `;
+}
+
+/* "확정 리더" 탭 — "2027 확정 리더" 시트(이름/동기/확정역할만 입력)를 역할별로 묶어서 보여줌.
+   배정팀(조 편성)은 아직 없는 단계라 역할만 표시하고, 팀·출석률·양육과정수료는 ROSTER 매칭으로 자동 표시. */
+function renderConfirmed(){
+  const countEl = document.getElementById('confirmed-tab-count');
+  if (countEl) countEl.textContent = CONFIRMED.length ? `(${CONFIRMED.length})` : '';
+  const wrap = document.getElementById('confirmed-content');
+  if (!CONFIRMED.length){
+    wrap.innerHTML = '<div class="empty">아직 확정된 리더가 없습니다. "2027 확정 리더" 시트에 입력되면 새로고침 시 자동으로 표시됩니다.</div>';
+    return;
+  }
+
+  const ROLE_ORDER_C = ['팀장','조장','부조장'];
+  const roleClass = {'팀장':'tier1','조장':'tier2','부조장':'tier3'};
+  const counts = {};
+  ROLE_ORDER_C.forEach(r => { counts[r] = CONFIRMED.filter(c => c.role === r).length; });
+  const unmatchedCount = CONFIRMED.filter(c => !c.matched).length;
+
+  const summaryHtml = `
+    <div class="stats">
+      <div class="stat total"><div class="num tnum">${CONFIRMED.length}</div><div class="lbl">총 확정 인원</div></div>
+      ${ROLE_ORDER_C.map(r => `
+        <div class="stat ${roleClass[r]}">
+          <div class="num tnum">${counts[r]}</div>
+          <div class="lbl">확정 ${r}</div>
+        </div>`).join('')}
+    </div>
+    ${unmatchedCount ? `
+    <div class="notice" style="margin-top:10px">
+      <span class="dot">●</span>
+      <span>${unmatchedCount}명은 이름+동기가 전체 명단과 일치하지 않아 팀·출석률 정보를 표시할 수 없습니다. "확인 필요" 배지가 붙은 사람의 이름·동기 표기를 시트에서 다시 확인해주세요.</span>
+    </div>` : ''}
+  `;
+
+  const groupsHtml = ROLE_ORDER_C.filter(r => counts[r] > 0).map(role => {
+    const items = CONFIRMED.filter(c => c.role === role).slice().sort((a,b) => {
+      const ia = COHORT_ORDER_FULL.indexOf(a.cohort), ib = COHORT_ORDER_FULL.indexOf(b.cohort);
+      if (ia !== ib) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+      return a.name.localeCompare(b.name, 'ko');
+    });
+    return `
+      <div class="confirmed-group">
+        <div class="confirmed-group-title"><span class="badge b-${role}">${role}</span><span class="cohort-count">${items.length}명</span></div>
+        <div class="confirmed-list">${items.map(c => confirmedRowHtml(c)).join('')}</div>
+      </div>`;
+  }).join('');
+
+  wrap.innerHTML = summaryHtml + groupsHtml;
+}
+
+function confirmedRowHtml(c){
+  const attHtml = !c.matched
+    ? '<span class="elig-badge elig-warn">확인 필요</span>'
+    : (c.att === null ? '<span class="att-none">출석률 데이터 없음</span>' : `<span class="att-num tnum">${parseFloat(c.att).toFixed(1)}%</span>`);
+  const courseHtml = c.matched
+    ? (c.course === '수료' ? '<span class="course-badge course-yes">수료</span>' : '<span class="course-badge course-no">미수료</span>')
+    : '';
+  return `
+    <div class="confirmed-row">
+      <div class="confirmed-row-name">${escapeHtml(c.name)} <span class="cohort-tag-sm">${escapeHtml(c.cohort)}동기</span></div>
+      <div class="confirmed-row-meta">
+        ${c.matched ? `<span class="team-pill">${escapeHtml(c.team || '-')}</span>` : ''}
+        ${attHtml}
+        ${courseHtml}
+      </div>
+    </div>`;
 }
 
 /* 새로고침 시에도 사용자가 고른 동기/팀 필터가 초기화되지 않도록 기존 선택값을 보존 */
