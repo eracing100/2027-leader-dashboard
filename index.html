@@ -208,11 +208,16 @@ details.filters[open] summary::after{transform:rotate(180deg)}
 .stat-section{margin-bottom:24px}
 .stat-section-title{font-family:var(--font-display);font-size:14.5px;font-weight:400;color:var(--ink);margin-bottom:10px;display:flex;align-items:baseline;gap:8px}
 .stat-section-sub{font-family:var(--font-body);font-size:11.5px;font-weight:600;color:var(--ink-faint)}
-.stat-row{display:grid;grid-template-columns:104px 1fr 140px;align-items:center;gap:12px;padding:7px 2px}
+.stat-row{display:grid;grid-template-columns:104px 1fr 140px;align-items:center;gap:12px;padding:7px 2px;border-radius:8px}
 .stat-row-lbl{font-size:12.5px;font-weight:600;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .stat-row-bar{height:7px;border-radius:4px;background:var(--surface-2);overflow:hidden}
 .stat-row-bar i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .5s var(--ease)}
-.stat-row-val{font-size:12px;color:var(--ink-faint);text-align:right;white-space:nowrap}
+.stat-row-val{font-size:12px;color:var(--ink-faint);text-align:right;line-height:1.4}
+.stat-row-val-seg{white-space:nowrap}
+.stat-row-clickable{cursor:pointer;transition:background .15s var(--ease)}
+.stat-row-clickable:hover{background:var(--surface-2)}
+.stat-row-clickable:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.stat-zero-line{font-size:12px;color:var(--ink-faint);padding:8px 2px 2px;border-top:1px dashed var(--border);margin-top:4px}
 
 .group{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .2s var(--ease)}
 .group.open{box-shadow:var(--shadow-lg)}
@@ -462,7 +467,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <div id="panel-stats" style="display:none">
     <div class="notice">
       <span class="dot">●</span>
-      <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다. "2026년 현 리더 인원 대비"는 2026년 상반기에 실제로 활동한 팀장·조장·부조장 51명(노션 비교자료 기준)과 비교한 수치이며, 성비는 구글시트 DB 매칭 기준으로 매칭되지 않는 이름은 "미확인"으로 표시됩니다.</span>
+      <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다. "2026 상반기 리더 인원 대비"는 2026년 상반기에 실제로 활동한 팀장·조장·부조장 51명(노션 비교자료 기준)과 비교한 수치이며, 성비는 구글시트 DB 매칭 기준으로 매칭되지 않는 이름은 "미확인"으로 표시됩니다.</span>
     </div>
     <div id="stats-content"></div>
   </div>
@@ -1131,6 +1136,11 @@ function renderStatsTab(){
     if (a.exp.indexOf('있음') !== -1) expYes++;
     else if (a.exp.indexOf('없음') !== -1) expNo++;
   });
+  /* [2026-09-19 개선] "경험 있음"/"경험 없음"을 별도 카드 2개로 나눠 보여주던 것을 성비 카드와
+     같은 도넛 1개로 합쳐 상단 요약 카드 개수를 5개→4개로 줄임(카드가 많아 산만하다는 피드백
+     반영). 혹시 응답이 "있음"/"없음" 둘 다 아닌 경우(미기재 등)를 대비해 미확인 구간도 방어적으로
+     둠 — 실제로는 폼이 필수 응답이라 거의 항상 0이지만, 성비 카드와 동일한 안전장치. */
+  const expUnknown = Math.max(0, totalApplied - expYes - expNo);
 
   const summaryHtml = `
     <div class="stats">
@@ -1143,7 +1153,7 @@ function renderStatsTab(){
           ${donutSVG(vs2026Pct, 'var(--accent)')}
           <div class="donut-center"><div class="dc-num tnum">${vs2026Pct.toFixed(0)}%</div></div>
         </div>
-        <div class="lbl">2026년 현 리더 인원 대비<br>(${totalApplied}/${LEADER_2026_TOTAL}명)</div>
+        <div class="lbl">2026 상반기 리더 인원 대비<br>(${totalApplied}/${LEADER_2026_TOTAL}명)</div>
       </div>
       <div class="stat stat-donut" title="구글시트 DB 기준 매칭 결과 — 매칭 안 되면 미확인으로 표시">
         <div class="donut-wrap">
@@ -1160,54 +1170,95 @@ function renderStatsTab(){
         </div>
         <div class="lbl">지원자 성비</div>
       </div>
-      <div class="stat tier2">
-        <div class="num tnum">${expYes}</div>
-        <div class="lbl">리더사역 경험 있음<br>(지원자 중 ${totalApplied ? Math.round(expYes/totalApplied*100) : 0}%)</div>
-      </div>
-      <div class="stat tier3">
-        <div class="num tnum">${expNo}</div>
-        <div class="lbl">리더사역 경험 없음<br>(지원자 중 ${totalApplied ? Math.round(expNo/totalApplied*100) : 0}%)</div>
+      <div class="stat stat-donut" title="지원서 '리더사역 경험' 응답 기준">
+        <div class="donut-wrap">
+          ${multiDonutSVG([
+            {value: expYes, color:'var(--accent)'},
+            {value: expNo, color:'var(--surface-2)'},
+            {value: expUnknown, color:'var(--ink-faint)'},
+          ])}
+        </div>
+        <div class="donut-legend">
+          <span><i style="background:var(--accent)"></i>있음 ${expYes}</span>
+          <span><i style="background:var(--surface-2);border:1px solid var(--border)"></i>없음 ${expNo}</span>
+          ${expUnknown ? `<span><i style="background:var(--ink-faint)"></i>미기재 ${expUnknown}</span>` : ''}
+        </div>
+        <div class="lbl">리더사역 경험 유무</div>
       </div>
     </div>`;
 
-  function barRow(label, applied, pool){
+  function barRow(label, applied, pool, opts){
+    opts = opts || {};
     const pct = pool ? Math.min(applied / pool * 100, 100) : 0;
     const val = pool != null ? `${applied} / ${pool}명 (${pct.toFixed(0)}%)` : `${applied}명`;
+    /* 각 조각을 별도 nowrap 스팬으로 감싸서, 폭이 좁아 줄바꿈이 되더라도 "0명"처럼 숫자와
+       단위 사이에서 어색하게 끊기지 않고 " · " 앞뒤 단위로만 줄바꿈되게 함. */
+    const extra = opts.extraVal ? ` <span class="stat-row-val-seg">· ${opts.extraVal}</span>` : '';
+    const clickAttrs = opts.onclick
+      ? ` role="button" tabindex="0" title="${opts.title || ''}" onclick="${opts.onclick}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${opts.onclick}}"`
+      : '';
     return `
-      <div class="stat-row">
+      <div class="stat-row${opts.onclick ? ' stat-row-clickable' : ''}"${clickAttrs}>
         <div class="stat-row-lbl">${escapeHtml(label)}</div>
         <div class="stat-row-bar"><i style="width:${pct}%"></i></div>
-        <div class="stat-row-val tnum">${val}</div>
+        <div class="stat-row-val tnum"><span class="stat-row-val-seg">${val}</span>${extra}</div>
       </div>`;
   }
 
-  const cohortRows = COHORT_PRESENT
-    .map(c => ({ c, pool: eligiblePool.filter(m => m.c === c).length, applied: validApplicants.filter(a => (a.cohort || '') === c).length }))
-    .filter(r => r.pool > 0)
-    .map(r => barRow(r.c + '동기', r.applied, r.pool)).join('');
+  /* [2026-09-19 개선] 지원자가 0명인 항목(예: 00동기, 부조장·면려회·히엘)을 전부 개별 막대로
+     나열하면 거의 빈 막대만 줄줄이 이어져 화면이 길고 산만해짐 — 값이 있는 항목만 막대로 보여
+     주고, 0명인 항목은 한 줄로 묶어 요약 표시. 상태를 따로 저장하지 않고 매번 데이터로 다시
+     계산하므로, 나중에 그 항목에 지원자가 생기면 다음 새로고침 때 자동으로 막대로 옮겨감. */
+  function buildBarSection(items, emptyMsg){
+    if (!items.length) return emptyMsg ? `<div class="empty" style="padding:16px 0">${emptyMsg}</div>` : '';
+    const shown = items.filter(r => r.applied > 0);
+    const zero = items.filter(r => r.applied === 0);
+    const barsHtml = shown.map(r => barRow(r.label, r.applied, r.pool)).join('');
+    const zeroHtml = zero.length
+      ? `<div class="stat-zero-line">지원자 없음: ${zero.map(r => escapeHtml(r.label)).join(' · ')}</div>`
+      : '';
+    return barsHtml + zeroHtml;
+  }
 
+  const cohortItems = COHORT_PRESENT
+    .map(c => ({ label: c + '동기', pool: eligiblePool.filter(m => m.c === c).length, applied: validApplicants.filter(a => (a.cohort || '') === c).length }))
+    .filter(r => r.pool > 0);
+
+  /* [2026-09-19 개선] "자격자인데 아직 지원하지 않은 사람이 몇 명이냐"가 위원회 입장에서 가장
+     궁금한 실행 가능한 정보인데, 기존엔 막대 값을 보고 암산(자격자-지원자)해야만 알 수 있었음.
+     각 등급 행에 미지원 인원 수를 바로 표시하고, 클릭하면 전체 명단 탭에서 그 등급의 미지원자만
+     바로 보여주도록 지원 현황 탭에서 이미 쓰던 crossFilterToRoster()를 그대로 재사용함(새 필터
+     로직을 따로 만들지 않아 "미지원자만 보기" 기준이 항상 일치함). 이 3개 행은 자격 위계 순서
+     자체가 의미 있는 정보라 0명이어도 접지 않고 항상 막대로 보여줌.*/
   const eligRows = ELIG_TIERS.filter(t => t !== '해당없음')
-    .map(t => ({ t, pool: ROSTER.filter(m => m.e === t).length, applied: validApplicants.filter(a => a.eligible === t).length }))
-    .map(r => barRow(eligShort(r.t), r.applied, r.pool)).join('');
+    .map(t => {
+      const pool = ROSTER.filter(m => m.e === t).length;
+      const applied = validApplicants.filter(a => a.eligible === t).length;
+      const notApplied = Math.max(0, pool - applied);
+      return barRow(eligShort(t), applied, pool, {
+        extraVal: `미지원 ${notApplied}명`,
+        onclick: `crossFilterToRoster('${t}')`,
+        title: '클릭하면 전체 명단 탭에서 이 등급의 미지원자만 보여줍니다',
+      });
+    }).join('');
 
   const ROLE_ORDER = ['팀장','조장','부조장','조원','면려회','히엘'];
-  const roleRows = ROLE_ORDER
-    .map(role => ({ role, pool: ROSTER.filter(m => m.r.indexOf(role) !== -1).length, applied: validApplicants.filter(a => a.curRole === role).length }))
-    .filter(r => r.pool > 0)
-    .map(r => barRow(r.role, r.applied, r.pool)).join('');
+  const roleItems = ROLE_ORDER
+    .map(role => ({ label: role, pool: ROSTER.filter(m => m.r.indexOf(role) !== -1).length, applied: validApplicants.filter(a => a.curRole === role).length }))
+    .filter(r => r.pool > 0);
 
   wrap.innerHTML = summaryHtml + `
     <div class="stat-section">
       <div class="stat-section-title">동기별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원</span></div>
-      ${cohortRows || '<div class="empty" style="padding:16px 0">표시할 데이터가 없습니다.</div>'}
+      ${buildBarSection(cohortItems, '표시할 데이터가 없습니다.')}
     </div>
     <div class="stat-section">
-      <div class="stat-section-title">자격등급별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원</span></div>
+      <div class="stat-section-title">자격등급별 지원 현황<span class="stat-section-sub">자격자 대비 지원 인원 · 클릭 시 미지원자 명단으로 이동</span></div>
       ${eligRows}
     </div>
     <div class="stat-section">
       <div class="stat-section-title">현재역할별 지원 현황<span class="stat-section-sub">해당 역할 인원 대비 지원 인원</span></div>
-      ${roleRows || '<div class="empty" style="padding:16px 0">표시할 데이터가 없습니다.</div>'}
+      ${buildBarSection(roleItems, '표시할 데이터가 없습니다.')}
     </div>
   `;
 }
