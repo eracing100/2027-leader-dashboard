@@ -237,6 +237,12 @@ details.filters[open] summary::after{transform:rotate(180deg)}
 .row .rmk{display:block;font-weight:400;color:var(--ink-faint);font-size:11px;margin-top:1px}
 .applied-tag{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent-soft-2);border-radius:5px;padding:1px 6px;vertical-align:2px;white-space:nowrap}
 .team-pill{display:inline-block;font-size:11.5px;font-weight:600;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px 7px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phone-link{text-decoration:none;cursor:pointer;color:var(--accent-ink);border-color:var(--accent);background:var(--surface)}
+.phone-link:hover{background:var(--surface-2)}
+.ms-toggle-group{display:flex;flex-wrap:wrap;gap:6px}
+.ms-option{all:unset;cursor:pointer;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;white-space:nowrap}
+.ms-option:hover{border-color:var(--accent)}
+.ms-option.active{color:var(--accent-ink);background:var(--accent-soft);border-color:var(--accent-soft-2)}
 .roles{display:flex;gap:4px;flex-wrap:wrap}
 .badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;border-radius:6px;padding:2.5px 7px;white-space:nowrap}
 .b-팀장{background:#f1e8f2;color:#6f4d78}
@@ -484,7 +490,13 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <div id="panel-kwonmyeon" style="display:none">
     <div class="notice">
       <span class="dot">●</span>
-      <span>"권면 대상" 시트(마스터 워크북 내 별도 탭)에 팀/이름/동기/권면자를 입력하면, 전화번호는 "26메이커스 DB(하반기)" 탭에서, 가능역할은 "2026 메이커스" 탭(가능등급)에서 이름+동기로 자동으로 찾아와 팀 단위로 묶어 보여줍니다. 시트에 입력만 하면 새로고침 시 자동으로 반영됩니다.</span>
+      <span>"권면 대상" 시트(마스터 워크북 내 별도 탭)에 팀/이름/동기/권면자를 입력하면, 전화번호는 "26메이커스 DB(하반기)" 탭에서, 가능역할은 "2026 메이커스" 탭(가능등급)에서 이름+동기로 자동으로 찾아와 팀 단위로 묶어 보여줍니다. "완료" 열을 추가해서 아무 값이나(예: "완료", "O") 채워 넣으면 권면 완료로 표시됩니다(비워두면 미완료). 시트에 입력만 하면 새로고침 시 자동으로 반영됩니다. 전화번호를 누르면 바로 전화가 걸립니다.</span>
+    </div>
+    <div class="toolbar">
+      <div class="filter-field" style="flex:1">
+        <span class="filter-label">권면자 (여러 명 선택 가능)</span>
+        <div id="kf-recommender-options" class="ms-toggle-group"></div>
+      </div>
     </div>
     <div id="kwonmyeon-content"></div>
   </div>
@@ -864,7 +876,9 @@ function buildPhoneMap(rows){
    사람은 가능등급을, PHONE_MAP에서 전화번호를 자동으로 채워 넣음. 매칭 안 되면(오타 등)
    matched:false로 남겨 화면에서 "확인 필요"로 표시(기존 확정 리더 탭 처리와 같은 철학).
    같은 팀+이름+동기가 여러 행에 걸쳐 입력되면(예: 권면자가 여러 명 배정) 한 사람으로 합치고
-   권면자만 "· "로 이어붙임 — 같은 사람이 중복 카드로 두 번 뜨는 것을 방지(2026-09-21 신설). */
+   권면자만 "· "로 이어붙임 — 같은 사람이 중복 카드로 두 번 뜨는 것을 방지(2026-09-21 신설).
+   "완료" 열(선택 사항)에 아무 값이나 채워져 있으면 권면 완료로 표시 — 값 형식을 강제하지 않고
+   비어있는지만 봄. 여러 행 중 하나라도 채워져 있으면 완료로 처리(2026-09-21 신설). */
 function buildKwonmyeon(rows){
   if (!rows.length){ KWONMYEON = []; return; }
   const header = rows[0].map(h => h.trim());
@@ -873,6 +887,7 @@ function buildKwonmyeon(rows){
     name: header.indexOf('이름'),
     cohort: header.indexOf('동기'),
     recommender: header.indexOf('권면자') !== -1 ? header.indexOf('권면자') : header.indexOf('누가 권면할건지'),
+    done: header.indexOf('완료'),
   };
   const merged = new Map();
   for (let i = 1; i < rows.length; i++){
@@ -884,6 +899,7 @@ function buildKwonmyeon(rows){
     if (cohort === '0') cohort = '00';
     const team = (r[idx.team] || '').trim() || '(팀 미기재)';
     const recommender = (r[idx.recommender] || '').trim();
+    const done = idx.done !== -1 && !!(r[idx.done] || '').trim();
     const key = team + '|' + name + '|' + cohort;
     if (!merged.has(key)){
       const m = ROSTER.find(x => x.n === name && x.c === cohort);
@@ -895,14 +911,17 @@ function buildKwonmyeon(rows){
         elig: m ? m.e : '',
         phone: PHONE_MAP[name + '|' + cohort] || '',
         matched: !!m,
+        done: false,
       });
     }
     if (recommender && merged.get(key).recommenders.indexOf(recommender) === -1){
       merged.get(key).recommenders.push(recommender);
     }
+    if (done) merged.get(key).done = true;
   }
   KWONMYEON = Array.from(merged.values()).map(k => ({
-    team: k.team, name: k.name, cohort: k.cohort, elig: k.elig, phone: k.phone, matched: k.matched,
+    team: k.team, name: k.name, cohort: k.cohort, elig: k.elig, phone: k.phone, matched: k.matched, done: k.done,
+    recommenders: k.recommenders,
     recommender: k.recommenders.join(' · '),
   }));
 }
@@ -998,6 +1017,7 @@ function showApp(){
   renderStats();
   populateFilterOptions();
   populateApplyFilterOptions();
+  populateKwonmyeonFilterOptions();
   if (!filtersBound){ bindFilterEvents(); bindApplyFilterEvents(); filtersBound = true; }
   render();
   renderApplicants();
@@ -1476,6 +1496,25 @@ function confirmedRowHtml(c, showRawRole){
 /* "권면" 탭 — "권면 대상" 시트(팀/이름/동기/권면자만 입력)를 팀 단위로 묶어서 보여줌.
    전화번호는 PHONE_MAP("26메이커스 DB(하반기)"), 가능역할은 ROSTER("2026 메이커스")에서
    이름+동기로 자동 매칭. 매칭 안 되는 사람은 "확인 필요" 배지로 표시(조용히 누락시키지 않음). */
+/* 권면자 필터(여러 명 동시 선택 가능) — 칩 형태 토글 버튼. 선택된 이름 집합은
+   KF_SELECTED_RECOMMENDERS에 보관하고, 새로고침해도 더 이상 존재하지 않는(오타 수정 등)
+   이름만 걸러내고 나머지 선택은 유지함(2026-09-21 신설). */
+const KF_SELECTED_RECOMMENDERS = new Set();
+function toggleKwonRecommender(name){
+  if (KF_SELECTED_RECOMMENDERS.has(name)) KF_SELECTED_RECOMMENDERS.delete(name);
+  else KF_SELECTED_RECOMMENDERS.add(name);
+  populateKwonmyeonFilterOptions();
+  renderKwonmyeon();
+}
+function populateKwonmyeonFilterOptions(){
+  const wrap = document.getElementById('kf-recommender-options');
+  if (!wrap) return;
+  const names = Array.from(new Set(KWONMYEON.flatMap(k => k.recommenders || []))).sort((a,b) => a.localeCompare(b,'ko'));
+  Array.from(KF_SELECTED_RECOMMENDERS).forEach(n => { if (names.indexOf(n) === -1) KF_SELECTED_RECOMMENDERS.delete(n); });
+  wrap.innerHTML = names.map(n => `<button type="button" class="ms-option${KF_SELECTED_RECOMMENDERS.has(n) ? ' active' : ''}" onclick="toggleKwonRecommender('${n.replace(/'/g,"\\'")}')">${escapeHtml(n)}</button>`).join('')
+    || '<span class="att-none">권면자 정보 없음</span>';
+}
+
 function renderKwonmyeon(){
   const countEl = document.getElementById('kwonmyeon-tab-count');
   if (countEl) countEl.textContent = KWONMYEON.length ? `(${KWONMYEON.length})` : '';
@@ -1485,12 +1524,28 @@ function renderKwonmyeon(){
     return;
   }
 
-  const rosterUnmatched = KWONMYEON.filter(k => !k.matched).length;
-  const phoneMissing = KWONMYEON.filter(k => k.matched && !k.phone).length;
+  const selected = Array.from(KF_SELECTED_RECOMMENDERS);
+  const list = selected.length
+    ? KWONMYEON.filter(k => (k.recommenders || []).some(r => selected.indexOf(r) !== -1))
+    : KWONMYEON;
+
+  if (!list.length){
+    wrap.innerHTML = `<div class="empty">${escapeHtml(selected.join(', '))}님이 담당하는 권면 대상이 없습니다.</div>`;
+    return;
+  }
+
+  const rosterUnmatched = list.filter(k => !k.matched).length;
+  const phoneMissing = list.filter(k => k.matched && !k.phone).length;
+  const doneCount = list.filter(k => k.done).length;
+  const totalLabel = selected.length
+    ? (selected.length === 1 ? escapeHtml(selected[0]) + '님 담당' : selected.length + '명 담당 합산')
+    : '총 권면 대상';
 
   const summaryHtml = `
     <div class="stats">
-      <div class="stat total"><div class="num tnum">${KWONMYEON.length}</div><div class="lbl">총 권면 대상</div></div>
+      <div class="stat total"><div class="num tnum">${list.length}</div><div class="lbl">${totalLabel}</div></div>
+      <div class="stat tier1"><div class="num tnum">${doneCount}</div><div class="lbl">권면 완료</div></div>
+      <div class="stat tier4"><div class="num tnum">${list.length - doneCount}</div><div class="lbl">권면 전</div></div>
     </div>
     ${rosterUnmatched ? `
     <div class="notice" style="margin-top:10px">
@@ -1504,16 +1559,17 @@ function renderKwonmyeon(){
     </div>` : ''}
   `;
 
-  const teams = Array.from(new Set(KWONMYEON.map(k => k.team))).sort((a,b) => a.localeCompare(b,'ko'));
+  const teams = Array.from(new Set(list.map(k => k.team))).sort((a,b) => a.localeCompare(b,'ko'));
   const groupsHtml = teams.map(team => {
-    const items = KWONMYEON.filter(k => k.team === team).slice().sort((a,b) => {
+    const items = list.filter(k => k.team === team).slice().sort((a,b) => {
       const ia = COHORT_ORDER_FULL.indexOf(a.cohort), ib = COHORT_ORDER_FULL.indexOf(b.cohort);
       if (ia !== ib) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
       return a.name.localeCompare(b.name, 'ko');
     });
+    const doneInTeam = items.filter(k => k.done).length;
     return `
       <div class="confirmed-group">
-        <div class="confirmed-group-title"><span class="team-pill">${escapeHtml(team)}</span><span class="cohort-count">${items.length}명</span></div>
+        <div class="confirmed-group-title"><span class="team-pill">${escapeHtml(team)}</span><span class="cohort-count">${items.length}명 · 완료 ${doneInTeam}</span></div>
         <div class="confirmed-list">${items.map(k => kwonmyeonRowHtml(k)).join('')}</div>
       </div>`;
   }).join('');
@@ -1521,22 +1577,32 @@ function renderKwonmyeon(){
   wrap.innerHTML = summaryHtml + groupsHtml;
 }
 
+/* 전화번호를 tel: 링크로 — 모바일에서 눌러서 바로 통화 연결(2026-09-21 신설).
+   표시는 원래 형식(010-1234-5678) 그대로 두고, href만 숫자만 남겨 만듦. */
+function telHref(phone){
+  return 'tel:' + phone.replace(/[^0-9+]/g, '');
+}
+
 function kwonmyeonRowHtml(k){
   const eligHtml = !k.matched
     ? '<span class="elig-badge elig-warn">확인 필요</span>'
     : (k.elig ? `<span class="elig-badge ${eligClass(k.elig)}">${eligShort(k.elig)}</span>` : '<span class="att-none">가능등급 없음</span>');
   const phoneHtml = k.phone
-    ? `<span class="team-pill tnum">${escapeHtml(k.phone)}</span>`
+    ? `<a class="team-pill tnum phone-link" href="${telHref(k.phone)}">${escapeHtml(k.phone)}</a>`
     : '<span class="att-none">전화번호 확인 필요</span>';
   const recommenderHtml = k.recommender
     ? `<span class="cohort-tag-sm">권면자: ${escapeHtml(k.recommender)}</span>`
     : '<span class="cohort-tag-sm" style="color:var(--danger)">권면자 미기재</span>';
+  const doneHtml = k.done
+    ? '<span class="course-badge course-yes">권면 완료</span>'
+    : '<span class="course-badge course-no">권면 전</span>';
   return `
     <div class="confirmed-row">
       <div class="confirmed-row-name">${escapeHtml(k.name)} <span class="cohort-tag-sm">${escapeHtml(k.cohort)}동기</span></div>
       <div class="confirmed-row-meta">
         ${phoneHtml}
         ${eligHtml}
+        ${doneHtml}
         ${recommenderHtml}
       </div>
     </div>`;
