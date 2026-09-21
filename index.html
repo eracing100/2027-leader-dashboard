@@ -358,6 +358,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
     <button class="tab-btn" id="tab-btn-apply" onclick="switchTab('apply')">지원 현황 <span id="apply-tab-count"></span></button>
     <button class="tab-btn" id="tab-btn-stats" onclick="switchTab('stats')">통계</button>
     <button class="tab-btn" id="tab-btn-confirmed" onclick="switchTab('confirmed')">2027년도 확정 리더 <span id="confirmed-tab-count"></span></button>
+    <button class="tab-btn" id="tab-btn-kwonmyeon" onclick="switchTab('kwonmyeon')">권면 <span id="kwonmyeon-tab-count"></span></button>
   </div>
 
   <div id="panel-roster">
@@ -480,6 +481,14 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
     <div id="confirmed-content"></div>
   </div>
 
+  <div id="panel-kwonmyeon" style="display:none">
+    <div class="notice">
+      <span class="dot">●</span>
+      <span>"권면 대상" 시트(마스터 워크북 내 별도 탭)에 팀/이름/동기/권면자를 입력하면, 전화번호는 "26메이커스 DB(하반기)" 탭에서, 가능역할은 "2026 메이커스" 탭(가능등급)에서 이름+동기로 자동으로 찾아와 팀 단위로 묶어 보여줍니다. 시트에 입력만 하면 새로고침 시 자동으로 반영됩니다.</span>
+    </div>
+    <div id="kwonmyeon-content"></div>
+  </div>
+
   <footer class="foot" id="footer-total"></footer>
 </div>
 
@@ -492,10 +501,17 @@ const RESP_GID = "1908492599";
 /* 2027 확정 리더 — 마스터 워크북("2027 리더선출 정리") 안의 별도 탭. 위원회가 이름/동기/확정역할만
    입력하면, 나머지(팀·출석률·양육과정수료)는 ROSTER에서 이름+동기로 자동으로 찾아옴(2026-09-15 신설). */
 const CONFIRMED_GID = "1174157990";
+/* 권면 대상 — 마스터 워크북 안의 별도 탭(2026-09-21 신설). 위원회가 팀/이름/동기/권면자만
+   입력하면, 전화번호는 "26메이커스 DB(하반기)" 탭에서, 가능역할(가능등급)은 "2026 메이커스"
+   탭(ROSTER)에서 이름+동기로 자동으로 찾아옴. 탭 이름으로 직접 gviz 조회(gid 불필요). */
+const KWONMYEON_TAB = "권면 대상";
+const PHONE_TAB = "26메이커스 DB(하반기)";
 const COHORT_ORDER_FULL = ["91","92","93","94","95","96","97","98","99","00"];
 
 let APPLICANTS = [];
 let CONFIRMED = [];
+let KWONMYEON = [];
+let PHONE_MAP = {};
 
 /* 회칙상 별도 트랙인 부조장, 그리고 면려회 — 원본 시트의 "현재역할" 컬럼에는 아직
    반영되어 있지 않아 여기서 보정합니다. 두 역할 모두 원래 컬럼 값(대개 "조원")을
@@ -564,6 +580,14 @@ function respCsvUrl(){
 function confirmedCsvUrl(){
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${CONFIRMED_GID}`;
 }
+function kwonmyeonCsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(KWONMYEON_TAB)}`;
+}
+/* 전화번호는 개인정보라 탭 전체를 받아오지 않고 이름(E)/동기(F)/전화번호(I) 세 열만
+   gviz 쿼리 언어(select)로 제한해서 가져옴. */
+function phoneCsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(PHONE_TAB)}&tq=${encodeURIComponent('select E,F,I')}`;
+}
 
 let lastFetchTime = null;
 
@@ -607,6 +631,32 @@ async function fetchAndBuild(){
   } catch (e3){
     console.error('confirmed fetch failed', e3);
     CONFIRMED = [];
+  }
+
+  try {
+    const res4 = await fetch(phoneCsvUrl(), {cache:'no-store'});
+    if (res4.ok){
+      const text4 = await res4.text();
+      buildPhoneMap(parseCSV(text4));
+    } else {
+      PHONE_MAP = {};
+    }
+  } catch (e4){
+    console.error('phone fetch failed', e4);
+    PHONE_MAP = {};
+  }
+
+  try {
+    const res5 = await fetch(kwonmyeonCsvUrl(), {cache:'no-store'});
+    if (res5.ok){
+      const text5 = await res5.text();
+      buildKwonmyeon(parseCSV(text5));
+    } else {
+      KWONMYEON = [];
+    }
+  } catch (e5){
+    console.error('kwonmyeon fetch failed', e5);
+    KWONMYEON = [];
   }
   lastFetchTime = new Date();
 }
@@ -787,6 +837,76 @@ function confirmedRoleOf(name, cohort){
   return c ? c.role : null;
 }
 
+/* "26메이커스 DB(하반기)" 탭(이름/동기/전화번호만 select)에서 이름+동기 → 전화번호 맵을 만듦.
+   이 탭은 00동기를 "2000"으로 저장하므로("2026 메이커스"·다른 탭들의 "0"과 다름) 별도 정규화. */
+function normPhoneCohort(v){
+  let c = (v || '').trim();
+  if (c === '2000') c = '00';
+  else if (c === '0') c = '00';
+  return c;
+}
+function buildPhoneMap(rows){
+  const map = {};
+  rows.forEach((r, i) => {
+    if (i === 0) return; // header
+    const name = (r[0] || '').trim();
+    if (!name) return;
+    const cohort = normPhoneCohort(r[1]);
+    const phone = (r[2] || '').trim();
+    if (!phone) return;
+    const key = name + '|' + cohort;
+    if (!map[key]) map[key] = phone;
+  });
+  PHONE_MAP = map;
+}
+
+/* "권면 대상" 탭(팀/이름/동기/권면자만 입력)을 읽어서, ROSTER에서 이름+동기로 매칭되는
+   사람은 가능등급을, PHONE_MAP에서 전화번호를 자동으로 채워 넣음. 매칭 안 되면(오타 등)
+   matched:false로 남겨 화면에서 "확인 필요"로 표시(기존 확정 리더 탭 처리와 같은 철학).
+   같은 팀+이름+동기가 여러 행에 걸쳐 입력되면(예: 권면자가 여러 명 배정) 한 사람으로 합치고
+   권면자만 "· "로 이어붙임 — 같은 사람이 중복 카드로 두 번 뜨는 것을 방지(2026-09-21 신설). */
+function buildKwonmyeon(rows){
+  if (!rows.length){ KWONMYEON = []; return; }
+  const header = rows[0].map(h => h.trim());
+  const idx = {
+    team: header.indexOf('팀'),
+    name: header.indexOf('이름'),
+    cohort: header.indexOf('동기'),
+    recommender: header.indexOf('권면자') !== -1 ? header.indexOf('권면자') : header.indexOf('누가 권면할건지'),
+  };
+  const merged = new Map();
+  for (let i = 1; i < rows.length; i++){
+    const r = rows[i];
+    if (!r) continue;
+    const name = (r[idx.name] || '').trim();
+    if (!name) continue;
+    let cohort = (r[idx.cohort] || '').trim();
+    if (cohort === '0') cohort = '00';
+    const team = (r[idx.team] || '').trim() || '(팀 미기재)';
+    const recommender = (r[idx.recommender] || '').trim();
+    const key = team + '|' + name + '|' + cohort;
+    if (!merged.has(key)){
+      const m = ROSTER.find(x => x.n === name && x.c === cohort);
+      merged.set(key, {
+        team: team,
+        name: name,
+        cohort: cohort,
+        recommenders: [],
+        elig: m ? m.e : '',
+        phone: PHONE_MAP[name + '|' + cohort] || '',
+        matched: !!m,
+      });
+    }
+    if (recommender && merged.get(key).recommenders.indexOf(recommender) === -1){
+      merged.get(key).recommenders.push(recommender);
+    }
+  }
+  KWONMYEON = Array.from(merged.values()).map(k => ({
+    team: k.team, name: k.name, cohort: k.cohort, elig: k.elig, phone: k.phone, matched: k.matched,
+    recommender: k.recommenders.join(' · '),
+  }));
+}
+
 function cleanRemark(rm){
   return rm.split(';').map(s => s.trim())
     .filter(s => s && s !== '등반일 미기재(장기 등록 추정)' && !/^\(현직\s*(팀장|조장|부조장)\)$/.test(s))
@@ -883,6 +1003,7 @@ function showApp(){
   renderApplicants();
   renderStatsTab();
   renderConfirmed();
+  renderKwonmyeon();
   document.getElementById('app').style.display = 'block';
 }
 
@@ -891,10 +1012,12 @@ function switchTab(tab){
   document.getElementById('tab-btn-apply').classList.toggle('active', tab === 'apply');
   document.getElementById('tab-btn-stats').classList.toggle('active', tab === 'stats');
   document.getElementById('tab-btn-confirmed').classList.toggle('active', tab === 'confirmed');
+  document.getElementById('tab-btn-kwonmyeon').classList.toggle('active', tab === 'kwonmyeon');
   document.getElementById('panel-roster').style.display = tab === 'roster' ? 'block' : 'none';
   document.getElementById('panel-apply').style.display = tab === 'apply' ? 'block' : 'none';
   document.getElementById('panel-stats').style.display = tab === 'stats' ? 'block' : 'none';
   document.getElementById('panel-confirmed').style.display = tab === 'confirmed' ? 'block' : 'none';
+  document.getElementById('panel-kwonmyeon').style.display = tab === 'kwonmyeon' ? 'block' : 'none';
 }
 
 function applyChipsList(){
@@ -1346,6 +1469,75 @@ function confirmedRowHtml(c, showRawRole){
         ${c.matched ? `<span class="team-pill">${escapeHtml(c.team || '-')}</span>` : ''}
         ${attHtml}
         ${courseHtml}
+      </div>
+    </div>`;
+}
+
+/* "권면" 탭 — "권면 대상" 시트(팀/이름/동기/권면자만 입력)를 팀 단위로 묶어서 보여줌.
+   전화번호는 PHONE_MAP("26메이커스 DB(하반기)"), 가능역할은 ROSTER("2026 메이커스")에서
+   이름+동기로 자동 매칭. 매칭 안 되는 사람은 "확인 필요" 배지로 표시(조용히 누락시키지 않음). */
+function renderKwonmyeon(){
+  const countEl = document.getElementById('kwonmyeon-tab-count');
+  if (countEl) countEl.textContent = KWONMYEON.length ? `(${KWONMYEON.length})` : '';
+  const wrap = document.getElementById('kwonmyeon-content');
+  if (!KWONMYEON.length){
+    wrap.innerHTML = '<div class="empty">아직 권면 대상이 없습니다. "권면 대상" 시트에 팀/이름/동기/권면자를 입력하면 새로고침 시 자동으로 표시됩니다.</div>';
+    return;
+  }
+
+  const rosterUnmatched = KWONMYEON.filter(k => !k.matched).length;
+  const phoneMissing = KWONMYEON.filter(k => k.matched && !k.phone).length;
+
+  const summaryHtml = `
+    <div class="stats">
+      <div class="stat total"><div class="num tnum">${KWONMYEON.length}</div><div class="lbl">총 권면 대상</div></div>
+    </div>
+    ${rosterUnmatched ? `
+    <div class="notice" style="margin-top:10px">
+      <span class="dot">●</span>
+      <span>${rosterUnmatched}명은 이름+동기가 전체 명단과 일치하지 않아 가능역할을 표시할 수 없습니다. "권면 대상" 시트의 이름·동기 표기를 다시 확인해주세요.</span>
+    </div>` : ''}
+    ${phoneMissing ? `
+    <div class="notice" style="margin-top:10px">
+      <span class="dot">●</span>
+      <span>${phoneMissing}명은 "26메이커스 DB(하반기)" 탭에서 전화번호를 찾지 못했습니다.</span>
+    </div>` : ''}
+  `;
+
+  const teams = Array.from(new Set(KWONMYEON.map(k => k.team))).sort((a,b) => a.localeCompare(b,'ko'));
+  const groupsHtml = teams.map(team => {
+    const items = KWONMYEON.filter(k => k.team === team).slice().sort((a,b) => {
+      const ia = COHORT_ORDER_FULL.indexOf(a.cohort), ib = COHORT_ORDER_FULL.indexOf(b.cohort);
+      if (ia !== ib) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+      return a.name.localeCompare(b.name, 'ko');
+    });
+    return `
+      <div class="confirmed-group">
+        <div class="confirmed-group-title"><span class="team-pill">${escapeHtml(team)}</span><span class="cohort-count">${items.length}명</span></div>
+        <div class="confirmed-list">${items.map(k => kwonmyeonRowHtml(k)).join('')}</div>
+      </div>`;
+  }).join('');
+
+  wrap.innerHTML = summaryHtml + groupsHtml;
+}
+
+function kwonmyeonRowHtml(k){
+  const eligHtml = !k.matched
+    ? '<span class="elig-badge elig-warn">확인 필요</span>'
+    : (k.elig ? `<span class="elig-badge ${eligClass(k.elig)}">${eligShort(k.elig)}</span>` : '<span class="att-none">가능등급 없음</span>');
+  const phoneHtml = k.phone
+    ? `<span class="team-pill tnum">${escapeHtml(k.phone)}</span>`
+    : '<span class="att-none">전화번호 확인 필요</span>';
+  const recommenderHtml = k.recommender
+    ? `<span class="cohort-tag-sm">권면자: ${escapeHtml(k.recommender)}</span>`
+    : '<span class="cohort-tag-sm" style="color:var(--danger)">권면자 미기재</span>';
+  return `
+    <div class="confirmed-row">
+      <div class="confirmed-row-name">${escapeHtml(k.name)} <span class="cohort-tag-sm">${escapeHtml(k.cohort)}동기</span></div>
+      <div class="confirmed-row-meta">
+        ${phoneHtml}
+        ${eligHtml}
+        ${recommenderHtml}
       </div>
     </div>`;
 }
