@@ -362,10 +362,10 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
 
   <div class="tabs">
     <button class="tab-btn active" id="tab-btn-roster" onclick="switchTab('roster')">전체 명단</button>
+    <button class="tab-btn" id="tab-btn-kwonmyeon" onclick="switchTab('kwonmyeon')">권면 <span id="kwonmyeon-tab-count"></span></button>
     <button class="tab-btn" id="tab-btn-apply" onclick="switchTab('apply')">지원 현황 <span id="apply-tab-count"></span></button>
     <button class="tab-btn" id="tab-btn-stats" onclick="switchTab('stats')">통계</button>
     <button class="tab-btn" id="tab-btn-confirmed" onclick="switchTab('confirmed')">2027년도 확정 리더 <span id="confirmed-tab-count"></span></button>
-    <button class="tab-btn" id="tab-btn-kwonmyeon" onclick="switchTab('kwonmyeon')">권면 <span id="kwonmyeon-tab-count"></span></button>
   </div>
 
   <div id="panel-roster">
@@ -437,6 +437,20 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <div id="groups"></div>
   </div>
 
+  <div id="panel-kwonmyeon" style="display:none">
+    <div class="notice">
+      <span class="dot">●</span>
+      <span>"권면 대상" 시트(마스터 워크북 내 별도 탭)에 팀/이름/동기/권면자를 입력하면, 전화번호는 "26메이커스 DB(하반기)" 탭에서, 가능역할은 "2026 메이커스" 탭(가능등급)에서 이름+동기로 자동으로 찾아와 팀 단위로 묶어 보여줍니다. "완료" 열을 추가해서 아무 값이나(예: "완료", "O") 채워 넣으면 권면 완료로 표시됩니다(비워두면 미완료). 시트에 입력만 하면 새로고침 시 자동으로 반영됩니다. 전화번호를 누르면 바로 전화가 걸립니다.</span>
+    </div>
+    <div class="toolbar">
+      <div class="filter-field" style="flex:1">
+        <span class="filter-label">권면자 (여러 명 선택 가능)</span>
+        <div id="kf-recommender-options" class="ms-toggle-group"></div>
+      </div>
+    </div>
+    <div id="kwonmyeon-content"></div>
+  </div>
+
   <div id="panel-apply" style="display:none">
     <div class="notice">
       <span class="dot">●</span>
@@ -486,20 +500,6 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
       <span>"2027 확정 리더" 시트(마스터 워크북 내 별도 탭)에 위원회가 직접 입력한 확정 인원만 보여줍니다. 팀·출석률 등은 전체 명단에서 이름+동기로 자동으로 찾아온 값입니다. 아직 배정팀(조 편성)은 반영하지 않고 역할(팀장/조장/부조장/면려회)만 표시합니다.</span>
     </div>
     <div id="confirmed-content"></div>
-  </div>
-
-  <div id="panel-kwonmyeon" style="display:none">
-    <div class="notice">
-      <span class="dot">●</span>
-      <span>"권면 대상" 시트(마스터 워크북 내 별도 탭)에 팀/이름/동기/권면자를 입력하면, 전화번호는 "26메이커스 DB(하반기)" 탭에서, 가능역할은 "2026 메이커스" 탭(가능등급)에서 이름+동기로 자동으로 찾아와 팀 단위로 묶어 보여줍니다. "완료" 열을 추가해서 아무 값이나(예: "완료", "O") 채워 넣으면 권면 완료로 표시됩니다(비워두면 미완료). 시트에 입력만 하면 새로고침 시 자동으로 반영됩니다. 전화번호를 누르면 바로 전화가 걸립니다.</span>
-    </div>
-    <div class="toolbar">
-      <div class="filter-field" style="flex:1">
-        <span class="filter-label">권면자 (여러 명 선택 가능)</span>
-        <div id="kf-recommender-options" class="ms-toggle-group"></div>
-      </div>
-    </div>
-    <div id="kwonmyeon-content"></div>
   </div>
 
   <footer class="foot" id="footer-total"></footer>
