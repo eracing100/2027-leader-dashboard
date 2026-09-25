@@ -305,14 +305,15 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .confirmed-group-title{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .confirmed-group-title .cohort-count{font-size:12px;color:var(--ink-faint);font-weight:600}
 .confirmed-list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-.confirmed-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid var(--border);font-size:12.8px}
+.confirmed-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid var(--border);font-size:12.8px}
 .confirmed-row:first-child{border-top:none}
 .confirmed-row-name{font-weight:700;color:var(--ink);flex:0 0 150px;min-width:0}
 .cohort-tag-sm{font-weight:600;color:var(--ink-faint);font-size:12px;margin-left:2px}
-/* 확정 리더 탭 — 이름 칸 폭을 고정하고 팀 배지/출석률/수료 배지를 고정폭 그리드로 배치해서 항상
-   같은 x좌표에서 시작하게 함. 예전 justify-content:space-between 방식은 사람마다 배지 전체
-   폭이 달라(팀명 길이·출석률 자릿수·수료 여부) 오와열이 들쭉날쭉해 보였음(2026-09-25). */
-.confirmed-row-meta{flex:1 1 auto;display:grid;grid-template-columns:104px 66px 64px;column-gap:12px;align-items:center;min-width:0}
+/* 확정 리더 탭 — 팀 배지/출석률/수료 배지를 고정폭 그리드로 묶어서 그 묶음 자체의 폭이 항상
+   일정하게 만듦(사람마다 팀명 길이·출석률 자릿수·수료 여부가 달라도 총 폭은 104+66+64+간격으로 고정).
+   그래서 justify-content:space-between으로 이 묶음을 오른쪽 끝에 붙여도(이름 칸 뒤에 남는 공백을
+   줄이기 위해) 시작 x좌표가 사람마다 들쭉날쭉해지지 않음(2026-09-25). */
+.confirmed-row-meta{flex:0 0 auto;display:grid;grid-template-columns:104px 66px 64px;column-gap:12px;align-items:center;min-width:0}
 .confirmed-row-meta > *{justify-self:start;min-width:0}
 
 /* 권면 탭 전용 — 전화번호/가능등급/완료 배지/권면자 텍스트 길이가 사람마다 달라서 기존 flex
