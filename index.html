@@ -269,8 +269,12 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
   .print-only{display:block !important}
   #kwonmyeon-print-title h2{margin:0 0 4px;font-size:20px}
   #kwonmyeon-print-title .print-meta{margin:0 0 14px;font-size:11px;color:#555}
-  #panel-kwonmyeon .confirmed-group{page-break-inside:avoid;break-inside:avoid;margin-bottom:18px}
-  #panel-kwonmyeon .confirmed-group-title{margin-bottom:10px}
+  /* 팀 전체를 한 페이지 안에 억지로 몰아넣지 않음 — 팀 인원이 남은 여백보다 많으면
+     페이지 하단에 큰 공백을 남긴 채 팀 전체가 다음 페이지로 넘어갔었음(2026-09-25).
+     대신 팀 이름표가 페이지 맨 아래 혼자 남지 않도록(고아 줄) 이름표만 다음 줄과
+     붙어있게 함 — 사람 카드(.confirmed-row) 자체는 계속 페이지 중간에서 끊기지 않음. */
+  #panel-kwonmyeon .confirmed-group{margin-bottom:18px}
+  #panel-kwonmyeon .confirmed-group-title{margin-bottom:10px;page-break-after:avoid;break-after:avoid-page}
   #panel-kwonmyeon .confirmed-row{page-break-inside:avoid;break-inside:avoid;padding:13px 14px;font-size:14px}
   #panel-kwonmyeon .confirmed-row-name{font-size:15.5px}
   #panel-kwonmyeon .cohort-tag-sm,#panel-kwonmyeon .team-pill,#panel-kwonmyeon .elig-badge,#panel-kwonmyeon .course-badge{font-size:12.5px}
@@ -336,10 +340,20 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
   #panel-kwonmyeon .confirmed-row-meta > *:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;justify-self:end;text-align:right}
 }
 
+/* 인쇄(A4) 전용 — 기존 150+135+92+1fr 그리드는 실제 내용(전화번호 최대 101px, 가능역할 배지
+   최대 114px, 완료 배지 최대 70px 정도)보다 훨씬 넓게 잡혀 있어서, A4 인쇄 가능 폭(약 660px)에서는
+   마지막 칸(권면자)이 60px대로 밀려 한 글자씩 세로로 줄바꿈되는 문제가 있었음. 실측 폭에 맞춰
+   앞 3칸을 줄이고 간격을 좁혀 권면자 칸에 여유를 주고, 그래도 넘치는 경우(권면자가 여러 명)는
+   세로 줄바꿈 대신 말줄임표로 처리(2026-09-25). */
+@media print{
+  #panel-kwonmyeon .confirmed-row-meta{grid-template-columns:108px 122px 78px 1fr;column-gap:8px}
+  #panel-kwonmyeon .confirmed-row-meta > *:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+}
+
 .empty{padding:40px 16px;text-align:center;color:var(--ink-faint);font-size:13px}
 footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--ink-faint);text-align:center}
 
-@media (max-width:860px){
+@media screen and (max-width:860px){
   #app{padding:18px 14px 60px}
   .stats{grid-template-columns:repeat(2,1fr);gap:8px}
   .stat{padding:13px 13px 11px}
