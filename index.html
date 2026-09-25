@@ -262,6 +262,11 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 @media print{
   @page{size:A4;margin:14mm}
   body{background:#fff}
+  /* #app의 화면용 좌우 여백(20px씩)이 인쇄에서도 그대로 살아있어서, @page 여백(14mm)에
+     더해 카드 폭을 양쪽 40px씩 더 깎아먹고 있었음 — 인쇄 그리드 폭을 계산할 때 이 부분을
+     빠뜨려서 카드 오른쪽 끝 텍스트(권면자란)가 실제 종이 경계에서 잘리는 문제가 있었음.
+     @page 여백만으로 충분하므로 인쇄에서는 이 좌우 여백을 없앰(2026-09-25). */
+  #app{padding-left:0;padding-right:0}
   /* 배경색이 있는 배지(가능등급/권면 완료 등)가 인쇄 시 흰색으로 날아가지 않도록 강제로 색을 유지 —
      브라우저의 "배경 그래픽" 인쇄 옵션이 꺼져 있어도 화면과 동일하게 색이 나오게 함 */
   *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important}
@@ -340,14 +345,20 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
   #panel-kwonmyeon .confirmed-row-meta > *:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;justify-self:end;text-align:right}
 }
 
-/* 인쇄(A4) 전용 — 기존 150+135+92+1fr 그리드는 실제 내용(전화번호 최대 101px, 가능역할 배지
-   최대 114px, 완료 배지 최대 70px 정도)보다 훨씬 넓게 잡혀 있어서, A4 인쇄 가능 폭(약 660px)에서는
-   마지막 칸(권면자)이 60px대로 밀려 한 글자씩 세로로 줄바꿈되는 문제가 있었음. 실측 폭에 맞춰
-   앞 3칸을 줄이고 간격을 좁혀 권면자 칸에 여유를 주고, 그래도 넘치는 경우(권면자가 여러 명)는
-   세로 줄바꿈 대신 말줄임표로 처리(2026-09-25). */
+/* 인쇄(A4) 전용 — 화면(1280px 이상)에서 쓰는 고정폭 그리드(150+135+92+140)는 A4 인쇄 가능 폭
+   (약 688px)보다 훨씬 넓어서 그대로 쓰면 넘침. 처음엔 임의로 줄인 px 값(전화번호 108px 등)을
+   썼는데, 실측(CDN 차단으로 폴백 폰트로 잰 값)이 실제 Pretendard 폰트보다 좁게 나오는 바람에
+   실제 인쇄에서 전화번호가 "010-6487-8..."처럼 잘렸음. Pretendard 폰트 패키지를 직접 받아
+   인쇄 시 굵기(font-weight:800)까지 그대로 재현해 다시 실측함(전화번호 최대 119px, 가능역할
+   최대 101px, 완료 배지 최대 62px, 권면자 2명 기준 113px) — 그 실측값에 13~20px씩 여유를
+   더 얹은 고정폭 그리드로 교체. 그리고 원래 그리드처럼 각 칸을 고정폭으로 유지해서(가변폭
+   flex 대신) 사람마다 가능역할 글자 수가 달라도 전화번호 칸 시작 위치가 흔들리지 않게 함
+   (2026-09-25 재수정). 이름 칸도 170→150px로 줄여 여유 폭을 확보(실제 이름 내용은 130px 이내). */
 @media print{
-  #panel-kwonmyeon .confirmed-row-meta{grid-template-columns:108px 122px 78px 1fr;column-gap:8px}
-  #panel-kwonmyeon .confirmed-row-meta > *:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+  #panel-kwonmyeon .confirmed-row{justify-content:space-between}
+  #panel-kwonmyeon .confirmed-row-name{flex:0 0 150px}
+  #panel-kwonmyeon .confirmed-row-meta{flex:0 0 auto;grid-template-columns:135px 120px 75px 120px;column-gap:8px}
+  #panel-kwonmyeon .confirmed-row-meta > *:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:end;text-align:right}
 }
 
 .empty{padding:40px 16px;text-align:center;color:var(--ink-faint);font-size:13px}
