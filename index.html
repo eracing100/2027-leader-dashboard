@@ -910,10 +910,18 @@ function buildApplicants(rows){
     const r = rows[i];
     const name = (r[idx.name] || '').trim();
     if (!name) continue;
+    let cohort = (r[idx.cohort] || '').trim();
+    if (cohort === '0') cohort = '00';
+    /* [2026-09-26 신설] 응답 시트의 "출석률"은 공고일 기준 2년 합산값 하나뿐이라 전체
+       명단/확정 리더/권면 탭과 기준이 안 맞았음. 응답 시트 수식을 새로 만들 필요 없이,
+       이미 buildRoster()가 먼저 실행돼 채워진 ROSTER에서 이름+동기로 그대로 찾아와
+       attThis/attLast/hasSplitAtt를 붙임(확정 리더 탭과 동일한 방식) — 시트에 아직
+       금년출석률/작년출석률 열이 없으면 hasSplitAtt=false로 기존 방식 그대로 표시됨. */
+    const m = ROSTER.find(x => x.n === name && x.c === cohort);
     out.push({
       ts: (r[idx.ts] || '').trim(),
       team: (r[idx.team] || '').trim(),
-      cohort: (r[idx.cohort] || '').trim(),
+      cohort: cohort,
       name: name,
       phone: (r[idx.phone] || '').trim(),
       exp: (r[idx.exp] || '').trim(),
@@ -923,6 +931,9 @@ function buildApplicants(rows){
       goal: idx.goal >= 0 ? (r[idx.goal] || '').trim() : '',
       curRole: (r[idx.curRole] || '').trim(),
       att: (r[idx.att] || '').trim(),
+      attThis: m ? m.attThis : null,
+      attLast: m ? m.attLast : null,
+      hasSplitAtt: m ? m.hasSplitAtt : false,
       tenure: (r[idx.tenure] || '').trim(),
       course: (r[idx.course] || '').trim(),
       eligible: (r[idx.eligible] || '').trim(),
@@ -1398,10 +1409,17 @@ function applicantCard(a, isOpen){
     : '';
   // 확정된 사람은 확정 배지를 우선 표시합니다(가능등급 배지는 생략, 펼치면 '가능한 직분'에서 확인 가능). 그 외에는 가능등급 배지를 표시합니다.
   const primaryBadge = confirmedBadge || eligBadge;
+  // [2026-09-26 신설] 전체 명단/확정 리더 탭과 동일하게 금년/작년을 나눠서 텍스트 한 줄로
+  // 표시. app-field는 escapeHtml(v)로 값을 그대로 이스케이프해서 넣는 구조라 HTML(진행바 등)은
+  // 못 쓰고 순수 텍스트만 가능 — 권면 탭의 kwonAttText()와 같은 방식으로 문자열만 만듦.
+  const attText = a.hasSplitAtt
+    ? (a.attThis === null ? '금년 데이터없음' : '금년 ' + parseFloat(a.attThis).toFixed(1) + '%') + ' · ' +
+      (a.attLast === null ? '작년 데이터없음' : '작년 ' + parseFloat(a.attLast).toFixed(1) + '%')
+    : (a.att ? (/^[\d.]+$/.test(a.att) ? a.att + '%' : a.att) : '');
   const fields = [
     ['현재역할(시트 기준)', a.curRole],
     ['가능한 직분', a.eligible],
-    ['출석률', a.att ? (/^[\d.]+$/.test(a.att) ? a.att + '%' : a.att) : ''],
+    ['출석률', attText],
     ['등록연차', a.tenure],
     ['양육과정수료', a.course],
     ['연락처', a.phone],
