@@ -287,7 +287,15 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
      붙어있게 함 — 사람 카드(.confirmed-row) 자체는 계속 페이지 중간에서 끊기지 않음. */
   #panel-kwonmyeon .confirmed-group{margin-bottom:18px}
   #panel-kwonmyeon .confirmed-group-title{margin-bottom:10px;page-break-after:avoid;break-after:avoid-page}
-  #panel-kwonmyeon .confirmed-row{page-break-inside:avoid;break-inside:avoid;padding:13px 14px;font-size:14px}
+  /* [2026-09-26 수정] .confirmed-list는 화면에서 테두리+둥근 모서리+overflow:hidden으로
+     팀 전체를 카드 하나처럼 감싸는데, 이 카드가 페이지 경계에 걸치면 브라우저가 그 상자를
+     억지로 둘로 쪼개면서 경계에 걸린 줄이 이상하게 늘어나거나 잘려 보이는 인쇄 전용 결함이
+     있었음("다음 장으로 넘어가는 칸이 길어진다"는 지적). 인쇄에서는 이 감싸는 상자 자체를
+     없애고(테두리/모서리/그림자/overflow 전부 제거) 각 줄이 원래 갖고 있는 위쪽 테두리만으로
+     구분되는 단순한 목록으로 바꿔 페이지가 어디서 끊기든 항상 정상적인 줄 높이를 유지하게 함. */
+  #panel-kwonmyeon .confirmed-list{border:none;border-radius:0;overflow:visible;box-shadow:none;background:transparent}
+  #panel-kwonmyeon .confirmed-row{page-break-inside:avoid;break-inside:avoid;padding:13px 14px;font-size:14px;border-top:1px solid var(--border)}
+  #panel-kwonmyeon .confirmed-row:first-child{border-top:none}
   #panel-kwonmyeon .confirmed-row-name{font-size:15.5px}
   #panel-kwonmyeon .cohort-tag-sm,#panel-kwonmyeon .team-pill,#panel-kwonmyeon .elig-badge,#panel-kwonmyeon .course-badge{font-size:12.5px}
   /* 프린터 상태가 안 좋아 옅은 배경색(가능등급 3/4단계, 권면 전 배지 등)이 흐릿하게 나오더라도
@@ -343,10 +351,19 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 #panel-kwonmyeon .confirmed-row-name{flex:0 0 170px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #panel-kwonmyeon .confirmed-row-meta{flex:1 1 auto;display:grid;grid-template-columns:150px 135px 92px 1fr;column-gap:12px;align-items:center;min-width:0}
 #panel-kwonmyeon .confirmed-row-meta > *{justify-self:start;min-width:0}
-/* 리더 필수 조건(등록연차·금년/작년 출석률) — 기존 4항목(전화/가능등급/완료/권면자) 줄이
+/* 리더 필수 조건(지원완료·등록연차·금년/작년 출석률) — 기존 4항목(전화/가능등급/완료/권면자) 줄이
    이미 꽉 차 있어서 같은 줄에 더 넣지 않고 카드 안에 새 줄로 뺌. flex-basis:100%로 항상
-   줄바꿈시켜 이름+기존메타 줄 바로 아래에 붙게 함(2026-09-26 신설). */
-#panel-kwonmyeon .confirmed-row-meta2{flex:0 0 100%;display:flex;flex-wrap:wrap;gap:8px 16px;padding-left:0;margin-top:-2px}
+   줄바꿈시켜 이름+기존메타 줄 바로 아래에 붙게 함(2026-09-26 신설).
+   [2026-09-26 재수정] 처음엔 flex-wrap+gap로 짰는데, 등록연차 텍스트 길이가 사람마다
+   다르니(장기(2년+) vs 2.6 등) 그 뒤에 오는 출석률 텍스트의 시작 x좌표가 행마다 들쭉날쭉해
+   지저분해 보인다는 지적을 받음 — 기존 4항목 줄과 같은 원칙(고정폭 그리드)으로 맞춤.
+   실측(Pretendard 폰트, 실제 굵기 기준): 지원완료 배지 52px, 등록연차 최대 85px("등록
+   장기(2년+)"), 그 뒤 출석률은 마지막 칸이라 1fr로 남은 공간을 씀. 세 칸 중 값이 없는
+   칸도 빈 슬롯(span)을 항상 넣어서 그리드 자리 자체는 비워두고, 있는 항목만 그 자리에
+   채워지게 함 — 그래야 예를 들어 지원완료 배지가 없는 사람도 등록연차가 항상 같은
+   x좌표에서 시작함. */
+#panel-kwonmyeon .confirmed-row-meta2{flex:0 0 100%;display:grid;grid-template-columns:66px 108px 1fr;column-gap:16px;align-items:center;margin-top:-2px}
+#panel-kwonmyeon .confirmed-row-meta2 > *{justify-self:start;min-width:0}
 #panel-kwonmyeon .confirmed-row-meta2:empty{display:none}
 #panel-kwonmyeon .kwon-att{color:var(--ink-soft)}
 
@@ -1854,7 +1871,12 @@ function kwonmyeonRowHtml(k){
      폭이 꽉 차 있어 새 항목을 더 넣으면 인쇄에서 깨지므로, 등록연차·출석률과 같은
      둘째 줄(meta2)에 붙임. */
   const appliedHtml = k.applied ? '<span class="course-badge course-yes">지원완료</span>' : '';
-  const meta2Html = (appliedHtml || tenureHtml || attHtml) ? `<div class="confirmed-row-meta2">${appliedHtml}${tenureHtml}${attHtml}</div>` : '';
+  /* 세 항목(지원완료/등록연차/출석률)을 항상 3개의 슬롯으로 감싸서 그리드 칸을 고정—
+     특정 항목이 비어도 그 다음 항목이 앞 칸으로 당겨지지 않고 항상 같은 x좌표에서
+     시작하게 함(2026-09-26). */
+  const meta2Html = (appliedHtml || tenureHtml || attHtml)
+    ? `<div class="confirmed-row-meta2"><span>${appliedHtml}</span><span>${tenureHtml}</span><span>${attHtml}</span></div>`
+    : '';
   return `
     <div class="confirmed-row">
       <div class="confirmed-row-name">${escapeHtml(k.name)} <span class="cohort-tag-sm">${escapeHtml(k.cohort)}동기</span></div>
