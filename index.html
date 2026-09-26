@@ -260,13 +260,20 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .ms-option.active{color:var(--accent-ink);background:var(--accent-soft);border-color:var(--accent-soft-2)}
 .print-only{display:none}
 @media print{
-  @page{size:A4;margin:14mm}
-  body{background:#fff}
-  /* #app의 화면용 좌우 여백(20px씩)이 인쇄에서도 그대로 살아있어서, @page 여백(14mm)에
-     더해 카드 폭을 양쪽 40px씩 더 깎아먹고 있었음 — 인쇄 그리드 폭을 계산할 때 이 부분을
-     빠뜨려서 카드 오른쪽 끝 텍스트(권면자란)가 실제 종이 경계에서 잘리는 문제가 있었음.
-     @page 여백만으로 충분하므로 인쇄에서는 이 좌우 여백을 없앰(2026-09-25). */
-  #app{padding-left:0;padding-right:0}
+  /* @page margin을 14mm로 주면 그 여백 공간에 브라우저가 기본 인쇄 머리말/꼬리말
+     (URL·페이지 번호)을 그려 넣음 — Chrome/Edge는 @page margin이 0이면 그릴 공간이
+     없어 머리말/꼬리말을 아예 표시하지 않는다는 점을 이용해 margin:0으로 바꾸고,
+     기존에 @page margin이 주던 여백은 body padding으로 그대로 재현함(2026-09-26,
+     "권면 인쇄 시 출처(URL) 안 보이게 해달라"는 요청). 단, 이 방식은 Chrome 계열
+     한정이고 Firefox/Safari는 인쇄 대화상자에서 "머리글과 바닥글" 옵션을 사용자가
+     직접 꺼야 완전히 사라짐 — CSS만으로는 모든 브라우저에서 보장할 수 없음. */
+  @page{size:A4;margin:0}
+  body{background:#fff;padding:14mm;margin:0}
+  /* #app의 화면용 여백(상28px/좌우20px/하80px)이 인쇄에서도 그대로 살아있으면 위 body
+     padding(14mm)에 더해 카드 폭·여백을 이중으로 깎아먹음 — 인쇄에서는 body padding
+     하나로만 여백을 통일하고 #app 자체 padding은 전부 제거함(2026-09-25 좌우 수정에
+     이어 2026-09-26 상하도 동일하게 정리). */
+  #app{padding:0}
   /* 배경색이 있는 배지(가능등급/권면 완료 등)가 인쇄 시 흰색으로 날아가지 않도록 강제로 색을 유지 —
      브라우저의 "배경 그래픽" 인쇄 옵션이 꺼져 있어도 화면과 동일하게 색이 나오게 함 */
   *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important}
@@ -1086,6 +1093,11 @@ function buildPhoneMap(rows){
    비어있는지만 봄. 여러 행 중 하나라도 채워져 있으면 완료로 처리(2026-09-21 신설). */
 function buildKwonmyeon(rows){
   if (!rows.length){ KWONMYEON = []; return; }
+  /* [2026-09-26 신설] 권면 대상이 이미 "지원 현황"(응답 시트)을 통해 지원서를 냈는지
+     이름+동기로 확인해 "지원완료" 표시 — 전체 명단 탭의 "미지원자만 보기" 필터가 쓰는
+     appliedKeySet()과 동일한 키 방식을 그대로 재사용해 기준을 통일함. buildApplicants()가
+     buildKwonmyeon()보다 먼저 실행되므로(fetchAndBuild 참고) APPLICANTS는 이미 채워져 있음. */
+  const appliedSet = appliedKeySet();
   const header = rows[0].map(h => h.trim());
   const idx = {
     team: header.indexOf('팀'),
@@ -1122,6 +1134,7 @@ function buildKwonmyeon(rows){
         phone: PHONE_MAP[name + '|' + cohort] || '',
         matched: !!m,
         done: false,
+        applied: appliedSet.has(name + '|' + cohort),
       });
     }
     if (recommender && merged.get(key).recommenders.indexOf(recommender) === -1){
@@ -1132,6 +1145,7 @@ function buildKwonmyeon(rows){
   KWONMYEON = Array.from(merged.values()).map(k => ({
     team: k.team, name: k.name, cohort: k.cohort, elig: k.elig, phone: k.phone, matched: k.matched, done: k.done,
     tenure: k.tenure, attThis: k.attThis, attLast: k.attLast, hasSplitAtt: k.hasSplitAtt, att: k.att,
+    applied: k.applied,
     recommenders: k.recommenders,
     recommender: k.recommenders.join(' · '),
   }));
@@ -1834,7 +1848,13 @@ function kwonmyeonRowHtml(k){
     : '';
   const attText = kwonAttText(k);
   const attHtml = attText ? `<span class="cohort-tag-sm tnum kwon-att">${escapeHtml(attText)}</span>` : '';
-  const meta2Html = (tenureHtml || attHtml) ? `<div class="confirmed-row-meta2">${tenureHtml}${attHtml}</div>` : '';
+  /* [2026-09-26 신설] "지원 현황" 탭에 이름+동기가 매칭되면 지원완료 배지 표시 — 아직
+     지원 안 한 사람은 배지 자체를 안 띄움(요청이 "지원된 게 확인되면 표시"였지 "안 한
+     사람도 명시"는 아니었음). 기존 4항목 그리드(전화/가능등급/완료/권면자)는 이미 실측
+     폭이 꽉 차 있어 새 항목을 더 넣으면 인쇄에서 깨지므로, 등록연차·출석률과 같은
+     둘째 줄(meta2)에 붙임. */
+  const appliedHtml = k.applied ? '<span class="course-badge course-yes">지원완료</span>' : '';
+  const meta2Html = (appliedHtml || tenureHtml || attHtml) ? `<div class="confirmed-row-meta2">${appliedHtml}${tenureHtml}${attHtml}</div>` : '';
   return `
     <div class="confirmed-row">
       <div class="confirmed-row-name">${escapeHtml(k.name)} <span class="cohort-tag-sm">${escapeHtml(k.cohort)}동기</span></div>
