@@ -300,6 +300,9 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .att-bar{flex:1;height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden;min-width:28px}
 .att-bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
 .att-none{color:var(--ink-faint);font-size:11px}
+.att-split{display:flex;flex-direction:column;gap:3px;min-width:0}
+.att-yr{flex:0 0 auto;font-size:10px;font-weight:700;color:var(--ink-faint);width:22px}
+.att-split-inline{font-weight:700;font-size:12px;color:var(--ink)}
 .course-badge{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px}
 .course-yes{background:var(--accent-soft);color:var(--accent-ink)}
 .course-no{background:var(--surface-2);color:var(--ink-faint)}
@@ -322,17 +325,23 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
    일정하게 만듦(사람마다 팀명 길이·출석률 자릿수·수료 여부가 달라도 총 폭은 104+66+64+간격으로 고정).
    그래서 justify-content:space-between으로 이 묶음을 오른쪽 끝에 붙여도(이름 칸 뒤에 남는 공백을
    줄이기 위해) 시작 x좌표가 사람마다 들쭉날쭉해지지 않음(2026-09-25). */
-.confirmed-row-meta{flex:0 0 auto;display:grid;grid-template-columns:104px 66px 64px;column-gap:12px;align-items:center;min-width:0}
+.confirmed-row-meta{flex:0 0 auto;display:grid;grid-template-columns:104px 190px 64px;column-gap:12px;align-items:center;min-width:0}
 .confirmed-row-meta > *{justify-self:start;min-width:0}
 
 /* 권면 탭 전용 — 전화번호/가능등급/완료 배지/권면자 텍스트 길이가 사람마다 달라서 기존 flex
    레이아웃(justify-content:space-between)으로는 줄마다 시작 위치가 들쭉날쭉해 보였음. 각 항목에
    고정 폭을 준 그리드로 바꿔서 표처럼 줄이 맞게 함(2026-09-25). 확정 리더 탭은 항목 구성이 달라
    영향받지 않도록 #panel-kwonmyeon 안에서만 적용. */
-#panel-kwonmyeon .confirmed-row{flex-wrap:nowrap}
+#panel-kwonmyeon .confirmed-row{flex-wrap:wrap;row-gap:8px}
 #panel-kwonmyeon .confirmed-row-name{flex:0 0 170px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #panel-kwonmyeon .confirmed-row-meta{flex:1 1 auto;display:grid;grid-template-columns:150px 135px 92px 1fr;column-gap:12px;align-items:center;min-width:0}
 #panel-kwonmyeon .confirmed-row-meta > *{justify-self:start;min-width:0}
+/* 리더 필수 조건(등록연차·금년/작년 출석률) — 기존 4항목(전화/가능등급/완료/권면자) 줄이
+   이미 꽉 차 있어서 같은 줄에 더 넣지 않고 카드 안에 새 줄로 뺌. flex-basis:100%로 항상
+   줄바꿈시켜 이름+기존메타 줄 바로 아래에 붙게 함(2026-09-26 신설). */
+#panel-kwonmyeon .confirmed-row-meta2{flex:0 0 100%;display:flex;flex-wrap:wrap;gap:8px 16px;padding-left:0;margin-top:-2px}
+#panel-kwonmyeon .confirmed-row-meta2:empty{display:none}
+#panel-kwonmyeon .kwon-att{color:var(--ink-soft)}
 
 /* 화면(모니터)에서만 — 권면자란 뒤로 남는 공백을 줄이기 위해 배지 묶음 전체를 카드 오른쪽 끝에 붙임.
    인쇄(A4)는 폭이 좁아 이 고정폭(150+135+92+210+간격)이 넘칠 수 있어 제외하고 기존 1fr 방식 유지함
@@ -947,6 +956,13 @@ function buildRoster(rows){
     tenure: header.indexOf('등록연차'),
   };
   const attIdx = header.findIndex(h => h.indexOf('출석률') !== -1);
+  // [2026-09-26 신설] 회칙상 팀장/조장 자격은 금년/작년 출석률을 각각 따로 봐야 하는데
+  // 기존 "출석률" 열은 공고일 기준 2년치를 합산한 값 하나뿐이라 판정 기준과 화면 표시가
+  // 어긋나 있었음(§ 판정 기준 문구와 실제 표시 숫자가 안 맞음). "2026 메이커스" 시트에
+  // 금년출석률/작년출석률 두 열이 추가되면 그걸 우선 사용하고, 아직 없으면(열 자체가
+  // 없으면 -1) 기존 단일 출석률로 자동 폴백 — 시트 반영 전에도 대시보드가 깨지지 않음.
+  const attThisIdx = header.indexOf('금년출석률');
+  const attLastIdx = header.indexOf('작년출석률');
   const courseIdx = header.indexOf('양육과정수료');
   const eligIdx = header.indexOf('가능등급');
   const remarkIdx = header.indexOf('비고');
@@ -963,6 +979,8 @@ function buildRoster(rows){
     if (MYEONRYEOHOE.has(name)) roles = ['면려회'];
     if (HIEL.has(name)) roles = ['히엘'];
     const attRaw = (r[attIdx] || '').trim();
+    const attThisRaw = attThisIdx !== -1 ? (r[attThisIdx] || '').trim() : '';
+    const attLastRaw = attLastIdx !== -1 ? (r[attLastIdx] || '').trim() : '';
     roster.push({
       n: name,
       c: cohort,
@@ -970,6 +988,9 @@ function buildRoster(rows){
       r: roles,
       ten: (r[idx.tenure] || '').trim(),
       att: attRaw === '' ? null : attRaw,
+      attThis: attThisRaw === '' ? null : attThisRaw,
+      attLast: attLastRaw === '' ? null : attLastRaw,
+      hasSplitAtt: attThisIdx !== -1 || attLastIdx !== -1,
       co: (r[courseIdx] || '').trim(),
       e: (r[eligIdx] || '').trim(),
       rm: cleanRemark((r[remarkIdx] || '').trim()),
@@ -1008,6 +1029,9 @@ function buildConfirmed(rows){
       role: role,
       team: m ? m.t : '',
       att: m ? m.att : null,
+      attThis: m ? m.attThis : null,
+      attLast: m ? m.attLast : null,
+      hasSplitAtt: m ? m.hasSplitAtt : false,
       course: m ? m.co : '',
       matched: !!m,
     });
@@ -1079,6 +1103,11 @@ function buildKwonmyeon(rows){
         cohort: cohort,
         recommenders: [],
         elig: m ? m.e : '',
+        tenure: m ? m.ten : '',
+        attThis: m ? m.attThis : null,
+        attLast: m ? m.attLast : null,
+        hasSplitAtt: m ? m.hasSplitAtt : false,
+        att: m ? m.att : null,
         phone: PHONE_MAP[name + '|' + cohort] || '',
         matched: !!m,
         done: false,
@@ -1091,6 +1120,7 @@ function buildKwonmyeon(rows){
   }
   KWONMYEON = Array.from(merged.values()).map(k => ({
     team: k.team, name: k.name, cohort: k.cohort, elig: k.elig, phone: k.phone, matched: k.matched, done: k.done,
+    tenure: k.tenure, attThis: k.attThis, attLast: k.attLast, hasSplitAtt: k.hasSplitAtt, att: k.att,
     recommenders: k.recommenders,
     recommender: k.recommenders.join(' · '),
   }));
@@ -1643,7 +1673,9 @@ function renderConfirmed(){
 function confirmedRowHtml(c, showRawRole){
   const attHtml = !c.matched
     ? '<span class="elig-badge elig-warn">확인 필요</span>'
-    : (c.att === null ? '<span class="att-none">출석률 데이터 없음</span>' : `<span class="att-num tnum">${parseFloat(c.att).toFixed(1)}%</span>`);
+    : (c.hasSplitAtt
+        ? `<span class="att-split-inline tnum">${c.attThis === null ? '금년 데이터 없음' : '금년 ' + parseFloat(c.attThis).toFixed(1) + '%'} · ${c.attLast === null ? '작년 데이터 없음' : '작년 ' + parseFloat(c.attLast).toFixed(1) + '%'}</span>`
+        : (c.att === null ? '<span class="att-none">출석률 데이터 없음</span>' : `<span class="att-num tnum">${parseFloat(c.att).toFixed(1)}%</span>`));
   const courseHtml = c.matched
     ? (c.course === '수료' ? '<span class="course-badge course-yes">수료</span>' : '<span class="course-badge course-no">미수료</span>')
     : '';
@@ -1753,6 +1785,19 @@ function telHref(phone){
   return 'tel:' + phone.replace(/[^0-9+]/g, '');
 }
 
+/* 리더 필수 조건인 출석률(금년/작년)·등록연차를 한 줄 텍스트로 압축 — 권면 카드는 이미
+   전화번호/가능등급/완료/권면자 4항목으로 꽉 차 있어서 배지를 더 늘리는 대신 두 번째 줄에
+   짧은 텍스트로만 추가함(2026-09-26 신설, 회칙상 필수 조건을 권면자가 바로 확인하도록). */
+function kwonAttText(k){
+  if (!k.matched) return '';
+  if (k.hasSplitAtt){
+    const t = k.attThis === null ? '금년 데이터없음' : '금년 ' + parseFloat(k.attThis).toFixed(1) + '%';
+    const l = k.attLast === null ? '작년 데이터없음' : '작년 ' + parseFloat(k.attLast).toFixed(1) + '%';
+    return t + ' · ' + l;
+  }
+  return k.att === null ? '출석률 데이터없음' : parseFloat(k.att).toFixed(1) + '%';
+}
+
 function kwonmyeonRowHtml(k){
   const eligHtml = !k.matched
     ? '<span class="elig-badge elig-warn">확인 필요</span>'
@@ -1766,6 +1811,12 @@ function kwonmyeonRowHtml(k){
   const doneHtml = k.done
     ? '<span class="course-badge course-yes">권면 완료</span>'
     : '<span class="course-badge course-no">권면 전</span>';
+  const tenureHtml = k.matched && k.tenure
+    ? `<span class="cohort-tag-sm tnum">등록 ${escapeHtml(k.tenure)}</span>`
+    : '';
+  const attText = kwonAttText(k);
+  const attHtml = attText ? `<span class="cohort-tag-sm tnum kwon-att">${escapeHtml(attText)}</span>` : '';
+  const meta2Html = (tenureHtml || attHtml) ? `<div class="confirmed-row-meta2">${tenureHtml}${attHtml}</div>` : '';
   return `
     <div class="confirmed-row">
       <div class="confirmed-row-name">${escapeHtml(k.name)} <span class="cohort-tag-sm">${escapeHtml(k.cohort)}동기</span></div>
@@ -1775,6 +1826,7 @@ function kwonmyeonRowHtml(k){
         ${doneHtml}
         ${recommenderHtml}
       </div>
+      ${meta2Html}
     </div>`;
 }
 
@@ -1853,7 +1905,12 @@ function eligShort(e){
   if (e && e.indexOf('명단없음') !== -1) return '확인 필요';
   return '해당없음';
 }
-function attNum(m){ return m.att === null ? null : parseFloat(m.att); }
+function attNum(m){
+  // 정렬 기준값 — 금년/작년 분리 표시가 있으면 금년 수치를, 없으면(시트 반영 전) 기존
+  // 합산 출석률을 그대로 사용
+  if (m.hasSplitAtt) return m.attThis === null ? null : parseFloat(m.attThis);
+  return m.att === null ? null : parseFloat(m.att);
+}
 
 function applyFilters(){
   const cohort = document.getElementById('f-cohort').value;
@@ -1893,11 +1950,27 @@ function tenureNum(m){
   return isNaN(f) ? 0 : f;
 }
 
+/* 금년/작년 출석률을 한 셀 안에 두 줄로 표시 — 회칙이 두 값을 따로 판정하니 화면도
+   그대로 두 줄로 보여줘서 가능등급 배지와 숫자가 서로 설명되게 함(2026-09-26 신설).
+   시트에 아직 금년출석률/작년출석률 열이 없으면(hasSplitAtt=false) 기존 방식(합산 출석률
+   한 줄 + 막대)으로 자동 폴백. */
+function splitAttHtml(m){
+  if (!m.hasSplitAtt){
+    const att = m.att === null ? null : parseFloat(m.att);
+    return att === null
+      ? '<span class="att-none">데이터 없음</span>'
+      : `<div class="att-wrap"><span class="att-num tnum">${att.toFixed(1)}%</span><span class="att-bar"><i style="width:${Math.min(att,100)}%"></i></span></div>`;
+  }
+  const thisNum = m.attThis === null ? null : parseFloat(m.attThis);
+  const lastNum = m.attLast === null ? null : parseFloat(m.attLast);
+  const line = (label, num) => num === null
+    ? `<div class="att-wrap"><span class="att-yr">${label}</span><span class="att-none">데이터 없음</span></div>`
+    : `<div class="att-wrap"><span class="att-yr">${label}</span><span class="att-num tnum">${num.toFixed(1)}%</span><span class="att-bar"><i style="width:${Math.min(num,100)}%"></i></span></div>`;
+  return `<div class="att-split">${line('금년', thisNum)}${line('작년', lastNum)}</div>`;
+}
+
 function rowHtml(m, appliedSet){
-  const att = attNum(m);
-  const attHtml = att === null
-    ? '<span class="att-none">데이터 없음</span>'
-    : `<div class="att-wrap"><span class="att-num tnum">${att.toFixed(1)}%</span><span class="att-bar"><i style="width:${Math.min(att,100)}%"></i></span></div>`;
+  const attHtml = splitAttHtml(m);
   const roleHtml = m.r.map(r => `<span class="badge b-${r}">${escapeHtml(r)}</span>`).join('');
   const courseHtml = m.co === '수료' ? '<span class="course-badge course-yes">수료</span>' : '<span class="course-badge course-no">미수료</span>';
   const rmk = m.rm ? `<span class="rmk">${escapeHtml(m.rm)}</span>` : '';
