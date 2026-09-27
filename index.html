@@ -301,6 +301,16 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
   /* 프린터 상태가 안 좋아 옅은 배경색(가능등급 3/4단계, 권면 전 배지 등)이 흐릿하게 나오더라도
      구분이 되도록, 글자색과 같은 색의 테두리를 추가로 둘러줌 — 배경이 안 나와도 테두리+글자색으로 구분 가능 */
   #panel-kwonmyeon .elig-badge,#panel-kwonmyeon .course-badge,#panel-kwonmyeon .team-pill{border:1.4px solid currentColor;font-weight:800}
+  /* [2026-09-27] 화면에서는 표처럼 줄맞추려고 전화/가능등급 등에 고정폭(flex-basis)을 줬는데,
+     인쇄는 글자가 더 크고(14px, 화면 12.8px) 페이지 폭도 화면보다 좁아 그 고정폭 안에서
+     전화번호나 "팀장·조장·부조장" 같은 긴 등급 배지가 말줄임표로 잘려 보이는 문제가 있었음.
+     인쇄에서는 정렬보다 내용이 전부 보이는 게 우선이므로, 고정폭 대신 내용만큼 자연스럽게
+     넓어지게(auto) 풀고 말줄임표도 없앰 — 대신 화면과 달리 줄이 한 줄에 다 안 들어가면
+     항목 단위로 다음 줄로 자연스럽게 넘어감(페이지가 넘칠 걱정 없음). 각 항목의 고정폭은
+     kwon-slot 계열 클래스와 team-pill 클래스 자체에 선언돼 있어 일반 선택자로는 이기지 못하므로
+     !important로 확실히 덮어씀. */
+  #panel-kwonmyeon .confirmed-row-meta > *{overflow:visible !important;text-overflow:clip !important;white-space:normal !important;flex:0 0 auto !important}
+  #panel-kwonmyeon .confirmed-row-meta .kwon-recommender{margin-left:0 !important;max-width:none !important}
 }
 .roles{display:flex;gap:4px;flex-wrap:wrap}
 .badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;border-radius:6px;padding:2.5px 7px;white-space:nowrap}
