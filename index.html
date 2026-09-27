@@ -349,50 +349,26 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
    영향받지 않도록 #panel-kwonmyeon 안에서만 적용. */
 #panel-kwonmyeon .confirmed-row{flex-wrap:wrap;row-gap:8px}
 #panel-kwonmyeon .confirmed-row-name{flex:0 0 170px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#panel-kwonmyeon .confirmed-row-meta{flex:1 1 auto;display:grid;grid-template-columns:150px 135px 92px 1fr;column-gap:12px;align-items:center;min-width:0}
+/* [2026-09-26 재구성] 원래는 이름 줄에 전화/가능등급/완료/권면자를 붙이고, 등록연차·출석률은
+   그 아래 별도 줄로 뺐었는데, "사람을 식별/판단하는 정보(이름·동기·등록연차·출석률)는 위,
+   연락/진행상태 정보(전화·가능등급·완료·권면자)는 아래"로 묶어달라는 지적을 받아 두 줄의
+   내용을 통째로 맞바꿈. 즉 이제 confirmed-row-meta2(등록연차·출석률·지원완료)가 이름과 같은
+   첫 줄에 오고, confirmed-row-meta(전화·가능등급·완료·권면자)가 항상 줄바꿈되는 둘째 줄이 됨
+   (JS의 kwonmyeonRowHtml에서도 두 블록의 출력 순서를 맞바꿔 이 CSS와 일치시킴). */
+#panel-kwonmyeon .confirmed-row-meta{flex:0 0 100%;display:grid;grid-template-columns:150px 135px 92px 1fr;column-gap:12px;align-items:center;min-width:0}
 #panel-kwonmyeon .confirmed-row-meta > *{justify-self:start;min-width:0}
-/* 리더 필수 조건(지원완료·등록연차·금년/작년 출석률) — 기존 4항목(전화/가능등급/완료/권면자) 줄이
-   이미 꽉 차 있어서 같은 줄에 더 넣지 않고 카드 안에 새 줄로 뺌. flex-basis:100%로 항상
-   줄바꿈시켜 이름+기존메타 줄 바로 아래에 붙게 함(2026-09-26 신설).
-   [2026-09-26 재수정] 처음엔 flex-wrap+gap로 짰는데, 등록연차 텍스트 길이가 사람마다
-   다르니(장기(2년+) vs 2.6 등) 그 뒤에 오는 출석률 텍스트의 시작 x좌표가 행마다 들쭉날쭉해
-   지저분해 보인다는 지적을 받음 — 기존 4항목 줄과 같은 원칙(고정폭 그리드)으로 맞춤.
+#panel-kwonmyeon .confirmed-row-meta > *:last-child{justify-self:end;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 리더 필수 조건(지원완료·등록연차·금년/작년 출석률) — 이제 이름과 같은 첫 줄에 옴(flex:1 1 auto로
+   이름 옆에 이어 붙고, 남는 공간이 없으면 자연스럽게 줄바꿈됨).
    실측(Pretendard 폰트, 실제 굵기 기준): 지원완료 배지 52px, 등록연차 최대 85px("등록
    장기(2년+)"), 그 뒤 출석률은 마지막 칸이라 1fr로 남은 공간을 씀. 세 칸 중 값이 없는
    칸도 빈 슬롯(span)을 항상 넣어서 그리드 자리 자체는 비워두고, 있는 항목만 그 자리에
    채워지게 함 — 그래야 예를 들어 지원완료 배지가 없는 사람도 등록연차가 항상 같은
    x좌표에서 시작함. */
-#panel-kwonmyeon .confirmed-row-meta2{flex:0 0 100%;display:grid;grid-template-columns:66px 108px 1fr;column-gap:16px;align-items:center;margin-top:-2px}
+#panel-kwonmyeon .confirmed-row-meta2{flex:1 1 auto;display:grid;grid-template-columns:66px 108px 1fr;column-gap:16px;align-items:center;min-width:0}
 #panel-kwonmyeon .confirmed-row-meta2 > *{justify-self:start;min-width:0}
 #panel-kwonmyeon .confirmed-row-meta2:empty{display:none}
 #panel-kwonmyeon .kwon-att{color:var(--ink-soft)}
-
-/* 화면(모니터)에서만 — 권면자란 뒤로 남는 공백을 줄이기 위해 배지 묶음 전체를 카드 오른쪽 끝에 붙임.
-   인쇄(A4)는 폭이 좁아 이 고정폭(150+135+92+210+간격)이 넘칠 수 있어 제외하고 기존 1fr 방식 유지함
-   (2026-09-25). 권면자란은 이름 여러 명이 " · "로 이어질 수 있어 고정폭 대신 말줄임으로 처리.
-   마지막 칸(권면자)은 다른 칸과 달리 justify-self:end로 오른쪽 정렬해서 "권면자 미기재"처럼 짧은
-   텍스트일 때도 카드 오른쪽 끝에 바짝 붙게 함(2026-09-25 추가 수정). */
-@media screen and (min-width:861px){
-  #panel-kwonmyeon .confirmed-row{justify-content:space-between}
-  #panel-kwonmyeon .confirmed-row-meta{flex:0 0 auto;grid-template-columns:150px 135px 92px 140px}
-  #panel-kwonmyeon .confirmed-row-meta > *:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;justify-self:end;text-align:right}
-}
-
-/* 인쇄(A4) 전용 — 화면(1280px 이상)에서 쓰는 고정폭 그리드(150+135+92+140)는 A4 인쇄 가능 폭
-   (약 688px)보다 훨씬 넓어서 그대로 쓰면 넘침. 처음엔 임의로 줄인 px 값(전화번호 108px 등)을
-   썼는데, 실측(CDN 차단으로 폴백 폰트로 잰 값)이 실제 Pretendard 폰트보다 좁게 나오는 바람에
-   실제 인쇄에서 전화번호가 "010-6487-8..."처럼 잘렸음. Pretendard 폰트 패키지를 직접 받아
-   인쇄 시 굵기(font-weight:800)까지 그대로 재현해 다시 실측함(전화번호 최대 119px, 가능역할
-   최대 101px, 완료 배지 최대 62px, 권면자 2명 기준 113px) — 그 실측값에 13~20px씩 여유를
-   더 얹은 고정폭 그리드로 교체. 그리고 원래 그리드처럼 각 칸을 고정폭으로 유지해서(가변폭
-   flex 대신) 사람마다 가능역할 글자 수가 달라도 전화번호 칸 시작 위치가 흔들리지 않게 함
-   (2026-09-25 재수정). 이름 칸도 170→150px로 줄여 여유 폭을 확보(실제 이름 내용은 130px 이내). */
-@media print{
-  #panel-kwonmyeon .confirmed-row{justify-content:space-between}
-  #panel-kwonmyeon .confirmed-row-name{flex:0 0 150px}
-  #panel-kwonmyeon .confirmed-row-meta{flex:0 0 auto;grid-template-columns:135px 120px 75px 120px;column-gap:8px}
-  #panel-kwonmyeon .confirmed-row-meta > *:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:end;text-align:right}
-}
 
 .empty{padding:40px 16px;text-align:center;color:var(--ink-faint);font-size:13px}
 footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--ink-faint);text-align:center}
@@ -1880,13 +1856,13 @@ function kwonmyeonRowHtml(k){
   return `
     <div class="confirmed-row">
       <div class="confirmed-row-name">${escapeHtml(k.name)} <span class="cohort-tag-sm">${escapeHtml(k.cohort)}동기</span></div>
+      ${meta2Html}
       <div class="confirmed-row-meta">
         ${phoneHtml}
         ${eligHtml}
         ${doneHtml}
         ${recommenderHtml}
       </div>
-      ${meta2Html}
     </div>`;
 }
 
