@@ -448,7 +448,21 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
      kwon-slot-* 래퍼), 모바일은 표처럼 줄맞출 필요가 없으므로 빈 슬롯은 그냥 감춰서 압축되게
      함(2026-09-27) — 그래야 지원 안 한 대다수 사람도 빈 칸 없이 2열로 꽉 차 보임. */
   #panel-kwonmyeon .confirmed-row-meta > *:empty{display:none}
-  #panel-kwonmyeon .confirmed-row-meta > *:nth-child(2n){justify-self:end;text-align:right}
+  /* [2026-09-27 수정] 예전엔 :nth-child(2n)로 홀/짝 순서에 따라 좌우를 갈랐는데, 이 방식은
+     DOM에 있는 모든 항목 수(빈 지원완료/등록연차/출석률 슬롯 포함)를 기준으로 홀짝을 세기
+     때문에, "지원완료" 배지가 있는 사람과 없는 사람 사이에서 그 뒤 항목들의 홀짝이 통째로
+     밀려 사람마다 좌우 배치가 뒤죽박죽되는 문제가 있었음(실제 인쇄물에서 발견). 이제는 각
+     항목이 어느 칸에 올지 항목 종류(클래스)로 직접 지정해서, 어떤 항목이 비어 있어도 나머지
+     항목의 자리가 항상 고정되게 함 — 등록연차(왼쪽)+지원완료(오른쪽, 있을 때만), 출석률은
+     혼자 한 줄(글자가 길어서), 전화(왼쪽)+가능등급(오른쪽), 권면상태는 혼자 한 줄, 권면자는
+     항상 맨 아래 한 줄. */
+  #panel-kwonmyeon .confirmed-row-meta > *{text-align:left}
+  #panel-kwonmyeon .confirmed-row-meta .kwon-slot-tenure{grid-column:1}
+  #panel-kwonmyeon .confirmed-row-meta .kwon-slot-applied{grid-column:2;justify-self:end;text-align:right}
+  #panel-kwonmyeon .confirmed-row-meta .kwon-slot-att{grid-column:1 / -1}
+  #panel-kwonmyeon .confirmed-row-meta .kwon-slot-phone{grid-column:1}
+  #panel-kwonmyeon .confirmed-row-meta .kwon-slot-elig{grid-column:2;justify-self:end;text-align:right}
+  #panel-kwonmyeon .confirmed-row-meta .kwon-slot-done{grid-column:1}
   /* 권면자는 화면이 좁아지면 2열 그리드 짝맞춤과 무관하게 항상 줄 전체를 차지하는 자기
      줄에 오른쪽 정렬로 표시 — 앞의 항목 개수가 홀수/짝수여도 항상 같은 자리에 옴(2026-09-27). */
   #panel-kwonmyeon .confirmed-row-meta .kwon-recommender{grid-column:1 / -1;justify-self:end;text-align:right;max-width:100%;margin-left:0}
@@ -610,10 +624,6 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
       <span>"권면 대상" 시트(마스터 워크북 내 별도 탭)에 팀/이름/동기/권면자를 입력하면, 전화번호는 "26메이커스 DB(하반기)" 탭에서, 가능역할은 "2026 메이커스" 탭(가능등급)에서 이름+동기로 자동으로 찾아와 팀 단위로 묶어 보여줍니다. "완료" 열을 추가해서 아무 값이나(예: "완료", "O") 채워 넣으면 권면 완료로 표시됩니다(비워두면 미완료). 시트에 입력만 하면 새로고침 시 자동으로 반영됩니다. 전화번호를 누르면 바로 전화가 걸립니다.</span>
     </div>
     <div class="toolbar">
-      <div class="filter-field" style="flex:1">
-        <span class="filter-label">권면자 (여러 명 선택 가능)</span>
-        <div id="kf-recommender-options" class="ms-toggle-group"></div>
-      </div>
       <button type="button" class="btn-refresh" onclick="printKwonmyeon()">인쇄용 보기</button>
     </div>
     <div id="kwonmyeon-content"></div>
@@ -1262,7 +1272,6 @@ function showApp(){
   renderStats();
   populateFilterOptions();
   populateApplyFilterOptions();
-  populateKwonmyeonFilterOptions();
   if (!filtersBound){ bindFilterEvents(); bindApplyFilterEvents(); filtersBound = true; }
   render();
   renderApplicants();
@@ -1750,24 +1759,8 @@ function confirmedRowHtml(c, showRawRole){
 /* "권면" 탭 — "권면 대상" 시트(팀/이름/동기/권면자만 입력)를 팀 단위로 묶어서 보여줌.
    전화번호는 PHONE_MAP("26메이커스 DB(하반기)"), 가능역할은 ROSTER("2026 메이커스")에서
    이름+동기로 자동 매칭. 매칭 안 되는 사람은 "확인 필요" 배지로 표시(조용히 누락시키지 않음). */
-/* 권면자 필터(여러 명 동시 선택 가능) — 칩 형태 토글 버튼. 선택된 이름 집합은
-   KF_SELECTED_RECOMMENDERS에 보관하고, 새로고침해도 더 이상 존재하지 않는(오타 수정 등)
-   이름만 걸러내고 나머지 선택은 유지함(2026-09-21 신설). */
-const KF_SELECTED_RECOMMENDERS = new Set();
-function toggleKwonRecommender(name){
-  if (KF_SELECTED_RECOMMENDERS.has(name)) KF_SELECTED_RECOMMENDERS.delete(name);
-  else KF_SELECTED_RECOMMENDERS.add(name);
-  populateKwonmyeonFilterOptions();
-  renderKwonmyeon();
-}
-function populateKwonmyeonFilterOptions(){
-  const wrap = document.getElementById('kf-recommender-options');
-  if (!wrap) return;
-  const names = Array.from(new Set(KWONMYEON.flatMap(k => k.recommenders || []))).sort((a,b) => a.localeCompare(b,'ko'));
-  Array.from(KF_SELECTED_RECOMMENDERS).forEach(n => { if (names.indexOf(n) === -1) KF_SELECTED_RECOMMENDERS.delete(n); });
-  wrap.innerHTML = names.map(n => `<button type="button" class="ms-option${KF_SELECTED_RECOMMENDERS.has(n) ? ' active' : ''}" onclick="toggleKwonRecommender('${n.replace(/'/g,"\\'")}')">${escapeHtml(n)}</button>`).join('')
-    || '<span class="att-none">권면자 정보 없음</span>';
-}
+/* [2026-09-27 제거] 권면자 필터(여러 명 동시 선택 가능, 2026-09-21 신설)는 실사용해보니
+   필요 없다는 판단으로 제거함 — 항상 전체 권면 대상을 팀 단위로 보여줌. */
 
 function renderKwonmyeon(){
   const countEl = document.getElementById('kwonmyeon-tab-count');
@@ -1778,26 +1771,15 @@ function renderKwonmyeon(){
     return;
   }
 
-  const selected = Array.from(KF_SELECTED_RECOMMENDERS);
-  const list = selected.length
-    ? KWONMYEON.filter(k => (k.recommenders || []).some(r => selected.indexOf(r) !== -1))
-    : KWONMYEON;
-
-  if (!list.length){
-    wrap.innerHTML = `<div class="empty">${escapeHtml(selected.join(', '))}님이 담당하는 권면 대상이 없습니다.</div>`;
-    return;
-  }
+  const list = KWONMYEON;
 
   const rosterUnmatched = list.filter(k => !k.matched).length;
   const phoneMissing = list.filter(k => k.matched && !k.phone).length;
   const doneCount = list.filter(k => k.done).length;
-  const totalLabel = selected.length
-    ? (selected.length === 1 ? escapeHtml(selected[0]) + '님 담당' : selected.length + '명 담당 합산')
-    : '총 권면 대상';
 
   const summaryHtml = `
     <div class="stats">
-      <div class="stat total"><div class="num tnum">${list.length}</div><div class="lbl">${totalLabel}</div></div>
+      <div class="stat total"><div class="num tnum">${list.length}</div><div class="lbl">총 권면 대상</div></div>
       <div class="stat tier1"><div class="num tnum">${doneCount}</div><div class="lbl">권면 완료</div></div>
       <div class="stat tier4"><div class="num tnum">${list.length - doneCount}</div><div class="lbl">권면 전</div></div>
     </div>
