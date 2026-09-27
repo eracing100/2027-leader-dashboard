@@ -349,25 +349,16 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
    영향받지 않도록 #panel-kwonmyeon 안에서만 적용. */
 #panel-kwonmyeon .confirmed-row{flex-wrap:wrap;row-gap:8px}
 #panel-kwonmyeon .confirmed-row-name{flex:0 0 170px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* [2026-09-26 재구성] 원래는 이름 줄에 전화/가능등급/완료/권면자를 붙이고, 등록연차·출석률은
-   그 아래 별도 줄로 뺐었는데, "사람을 식별/판단하는 정보(이름·동기·등록연차·출석률)는 위,
-   연락/진행상태 정보(전화·가능등급·완료·권면자)는 아래"로 묶어달라는 지적을 받아 두 줄의
-   내용을 통째로 맞바꿈. 즉 이제 confirmed-row-meta2(등록연차·출석률·지원완료)가 이름과 같은
-   첫 줄에 오고, confirmed-row-meta(전화·가능등급·완료·권면자)가 항상 줄바꿈되는 둘째 줄이 됨
-   (JS의 kwonmyeonRowHtml에서도 두 블록의 출력 순서를 맞바꿔 이 CSS와 일치시킴). */
-#panel-kwonmyeon .confirmed-row-meta{flex:0 0 100%;display:grid;grid-template-columns:150px 135px 92px 1fr;column-gap:12px;align-items:center;min-width:0}
-#panel-kwonmyeon .confirmed-row-meta > *{justify-self:start;min-width:0}
-#panel-kwonmyeon .confirmed-row-meta > *:last-child{justify-self:end;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* 리더 필수 조건(지원완료·등록연차·금년/작년 출석률) — 이제 이름과 같은 첫 줄에 옴(flex:1 1 auto로
-   이름 옆에 이어 붙고, 남는 공간이 없으면 자연스럽게 줄바꿈됨).
-   실측(Pretendard 폰트, 실제 굵기 기준): 지원완료 배지 52px, 등록연차 최대 85px("등록
-   장기(2년+)"), 그 뒤 출석률은 마지막 칸이라 1fr로 남은 공간을 씀. 세 칸 중 값이 없는
-   칸도 빈 슬롯(span)을 항상 넣어서 그리드 자리 자체는 비워두고, 있는 항목만 그 자리에
-   채워지게 함 — 그래야 예를 들어 지원완료 배지가 없는 사람도 등록연차가 항상 같은
-   x좌표에서 시작함. */
-#panel-kwonmyeon .confirmed-row-meta2{flex:1 1 auto;display:grid;grid-template-columns:66px 108px 1fr;column-gap:16px;align-items:center;min-width:0}
-#panel-kwonmyeon .confirmed-row-meta2 > *{justify-self:start;min-width:0}
-#panel-kwonmyeon .confirmed-row-meta2:empty{display:none}
+/* [2026-09-27 재구성] "PC 화면에서는 등록연차·출석률·전화·가능등급·권면상태·권면자를 전부
+   한 줄로 나열해달라"는 요청에 따라, 이름 옆에 이어 붙는 meta 항목들을 고정폭 그리드가 아닌
+   flex+gap으로 바꿈 — 항목마다 글자 길이가 달라도 줄이 안 맞아야 할 이유가 없어졌고(표처럼
+   맞출 필요가 없어짐), 화면이 넓으면(861px 이상) 이름 옆에서 자연스럽게 한 줄로 이어짐.
+   권면자만 margin-left:auto로 줄의 맨 오른쪽 끝에 붙여 항상 시선이 가는 위치를 고정함
+   (화면 폭이 부족해 줄바꿈되면 권면자만 다음 줄 오른쪽 끝에 정렬됨 — 폭이 애매한 중간
+   화면에서도 레이아웃이 깨지지 않도록 하는 안전장치). */
+#panel-kwonmyeon .confirmed-row-meta{flex:1 1 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;min-width:0}
+#panel-kwonmyeon .confirmed-row-meta > *{flex:0 0 auto;min-width:0}
+#panel-kwonmyeon .confirmed-row-meta .kwon-recommender{margin-left:auto;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
 #panel-kwonmyeon .kwon-att{color:var(--ink-soft)}
 
 .empty{padding:40px 16px;text-align:center;color:var(--ink-faint);font-size:13px}
@@ -423,8 +414,11 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   #panel-kwonmyeon .confirmed-row{flex-wrap:wrap}
   #panel-kwonmyeon .confirmed-row-name{flex:1 1 100%;overflow:visible;text-overflow:clip;white-space:normal}
   #panel-kwonmyeon .confirmed-row-meta{display:grid;grid-template-columns:1fr 1fr;column-gap:10px;row-gap:6px;width:100%;margin-top:6px}
-  #panel-kwonmyeon .confirmed-row-meta > *{justify-self:start;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #panel-kwonmyeon .confirmed-row-meta > *{justify-self:start;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:0}
   #panel-kwonmyeon .confirmed-row-meta > *:nth-child(2n){justify-self:end;text-align:right}
+  /* 권면자는 화면이 좁아지면 2열 그리드 짝맞춤과 무관하게 항상 줄 전체를 차지하는 자기
+     줄에 오른쪽 정렬로 표시 — 앞의 항목 개수가 홀수/짝수여도 항상 같은 자리에 옴(2026-09-27). */
+  #panel-kwonmyeon .confirmed-row-meta .kwon-recommender{grid-column:1 / -1;justify-self:end;text-align:right;max-width:100%;margin-left:0}
 }
 @media (prefers-reduced-motion: reduce){
   .stat,.app-card,.group,.row,#gate-input,.toolbar select,.toolbar input,.btn-refresh{transition:none !important}
@@ -1831,8 +1825,8 @@ function kwonmyeonRowHtml(k){
     ? `<a class="team-pill tnum phone-link" href="${telHref(k.phone)}">${escapeHtml(k.phone)}</a>`
     : '<span class="att-none">전화번호 확인 필요</span>';
   const recommenderHtml = k.recommender
-    ? `<span class="cohort-tag-sm">권면자: ${escapeHtml(k.recommender)}</span>`
-    : '<span class="cohort-tag-sm" style="color:var(--danger)">권면자 미기재</span>';
+    ? `<span class="cohort-tag-sm kwon-recommender">권면자: ${escapeHtml(k.recommender)}</span>`
+    : '<span class="cohort-tag-sm kwon-recommender" style="color:var(--danger)">권면자 미기재</span>';
   const doneHtml = k.done
     ? '<span class="course-badge course-yes">권면 완료</span>'
     : '<span class="course-badge course-no">권면 전</span>';
@@ -1847,22 +1841,17 @@ function kwonmyeonRowHtml(k){
      폭이 꽉 차 있어 새 항목을 더 넣으면 인쇄에서 깨지므로, 등록연차·출석률과 같은
      둘째 줄(meta2)에 붙임. */
   const appliedHtml = k.applied ? '<span class="course-badge course-yes">지원완료</span>' : '';
-  /* 세 항목(지원완료/등록연차/출석률)을 항상 3개의 슬롯으로 감싸서 그리드 칸을 고정—
-     특정 항목이 비어도 그 다음 항목이 앞 칸으로 당겨지지 않고 항상 같은 x좌표에서
-     시작하게 함(2026-09-26). */
-  const meta2Html = (appliedHtml || tenureHtml || attHtml)
-    ? `<div class="confirmed-row-meta2"><span>${appliedHtml}</span><span>${tenureHtml}</span><span>${attHtml}</span></div>`
-    : '';
+  /* [2026-09-27 재구성] "PC에서는 한 줄로, 폰에서는 깔끔하게" 요청에 따라 등록연차·출석률·
+     전화·가능등급·권면상태·지원완료·권면자를 하나의 meta 목록으로 합침(기존에는 이름 줄에
+     등록연차/출석률만 붙이고 전화/등급/권면상태/권면자는 항상 아래 줄로 강제 분리했었음).
+     넓은 화면에서는 CSS가 flex-wrap으로 자연스럽게 이름 옆에 이어 붙여 한 줄에 다 들어가고,
+     화면이 좁아지면(≤860px) 미디어쿼리가 2열 그리드로 재배치함. 값이 없는 항목(지원 안 함
+     등)은 배열에서 아예 빼서 빈 칸이 남지 않게 함. */
+  const items = [appliedHtml, tenureHtml, attHtml, phoneHtml, eligHtml, doneHtml, recommenderHtml].filter(Boolean);
   return `
     <div class="confirmed-row">
       <div class="confirmed-row-name">${escapeHtml(k.name)} <span class="cohort-tag-sm">${escapeHtml(k.cohort)}동기</span></div>
-      ${meta2Html}
-      <div class="confirmed-row-meta">
-        ${phoneHtml}
-        ${eligHtml}
-        ${doneHtml}
-        ${recommenderHtml}
-      </div>
+      <div class="confirmed-row-meta">${items.join('')}</div>
     </div>`;
 }
 
