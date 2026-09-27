@@ -304,13 +304,26 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
   /* [2026-09-27] 화면에서는 표처럼 줄맞추려고 전화/가능등급 등에 고정폭(flex-basis)을 줬는데,
      인쇄는 글자가 더 크고(14px, 화면 12.8px) 페이지 폭도 화면보다 좁아 그 고정폭 안에서
      전화번호나 "팀장·조장·부조장" 같은 긴 등급 배지가 말줄임표로 잘려 보이는 문제가 있었음.
-     인쇄에서는 정렬보다 내용이 전부 보이는 게 우선이므로, 고정폭 대신 내용만큼 자연스럽게
-     넓어지게(auto) 풀고 말줄임표도 없앰 — 대신 화면과 달리 줄이 한 줄에 다 안 들어가면
-     항목 단위로 다음 줄로 자연스럽게 넘어감(페이지가 넘칠 걱정 없음). 각 항목의 고정폭은
-     kwon-slot 계열 클래스와 team-pill 클래스 자체에 선언돼 있어 일반 선택자로는 이기지 못하므로
-     !important로 확실히 덮어씀. */
-  #panel-kwonmyeon .confirmed-row-meta > *{overflow:visible !important;text-overflow:clip !important;white-space:normal !important;flex:0 0 auto !important}
-  #panel-kwonmyeon .confirmed-row-meta .kwon-recommender{margin-left:0 !important;max-width:none !important}
+     [1차 시도] 고정폭 대신 내용만큼 자연스럽게 넓어지게(auto) 풀었더니, 이번엔 등록연차·
+     출석률 글자 길이가 사람마다 달라 그 뒤 항목들의 시작 위치가 줄마다 들쭉날쭉해짐 —
+     "인쇄해도 오와열은 맞아야 한다"는 재지적을 받음.
+     [2차 시도] CSS 서브그리드(subgrid)로 8개 항목(이름 포함)을 전부 한 줄 8열로 맞춰봤더니,
+     오와열은 맞았지만 실제 이름·전화번호·등급 배지를 다 합친 한 줄 폭이 A4 인쇄 가능 폭보다
+     넓어져 이번엔 오른쪽(권면자 열)이 페이지 밖으로 밀려 잘려나가는 문제가 새로 생김.
+     [3차, 현재] 한 줄 8열 대신 4열로 줄여 사람당 2줄(이름·지원완료·등록연차·출석률이 1줄,
+     전화·가능등급·권면상태·권면자가 2줄)로 나누되, 그 4열을 팀 목록(.confirmed-list) 전체가
+     공유하는 서브그리드로 묶음 — 같은 열 번호를 쓰는 이름/전화, 지원완료/등급 등은 그 팀
+     안에서 가장 긴 내용 기준(max-content)으로 폭이 정해져 전부 같은 x좌표에서 시작하고
+     (오와열 정렬), 그 폭이 내용보다 좁아질 일이 없어 말줄임표도 필요 없음(잘림 없음). 한 줄
+     폭도 기존 8열의 절반 수준이라 A4 폭 안에 들어옴. .confirmed-row-meta는 display:contents로
+     껍데기만 없애 안의 7항목이 부모 그리드에 바로 편입되게 하고, 그리드 기본 자동 배치(4열
+     채우면 다음 줄로 넘어감)로 1줄/2줄 분리가 저절로 이뤄짐. 화면 레이아웃(고정 flex-basis,
+     한 줄 배치)은 그대로 유지. */
+  #panel-kwonmyeon .confirmed-list{display:grid !important;grid-template-columns:repeat(4,max-content);column-gap:16px;row-gap:4px}
+  #panel-kwonmyeon .confirmed-row{display:grid !important;grid-column:1 / -1;grid-row:span 2;grid-template-columns:subgrid;grid-template-rows:auto auto;column-gap:16px;row-gap:4px;align-items:center}
+  #panel-kwonmyeon .confirmed-row-name{flex:none !important;overflow:visible !important;text-overflow:clip !important;white-space:nowrap !important}
+  #panel-kwonmyeon .confirmed-row-meta{display:contents !important}
+  #panel-kwonmyeon .confirmed-row-meta > *{overflow:visible !important;text-overflow:clip !important;white-space:nowrap !important;flex:none !important;margin-left:0 !important;max-width:none !important}
 }
 .roles{display:flex;gap:4px;flex-wrap:wrap}
 .badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;border-radius:6px;padding:2.5px 7px;white-space:nowrap}
