@@ -396,6 +396,8 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
 @media screen and (max-width:860px){
   #app{padding:18px 14px 60px}
   .stats{grid-template-columns:repeat(2,1fr);gap:8px}
+  /* 통계 카드가 5개(홀수)가 되면서 2열 배치에서 마지막 카드가 혼자 남지 않도록 가로로 꽉 채움 */
+  #stats-content .stats .stat:last-child:nth-child(odd){grid-column:1 / -1}
   .stat{padding:13px 13px 11px}
   .stat .num{font-size:22px}
   header.top{align-items:flex-start}
@@ -667,7 +669,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <div id="panel-stats" style="display:none">
     <div class="notice">
       <span class="dot">●</span>
-      <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다. "2026 상반기 리더 인원 대비"는 2026년 상반기에 실제로 활동한 팀장·조장·부조장 51명(노션 비교자료 기준)과 비교한 수치이며, 성비는 구글시트 DB 매칭 기준으로 매칭되지 않는 이름은 "미확인"으로 표시됩니다. "2027 확정 리더" 탭에 면려회로 이미 확정된 지원자, "2027 제외 후보" 탭에 위원회가 올려둔 지원자는 이 통계 집계에서 제외됩니다(지원 현황 카드 목록에는 그대로 표시).</span>
+      <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다. 상반기·하반기 리더 인원 대비는 모두 "2026 팀조장양육 출석부"의 "양육 출석부" 시트에서 면려회를 뺀 팀 소속 리더 인원(직분 구분 없음)과 비교한 수치입니다. 하반기는 하반기에 새로 추가된 인원까지 모두 포함하고, 상반기는 "하반기 추가"로 표시된 인원을 뺀 값이며, 화면을 열 때마다 시트를 다시 읽어 셉니다. 성비는 구글시트 DB 매칭 기준으로 매칭되지 않는 이름은 "미확인"으로 표시됩니다. "2027 확정 리더" 탭에 면려회로 이미 확정된 지원자, "2027 제외 후보" 탭에 위원회가 올려둔 지원자는 이 통계 집계에서 제외됩니다(지원 현황 카드 목록에는 그대로 표시).</span>
     </div>
     <div id="stats-content"></div>
   </div>
@@ -772,6 +774,20 @@ function genderOf(name, cohort){
 const LEADER_2026 = { '팀장': 10, '조장': 30, '부조장': 11 };
 const LEADER_2026_TOTAL = LEADER_2026['팀장'] + LEADER_2026['조장'] + LEADER_2026['부조장'];
 
+/* 2026년 하반기 리더 인원 — "2026 팀조장양육 출석부" 구글시트의 "양육 출석부" 탭에서 면려회 구간을
+   뺀 나머지 인원(팀 소속 리더 전원, 하반기 추가 인원 포함)을 센 값(2026-10-03 확인: 9개 팀 57명,
+   면려회 7명 제외, 시트 자체 "총인원수" 64명 = 57 + 7과 일치).
+   시트는 매주 출석을 기록하며 파송·추가로 명단이 바뀔 수 있어 화면을 열 때마다 시트를 다시 읽어
+   세고(buildLeaderH2), 시트를 못 읽거나 구조가 예상과 다르면 아래 확인 시점 값으로 대체함. */
+const LEADER_H2_SHEET_ID = "10RINTSkgTJsfaS_3XQAtMRD3-Nss2lAKD5BCp-3kpEE";
+const LEADER_H2_TAB = "양육 출석부";
+/* added = 시트 맨 오른쪽(BG열)에 "하반기 추가"라고 적힌 인원(양지은·박지현·박재형, 2026-10-03 확인) —
+   하반기에 새로 들어온 사람이라 상반기 인원에서는 뺌(상반기 = 전체 − added). 상반기·하반기 두 카드가
+   같은 시트·같은 기준(면려회 제외, 직분 구분 없음)을 쓰도록 맞춘 것(2026-10-03 위원장 요청). */
+const LEADER_H2_FALLBACK = { total: 57, teams: 9, added: 3 };
+function leaderH2Fallback(){ return { total: LEADER_H2_FALLBACK.total, teams: LEADER_H2_FALLBACK.teams, added: LEADER_H2_FALLBACK.added, live: false }; }
+let LEADER_H2 = leaderH2Fallback();
+
 let ROSTER = [];
 let COUNTS = {};
 let TEAM_LIST = [];
@@ -819,6 +835,11 @@ function kwonmyeonCsvUrl(){
 }
 function excludeCsvUrl(){
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(EXCLUDE_TAB)}`;
+}
+/* 상·하반기 리더 인원 집계용 — 인원수만 필요하므로 팀(A)/성함(B)/동기(C)와 "하반기 추가" 표시가 적힌
+   맨 오른쪽 메모 열(BG)만 받아옴(주차별 출석 기록은 제외). */
+function leaderH2CsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${LEADER_H2_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(LEADER_H2_TAB)}&tq=${encodeURIComponent('select A,B,C,BG')}`;
 }
 /* 전화번호는 개인정보라 탭 전체를 받아오지 않고 이름(E)/동기(F)/전화번호(I) 세 열만
    gviz 쿼리 언어(select)로 제한해서 가져옴. */
@@ -907,6 +928,19 @@ async function fetchAndBuild(){
   } catch (e6){
     console.error('excluded fetch failed', e6);
     EXCLUDED = [];
+  }
+
+  try {
+    const res7 = await fetch(leaderH2CsvUrl(), {cache:'no-store'});
+    if (res7.ok){
+      const text7 = await res7.text();
+      buildLeaderH2(parseCSV(text7));
+    } else {
+      LEADER_H2 = leaderH2Fallback();
+    }
+  } catch (e7){
+    console.error('leader H2 fetch failed', e7);
+    LEADER_H2 = leaderH2Fallback();
   }
   lastFetchTime = new Date();
 }
@@ -1221,6 +1255,41 @@ function buildExcluded(rows){
     out.push({ name: name, cohort: cohort, reason: idx.reason !== -1 ? (r[idx.reason] || '').trim() : '' });
   }
   EXCLUDED = out;
+}
+/* "양육 출석부" 탭(팀/성함/동기)에서 면려회를 뺀 하반기 리더 인원을 셈. 시트 구조: 팀명은 팀의
+   첫 줄에만 적히고(나머지 줄은 빈칸), "함수"·"합계"·"총인원수" 줄은 집계용이라 건너뛰며, 팀 구간
+   다음에 팀 칸이 "면려회"인 줄부터 면려회 구간이 시작됨. 면려회 구간 줄은 세지 않음.
+   구조가 예상과 다르면(면려회 시작 줄이 없거나 집계 인원이 비정상적으로 적음) 잘못된 숫자를 보이지
+   않도록 확인 시점 값(LEADER_H2_FALLBACK)을 그대로 씀. */
+function buildLeaderH2(rows){
+  const fallback = () => { LEADER_H2 = leaderH2Fallback(); };
+  if (!rows.length){ fallback(); return; }
+  const header = rows[0].map(h => (h || '').trim());
+  const iTeam = header.indexOf('팀'), iName = header.indexOf('성함'), iCohort = header.indexOf('동기');
+  if (iTeam === -1 || iName === -1 || iCohort === -1){ fallback(); return; }
+  const SKIP = new Set(['함수', '합계', '총인원수']);
+  /* 선택한 4번째 열(BG)이 "하반기 추가" 메모 — gviz는 라벨이 비어 있는 열도 위치대로 돌려주므로
+     헤더 이름이 아니라 순서(3번)로 읽음. */
+  const iNote = 3;
+  let inKwon = false, sawKwon = false, total = 0, teams = 0, added = 0;
+  for (let i = 1; i < rows.length; i++){
+    const r = rows[i];
+    const team = (r[iTeam] || '').trim();
+    const name = (r[iName] || '').trim();
+    const cohort = (r[iCohort] || '').trim().replace(/\.0+$/, '');
+    if (SKIP.has(team)) continue;
+    if (team === '면려회'){ inKwon = true; sawKwon = true; }
+    if (!name || /^\d+(\.\d+)?$/.test(name) || !/^\d{1,2}$/.test(cohort)) continue;
+    if (inKwon) continue;
+    total++;
+    if (team) teams++;
+    if ((r[iNote] || '').indexOf('하반기 추가') !== -1) added++;
+  }
+  if (!sawKwon || total < 10){ fallback(); return; }
+  /* "하반기 추가" 표시가 하나도 없거나 절반을 넘으면 메모 열 위치가 바뀌었거나 시트 구조가 달라진
+     것으로 보고 상반기 계산용 값만 확인 시점 값(3명)으로 대체 — 하반기 인원은 그대로 사용. */
+  if (added < 1 || added > total / 2) added = LEADER_H2_FALLBACK.added;
+  LEADER_H2 = { total: total, teams: teams, added: added, live: true };
 }
 function isCommitteeExcluded(name, cohort){
   const n = (name || '').trim(), c = (cohort || '').trim();
@@ -1585,7 +1654,14 @@ function renderStatsTab(){
   const statsExcludedCount = APPLICANTS.filter(a => !isUnmatchedApplicant(a) && isStatsExcludedApplicant(a)).length;
 
   /* 자격자 pool 전체가 아니라, 2026년 상반기에 실제로 활동한 리더 인원(51명)을 기준으로 비교 */
-  const vs2026Pct = LEADER_2026_TOTAL ? (totalApplied / LEADER_2026_TOTAL * 100) : 0;
+  /* 상반기·하반기 모두 "2026 팀조장양육 출석부"의 "양육 출석부" 시트 기준(면려회 제외, 직분 구분 없음).
+     하반기 = 팀 소속 전원, 상반기 = 하반기 = 전원에서 "하반기 추가" 표시 인원을 뺀 값.
+     (이전 상반기 값은 노션 비교자료 51명 — LEADER_2026 — 이었고 이제 툴팁에 참고로만 남김) */
+  const leaderH2Total = LEADER_H2.total;
+  const leaderH1Total = LEADER_H2.total - LEADER_H2.added;
+  const vs2026Pct = leaderH1Total ? (totalApplied / leaderH1Total * 100) : 0;
+  const vsH2Pct = leaderH2Total ? (totalApplied / leaderH2Total * 100) : 0;
+  const leaderSrcNote = LEADER_H2.live ? '' : ' (시트를 읽지 못해 2026-10-03 확인 시점 값 사용)';
 
   /* 지원자 성비 — 구글시트 DB(26메이커스 DB(하반기) 탭)에서 뽑아둔 이름|동기 매핑으로 조회 */
   const genderCount = { '남': 0, '여': 0, '미확인': 0 };
@@ -1611,12 +1687,19 @@ function renderStatsTab(){
         <div class="num tnum">${totalApplied}</div>
         <div class="lbl">총 지원 건수</div>
       </div>
-      <div class="stat tier1 stat-donut" title="2026년 상반기 실제 활동 리더: 팀장 ${LEADER_2026['팀장']}·조장 ${LEADER_2026['조장']}·부조장 ${LEADER_2026['부조장']} = 총 ${LEADER_2026_TOTAL}명">
+      <div class="stat tier1 stat-donut" title="2026년 상반기 리더(2026 팀조장양육 출석부 '양육 출석부' 탭 기준, 면려회와 하반기 추가 ${LEADER_H2.added}명 제외): ${leaderH1Total}명${leaderSrcNote} · 참고: 이전에 쓰던 노션 비교자료는 팀장 ${LEADER_2026['팀장']}·조장 ${LEADER_2026['조장']}·부조장 ${LEADER_2026['부조장']} = ${LEADER_2026_TOTAL}명(면려회·히엘 제외)">
         <div class="donut-wrap">
           ${donutSVG(vs2026Pct, 'var(--accent)')}
           <div class="donut-center"><div class="dc-num tnum">${vs2026Pct.toFixed(0)}%</div></div>
         </div>
-        <div class="lbl">2026 상반기 리더 인원 대비<br>(${totalApplied}/${LEADER_2026_TOTAL}명)</div>
+        <div class="lbl">2026 상반기 리더 인원 대비<br>(${totalApplied}/${leaderH1Total}명)</div>
+      </div>
+      <div class="stat tier1 stat-donut" title="2026년 하반기 리더(2026 팀조장양육 출석부 '양육 출석부' 탭 기준, 면려회 제외): ${LEADER_H2.teams}개 팀 ${leaderH2Total}명${leaderSrcNote}">
+        <div class="donut-wrap">
+          ${donutSVG(vsH2Pct, 'var(--accent)')}
+          <div class="donut-center"><div class="dc-num tnum">${vsH2Pct.toFixed(0)}%</div></div>
+        </div>
+        <div class="lbl">2026 하반기 리더 인원 대비<br>(${totalApplied}/${leaderH2Total}명)</div>
       </div>
       <div class="stat stat-donut" title="구글시트 DB 기준 매칭 결과 — 매칭 안 되면 미확인으로 표시">
         <div class="donut-wrap">
