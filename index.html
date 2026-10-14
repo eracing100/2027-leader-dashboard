@@ -332,6 +332,9 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .b-부조장{background:#f6ecd9;color:#8a6423}
 .b-조원{background:var(--surface-2);color:var(--ink-soft)}
 .b-면려회{background:#f3e6ea;color:#8a4a5c}
+.b-sub-새가족{background:#e4f0e4;color:#3d6b45}
+.b-sub-온보딩{background:#e2eaf6;color:#3b5784}
+.senior-tag{display:inline-flex;align-items:center;font-size:10.5px;font-weight:800;border-radius:5px;padding:1.5px 6px;margin-left:4px;background:var(--accent);color:#fff;vertical-align:1px;white-space:nowrap}
 .b-히엘{background:#e7ecf3;color:#4f5f82}
 .att-wrap{display:flex;align-items:center;gap:6px}
 .att-num{font-weight:700;font-size:12px;min-width:34px}
@@ -357,6 +360,9 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .confirmed-list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
 .confirmed-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid var(--border);font-size:12.8px}
 .confirmed-row:first-child{border-top:none}
+.confirmed-empty{padding:14px 16px;font-size:12.8px;color:var(--ink-faint)}
+#confirmed-content .stats.sub-stats{margin-top:-6px;grid-template-columns:repeat(6,1fr)}
+.stat .num .goal{font-size:15px;font-weight:700;color:var(--ink-faint);margin-left:2px}
 .confirmed-row-name{font-weight:700;color:var(--ink);flex:0 0 150px;min-width:0}
 .cohort-tag-sm{font-weight:600;color:var(--ink-faint);font-size:12px;margin-left:2px}
 /* 확정 리더 탭 — 팀 배지/출석률/수료 배지를 고정폭 그리드로 묶어서 그 묶음 자체의 폭이 항상
@@ -398,6 +404,8 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   .stats{grid-template-columns:repeat(2,1fr);gap:8px}
   /* 통계 카드가 5개(홀수)가 되면서 2열 배치에서 마지막 카드가 혼자 남지 않도록 가로로 꽉 채움 */
   #stats-content .stats .stat:last-child:nth-child(odd){grid-column:1 / -1}
+  #confirmed-content .stats .stat:last-child:nth-child(odd){grid-column:1 / -1}
+  #confirmed-content .stats.sub-stats{grid-template-columns:repeat(2,1fr)}
   .stat{padding:13px 13px 11px}
   .stat .num{font-size:22px}
   header.top{align-items:flex-start}
@@ -677,7 +685,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <div id="panel-confirmed" style="display:none">
     <div class="notice">
       <span class="dot">●</span>
-      <span>"2027 확정 리더" 시트(마스터 워크북 내 별도 탭)에 위원회가 직접 입력한 확정 인원만 보여줍니다. 팀·출석률 등은 전체 명단에서 이름+동기로 자동으로 찾아온 값입니다. 아직 배정팀(조 편성)은 반영하지 않고 역할(팀장/조장/부조장/면려회)만 표시합니다.</span>
+      <span>"2027 확정 리더" 시트(마스터 워크북 내 별도 탭)에 위원회가 직접 입력한 확정 인원만 보여줍니다. 팀·출석률 등은 전체 명단에서 이름+동기로 자동으로 찾아온 값입니다. 아직 배정팀(조 편성)은 반영하지 않고 역할만 표시합니다. 시트의 확정역할 칸에 "팀장", "새가족 팀장", "온보딩 팀장", "조장", "새가족 조장", "온보딩 조장", "부조장", "면려회" 중 하나로 입력하면 구분해서 보여주며(그냥 "팀장"/"조장"은 일반으로 표시, 선임팀장은 "온보딩 선임팀장"처럼 "선임팀장"을 붙여 입력), 새가족 조장은 4명, 온보딩 조장은 6명을 목표로 현황을 같이 표시합니다.</span>
     </div>
     <div id="confirmed-content"></div>
   </div>
@@ -1124,13 +1132,17 @@ function buildConfirmed(rows){
     if (!name) continue;
     let cohort = (r[idx.cohort] || '').trim();
     if (cohort === '0') cohort = '00';
-    const role = (r[idx.role] || '').trim();
-    if (!role) continue;
+    const rawRole = (r[idx.role] || '').trim();
+    if (!rawRole) continue;
+    const pr = parseConfirmedRole(rawRole);
     const m = ROSTER.find(x => x.n === name && x.c === cohort);
     out.push({
       name: name,
       cohort: cohort,
-      role: role,
+      role: pr.role,
+      sub: pr.sub,
+      senior: pr.senior,
+      label: pr.label,
       team: m ? m.t : '',
       att: m ? m.att : null,
       attThis: m ? m.attThis : null,
@@ -1142,9 +1154,39 @@ function buildConfirmed(rows){
   }
   CONFIRMED = out;
 }
+/* [2026-10-14 신설] 확정역할 칸 값을 "기본 역할(role) + 구분(sub)"으로 해석함.
+   시트에 "새가족 팀장", "온보딩 팀장", "새가족 조장", "온보딩 조장"이라고 입력하면 팀장/조장 안에서
+   구분되어 표시되고, 기존처럼 "팀장"/"조장"만 입력하면 "일반"으로 취급함(띄어쓰기 유무·"팀" 자 유무·
+   "일반 팀장" 표기 모두 허용). role은 항상 팀장/조장/부조장/면려회 4개 중 하나로 정규화되므로
+   면려회 통계 제외 판정(role === '면려회') 등 기존 로직은 그대로 동작함. 해석 못 하는 값은
+   role에 원문을 그대로 두어 "표기 확인 필요" 그룹으로 가게 함(조용히 사라지지 않음). */
+function parseConfirmedRole(raw){
+  let s = (raw || '').replace(/\s+/g, '');
+  /* "선임팀장"은 팀장 중 한 명에게만 붙는 직책이라 구분(일반/새가족/온보딩)과 함께 쓸 수 있음.
+     "온보딩 선임팀장", "온보딩팀장(선임팀장)", "온보딩팀장(선임)" 어느 표기든 온보딩 팀장 + 선임팀장으로
+     해석함. 선임은 팀장에만 허용(선임조장 등은 해석 불가). */
+  const senior = /선임/.test(s);
+  s = s.replace(/[\(（][^\)）]*선임[^\)）]*[\)）]/g, '').replace(/선임/g, '');
+  const m = s.match(/^(일반|새가족팀?|온보딩팀?)?(팀장|조장)$/);
+  if (m && !(senior && m[2] === '조장')){
+    const sub = m[1] ? m[1].replace(/팀$/, '') : '일반';
+    const base = senior ? '선임팀장' : m[2];
+    return { role: m[2], sub: sub, senior: senior, label: sub === '일반' ? base : sub + ' ' + base };
+  }
+  if (!senior && (s === '부조장' || s === '면려회')) return { role: s, sub: '', senior: false, label: s };
+  const t = (raw || '').trim();
+  return { role: t, sub: '', senior: false, label: t };
+}
+function confirmedInfoOf(name, cohort){
+  return CONFIRMED.find(x => x.name === (name || '').trim() && x.cohort === (cohort || '').trim()) || null;
+}
 function confirmedRoleOf(name, cohort){
-  const c = CONFIRMED.find(x => x.name === (name || '').trim() && x.cohort === (cohort || '').trim());
+  const c = confirmedInfoOf(name, cohort);
   return c ? c.role : null;
+}
+/* 배지 색 클래스: 새가족/온보딩 구분은 전용 색, 그 외는 역할 색 */
+function confirmedBadgeClass(role, sub){
+  return (sub === '새가족' || sub === '온보딩') ? 'b-sub-' + sub : 'b-' + role;
 }
 
 /* "26메이커스 DB(하반기)" 탭(이름/동기/전화번호만 select)에서 이름+동기 → 전화번호 맵을 만듦.
@@ -1561,7 +1603,8 @@ function cssEscape(s){
 
 function applicantCard(a, isOpen){
   const isMismatch = a.check && (a.check.indexOf('불일치') !== -1 || a.check.indexOf('명단없음') !== -1);
-  const confRole = confirmedRoleOf(a.name, a.cohort);
+  const confInfo = confirmedInfoOf(a.name, a.cohort);
+  const confRole = confInfo ? confInfo.role : null;
   // 대조결과가 정상(조회완료)인 경우는 배지로 따로 표시하지 않고, 문제가 있을 때만 경고 배지로 표시합니다.
   const matchBadge = isMismatch
     ? `<span class="badge match-warn" title="대조결과: ${escapeHtml(a.check)}">${escapeHtml(a.check)}</span>`
@@ -1572,7 +1615,7 @@ function applicantCard(a, isOpen){
     ? `<span class="elig-badge ${eligClass(a.eligible)}">${escapeHtml(eligShort(a.eligible))}</span>`
     : '';
   const confirmedBadge = confRole
-    ? `<span class="badge badge-confirmed b-${confRole}" title="2027년 확정 역할 (가능등급은 카드를 펼치면 확인할 수 있습니다)">27 ${escapeHtml(confRole)}</span>`
+    ? `<span class="badge badge-confirmed ${confirmedBadgeClass(confInfo.role, confInfo.sub)}" title="2027년 확정 역할 (가능등급은 카드를 펼치면 확인할 수 있습니다)">27 ${escapeHtml(confInfo.label)}</span>`
     : '';
   // 확정된 사람은 확정 배지를 우선 표시합니다(가능등급 배지는 생략, 펼치면 '가능한 직분'에서 확인 가능). 그 외에는 가능등급 배지를 표시합니다.
   const primaryBadge = confirmedBadge || eligBadge;
@@ -1831,10 +1874,41 @@ function renderConfirmed(){
   const counts = {};
   ROLE_ORDER_C.forEach(r => { counts[r] = CONFIRMED.filter(c => c.role === r).length; });
   const unmatchedCount = CONFIRMED.filter(c => !c.matched).length;
-  /* [2026-09-16 수정] 확정역할 값이 "팀장/조장/부조장/면려회" 4개와 정확히 일치하지 않으면
+  /* [2026-09-16 수정] 확정역할 값이 정해진 표기와 정확히 일치하지 않으면
      (오타·공백 등) 예전에는 총 인원 수에는 포함되면서 역할별 그룹 어디에도 나타나지 않고
      조용히 사라졌습니다. 이제는 별도 "표기 확인 필요" 그룹으로 반드시 화면에 표시합니다. */
   const unknownRoleItems = CONFIRMED.filter(c => ROLE_ORDER_C.indexOf(c.role) === -1);
+
+  /* [2026-10-14 신설] 팀장·조장을 일반/새가족/온보딩으로 나눠서 보여줌. 새가족·온보딩 조장은
+     충원 목표 인원(새가족 4명, 온보딩 6명)이 있어 목표 대비 현황과 부족 인원을 같이 표시함.
+     목표를 바꾸려면 아래 target 값만 고치면 됨. 팀장 구분에는 목표 인원을 따로 두지 않음. */
+  const SUBGROUPS = [
+    { role:'팀장', sub:'일반',   always:false },
+    { role:'팀장', sub:'새가족', always:true  },
+    { role:'팀장', sub:'온보딩', always:true  },
+    { role:'조장', sub:'일반',   always:false },
+    { role:'조장', sub:'새가족', always:true, target:4 },
+    { role:'조장', sub:'온보딩', always:true, target:6 },
+    { role:'부조장', sub:'',     always:false },
+    { role:'면려회', sub:'',     always:false },
+  ];
+  SUBGROUPS.forEach(g => {
+    g.label = (g.sub && g.sub !== '') ? g.sub + ' ' + g.role : g.role;
+    g.items = CONFIRMED.filter(c => c.role === g.role && c.sub === g.sub).slice().sort((a,b) => {
+      if (!!a.senior !== !!b.senior) return a.senior ? -1 : 1;
+      const ia = COHORT_ORDER_FULL.indexOf(a.cohort), ib = COHORT_ORDER_FULL.indexOf(b.cohort);
+      if (ia !== ib) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+      return a.name.localeCompare(b.name, 'ko');
+    });
+  });
+  const detailGroups = SUBGROUPS.filter(g => (g.role === '팀장' || g.role === '조장') && g.sub);
+  const goalText = (g) => {
+    const n = g.items.length;
+    if (g.target == null) return '';
+    if (n < g.target) return (g.target - n) + '명 필요';
+    if (n > g.target) return (n - g.target) + '명 초과';
+    return '정원 충족';
+  };
 
   const summaryHtml = `
     <div class="stats">
@@ -1845,10 +1919,22 @@ function renderConfirmed(){
           <div class="lbl">확정 ${r}</div>
         </div>`).join('')}
     </div>
+    <div class="stats sub-stats">
+      ${detailGroups.map(g => {
+        const n = g.items.length;
+        const pct = g.target ? Math.min(100, Math.round(n / g.target * 100)) : 0;
+        return `
+        <div class="stat ${roleClass[g.role]}">
+          <div class="num tnum">${n}${g.target != null ? `<span class="goal">/${g.target}</span>` : ''}</div>
+          <div class="lbl">${g.label}${g.target != null ? ' · ' + goalText(g) : ''}</div>
+          ${g.target != null ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
     ${unknownRoleItems.length ? `
     <div class="notice" style="margin-top:10px">
       <span class="dot">●</span>
-      <span>${unknownRoleItems.length}명은 확정역할 값이 "팀장/조장/부조장/면려회"와 정확히 일치하지 않아 위 역할별 숫자에는 안 잡히고 아래 "표기 확인 필요" 항목에 별도로 표시했습니다. 시트의 확정역할 칸(오타·공백 등)을 다시 확인해주세요.</span>
+      <span>${unknownRoleItems.length}명은 확정역할 값이 정해진 표기(팀장 / 새가족 팀장 / 온보딩 팀장 / 선임팀장 / 조장 / 새가족 조장 / 온보딩 조장 / 부조장 / 면려회)와 일치하지 않아 위 역할별 숫자에는 안 잡히고 아래 "표기 확인 필요" 항목에 별도로 표시했습니다. 시트의 확정역할 칸(오타·공백 등)을 다시 확인해주세요.</span>
     </div>` : ''}
     ${unmatchedCount ? `
     <div class="notice" style="margin-top:10px">
@@ -1857,16 +1943,18 @@ function renderConfirmed(){
     </div>` : ''}
   `;
 
-  const groupsHtml = ROLE_ORDER_C.filter(r => counts[r] > 0).map(role => {
-    const items = CONFIRMED.filter(c => c.role === role).slice().sort((a,b) => {
-      const ia = COHORT_ORDER_FULL.indexOf(a.cohort), ib = COHORT_ORDER_FULL.indexOf(b.cohort);
-      if (ia !== ib) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-      return a.name.localeCompare(b.name, 'ko');
-    });
+  const groupsHtml = SUBGROUPS.filter(g => g.always || g.items.length > 0).map(g => {
+    const n = g.items.length;
+    const countTxt = g.target != null ? `${n} / ${g.target}명` : `${n}명`;
+    const needTxt = (g.target != null && n !== g.target)
+      ? `<span class="cohort-count" style="color:${n < g.target ? 'var(--danger)' : 'var(--ink-faint)'}">· ${goalText(g)}</span>` : '';
+    const body = n
+      ? g.items.map(c => confirmedRowHtml(c)).join('')
+      : `<div class="confirmed-empty">아직 확정된 인원이 없습니다. "2027 확정 리더" 시트의 확정역할에 "${g.label}"로 입력하면 이 곳에 표시됩니다.</div>`;
     return `
       <div class="confirmed-group">
-        <div class="confirmed-group-title"><span class="badge b-${role}">${role}</span><span class="cohort-count">${items.length}명</span></div>
-        <div class="confirmed-list">${items.map(c => confirmedRowHtml(c)).join('')}</div>
+        <div class="confirmed-group-title"><span class="badge ${confirmedBadgeClass(g.role, g.sub)}">${g.label}</span><span class="cohort-count">${countTxt}</span>${needTxt}</div>
+        <div class="confirmed-list">${body}</div>
       </div>`;
   }).join('');
 
@@ -1895,7 +1983,7 @@ function confirmedRowHtml(c, showRawRole){
     : '';
   return `
     <div class="confirmed-row">
-      <div class="confirmed-row-name">${escapeHtml(c.name)} <span class="cohort-tag-sm">${escapeHtml(c.cohort)}동기</span>${rawRoleHtml}</div>
+      <div class="confirmed-row-name">${escapeHtml(c.name)} <span class="cohort-tag-sm">${escapeHtml(c.cohort)}동기</span>${c.senior ? ' <span class="senior-tag">선임팀장</span>' : ''}${rawRoleHtml}</div>
       <div class="confirmed-row-meta">
         ${c.matched ? `<span class="team-pill"${teamPillStyle(c.team)}>${escapeHtml(c.team || '-')}</span>` : ''}
         ${attHtml}
