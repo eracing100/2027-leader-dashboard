@@ -418,13 +418,14 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .cf-need{font-size:12px;font-weight:700;color:var(--danger);margin-top:10px}
 .cf-need.ok{color:var(--accent-ink)}
 .cf-need.over{color:var(--gold)}
-.cf-gen{margin-bottom:12px}
-.cf-gen .cf-tiles{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
-.cf-gen-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.cf-gen-h .badge{font-size:11.5px;font-weight:800;padding:3px 8px}
-.cf-gen-h .k{font-size:12px;font-weight:700;color:var(--ink-faint)}
-.cf-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
-@media screen and (max-width:420px){.cf-cols .cf-col:nth-child(1) .cf-tiles{grid-template-columns:1fr}}
+/* 일반 조장·부조장·면려회도 팀장 열과 같은 카드(.cf-col)로 묶음 */
+.cf-col.cf-wide{margin-bottom:12px}
+.cf-col.cf-wide .cf-tiles{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.cf-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.cf-pair.one{grid-template-columns:1fr}
+.cf-pair .cf-tiles{grid-template-columns:1fr 1fr}
+.cf-pair.one .cf-tiles{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+@media screen and (max-width:420px){.cf-cols .cf-col:nth-child(1) .cf-tiles,.cf-pair .cf-tiles{grid-template-columns:1fr}}
 .confirmed-row-name{font-weight:700;color:var(--ink);flex:0 0 150px;min-width:0}
 .cohort-tag-sm{font-weight:600;color:var(--ink-faint);font-size:12px;margin-left:2px}
 /* 확정 리더 탭 — 팀 배지/출석률/수료 배지를 고정폭 그리드로 묶어서 그 묶음 자체의 폭이 항상
@@ -467,7 +468,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   /* 통계 카드가 5개(홀수)가 되면서 2열 배치에서 마지막 카드가 혼자 남지 않도록 가로로 꽉 채움 */
   #stats-content .stats .stat:last-child:nth-child(odd){grid-column:1 / -1}
   .cf-sum{grid-template-columns:1fr 1fr}
-  .cf-cols,.cf-boards{grid-template-columns:1fr}
+  .cf-cols,.cf-boards,.cf-pair{grid-template-columns:1fr}
   .cf-board.wide .cf-slots{grid-template-columns:repeat(2,1fr)}
   .stat{padding:13px 13px 11px}
   .stat .num{font-size:22px}
@@ -2010,7 +2011,7 @@ function renderConfirmed(){
       <div class="c"><div class="top"><span class="n tnum">${counts['조장']}</span><span class="t">조장</span></div>
         <div class="sub"><span>일반 <b>${n('조장_일반')}</b></span><span>새가족 <b>${n('조장_새가족')}/${G.조장_새가족.target}</b></span><span>온보딩 <b>${n('조장_온보딩')}/${G.조장_온보딩.target}</b></span></div></div>
       <div class="c"><div class="top"><span class="n tnum">${counts['부조장']}</span><span class="t">부조장</span></div>
-        <div class="sub"><span>${counts['부조장'] ? '확정된 인원 표시' : '아직 확정 없음'}</span></div></div>
+        <div class="sub"><span>${counts['부조장'] ? '&nbsp;' : '아직 확정 없음'}</span></div></div>
       <div class="c"><div class="top"><span class="n tnum">${counts['면려회']}</span><span class="t">면려회</span></div>
         <div class="sub"><span>지원 통계 집계에서 제외</span></div></div>
     </div>
@@ -2054,9 +2055,13 @@ function renderConfirmed(){
       <div class="cf-track"><i style="width:${pct}%"></i></div>
       <div class="cf-slots">${slotsHtml(g)}</div>${needHtml(g)}</div>`;
   };
-  const genChoHtml = n('조장_일반') ? `
-      <div class="cf-gen"><div class="cf-gen-h">${badge(G.조장_일반)}<span class="k">${n('조장_일반')}명</span></div>
-        <div class="cf-tiles">${G.조장_일반.items.map(cfTileHtml).join('')}</div></div>` : '';
+  const cardHtml = (g, extraClass, emptyHint) => {
+    const body = g.items.length
+      ? `<div class="cf-tiles">${g.items.map(cfTileHtml).join('')}</div>`
+      : `<div class="cf-col-empty">${emptyHint}</div>`;
+    return `<div class="cf-col${extraClass ? ' ' + extraClass : ''}"><div class="cf-col-h">${badge(g)}<span class="k">${g.items.length}명</span></div>${body}</div>`;
+  };
+  const genChoHtml = n('조장_일반') ? cardHtml(G.조장_일반, 'cf-wide', '') : '';
   const choHtml = `
     <div class="cf-sec">
       <div class="cf-sec-h"><h3>조장</h3><span class="cnt">${counts['조장']}명</span><span class="hint">새가족 ${G.조장_새가족.target}명 · 온보딩 ${G.조장_온보딩.target}명을 세워야 합니다</span></div>
@@ -2064,11 +2069,10 @@ function renderConfirmed(){
       <div class="cf-boards">${boardHtml('조장_새가족', false)}${boardHtml('조장_온보딩', true)}</div>
     </div>`;
 
-  const chipsSec = (k, title) => n(k) ? `
-    <div class="cf-sec">
-      <div class="cf-sec-h"><h3>${title}</h3><span class="cnt">${n(k)}명</span></div>
-      <div class="cf-chips">${G[k].items.map(cfTileHtml).join('')}</div>
-    </div>` : '';
+  /* 부조장·면려회: 있는 것만 팀장 열과 같은 카드로 나란히 표시(둘 다 없으면 생략, 하나만 있으면 가로 전체) */
+  const pairKeys = ['부조장', '면려회'].filter(k => n(k));
+  const pairHtml = pairKeys.length ? `
+    <div class="cf-sec"><div class="cf-pair${pairKeys.length === 1 ? ' one' : ''}">${pairKeys.map(k => cardHtml(G[k], '', '')).join('')}</div></div>` : '';
 
   const unknownGroupHtml = unknownRoleItems.length ? `
       <div class="confirmed-group">
@@ -2076,7 +2080,7 @@ function renderConfirmed(){
         <div class="confirmed-list">${unknownRoleItems.map(c => confirmedRowHtml(c, true)).join('')}</div>
       </div>` : '';
 
-  wrap.innerHTML = summaryHtml + leadersHtml + choHtml + chipsSec('부조장', '부조장') + chipsSec('면려회', '면려회') + unknownGroupHtml;
+  wrap.innerHTML = summaryHtml + leadersHtml + choHtml + pairHtml + unknownGroupHtml;
 }
 
 function confirmedRowHtml(c, showRawRole){
