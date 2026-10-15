@@ -373,7 +373,7 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .cf-toggle.on i{background:var(--accent);border-color:var(--accent)}
 .cf-toggle.on i::after{left:12px;background:#fff}
 .cf-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.cf-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.cf-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
 .cf-sum .c{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px 16px 13px;box-shadow:var(--shadow)}
 .cf-sum .top{display:flex;align-items:baseline;gap:8px}
 .cf-sum .n{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
@@ -381,12 +381,6 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .cf-sum .sub{margin-top:8px;font-size:11.8px;color:var(--ink-faint);display:flex;gap:6px 10px;flex-wrap:wrap}
 .cf-sum .sub b{color:var(--ink-soft);font-weight:700}
 .cf-sum .c.lead .n{color:var(--accent-ink)}
-details.cf-help{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:22px;font-size:12.5px;color:var(--ink-soft)}
-details.cf-help summary{cursor:pointer;padding:9px 14px;font-weight:700;list-style:none;display:flex;justify-content:space-between;color:var(--ink-faint)}
-details.cf-help summary::-webkit-details-marker{display:none}
-details.cf-help summary::after{content:"펼치기";font-weight:600}
-details.cf-help[open] summary::after{content:"접기"}
-details.cf-help p{margin:0;padding:0 14px 12px;line-height:1.65}
 .cf-sec{margin-bottom:26px}
 .cf-sec-h{display:flex;align-items:baseline;gap:8px;margin:0 0 10px}
 .cf-sec-h h3{margin:0;font-size:15px;font-weight:800;letter-spacing:-.01em}
@@ -1935,11 +1929,6 @@ function toggleConfirmedDetail(btn){
   if (wrap) wrap.classList.toggle('cf-show-detail', cfShowDetail);
   if (btn){ btn.classList.toggle('on', cfShowDetail); btn.setAttribute('aria-pressed', cfShowDetail ? 'true' : 'false'); }
 }
-const CF_HELP_HTML = `<details class="cf-help">
-      <summary>시트 입력 방법 안내</summary>
-      <p>"2027 확정 리더" 시트(마스터 워크북 내 별도 탭)에 위원회가 직접 입력한 확정 인원만 보여줍니다. 팀·출석률·수료 여부는 전체 명단에서 이름+동기로 자동으로 찾아온 값이며, 아직 배정팀(조 편성)은 반영하지 않고 역할만 표시합니다. 시트의 확정역할 칸에 "팀장", "새가족 팀장", "온보딩 팀장", "조장", "새가족 조장", "온보딩 조장", "부조장", "면려회" 중 하나로 입력하면 구분해서 보여주며(그냥 "팀장"/"조장"은 일반으로 표시, 선임팀장은 "온보딩팀장(선임팀장)"처럼 괄호로 덧붙여 입력), 새가족 조장은 4명, 온보딩 조장은 6명을 목표로 현황을 같이 표시합니다. 각 구분 안에서는 동기순, 같은 동기끼리는 이름순으로 정렬하고 선임팀장은 맨 앞에 둡니다.</p>
-    </details>`;
-
 function cfDetailHtml(c){
   if (!c.matched) return '';
   const pct = v => parseFloat(v).toFixed(1) + '%';
@@ -1964,7 +1953,7 @@ function renderConfirmed(){
   const wrap = document.getElementById('confirmed-content');
   wrap.classList.toggle('cf-show-detail', cfShowDetail);
   if (!CONFIRMED.length){
-    wrap.innerHTML = CF_HELP_HTML + '<div class="empty">아직 확정된 리더가 없습니다. "2027 확정 리더" 시트에 입력되면 새로고침 시 자동으로 표시됩니다.</div>';
+    wrap.innerHTML = '<div class="empty">아직 확정된 리더가 없습니다. "2027 확정 리더" 시트에 입력되면 새로고침 시 자동으로 표시됩니다.</div>';
     return;
   }
 
@@ -2025,14 +2014,13 @@ function renderConfirmed(){
       <div class="c"><div class="top"><span class="n tnum">${counts['면려회']}</span><span class="t">면려회</span></div>
         <div class="sub"><span>지원 통계 집계에서 제외</span></div></div>
     </div>
-    ${CF_HELP_HTML}
     ${unknownRoleItems.length ? `
-    <div class="notice" style="margin:-8px 0 14px">
+    <div class="notice" style="margin:-8px 0 22px">
       <span class="dot">●</span>
       <span>${unknownRoleItems.length}명은 확정역할 값이 정해진 표기(팀장 / 새가족 팀장 / 온보딩 팀장 / 선임팀장 / 조장 / 새가족 조장 / 온보딩 조장 / 부조장 / 면려회)와 일치하지 않아 위 역할별 숫자에는 안 잡히고 아래 "표기 확인 필요" 항목에 별도로 표시했습니다. 시트의 확정역할 칸(오타·공백 등)을 다시 확인해주세요.</span>
     </div>` : ''}
     ${unmatchedCount ? `
-    <div class="notice" style="margin:-8px 0 14px">
+    <div class="notice" style="margin:-8px 0 22px">
       <span class="dot">●</span>
       <span>${unmatchedCount}명은 이름+동기가 전체 명단과 일치하지 않아 팀·출석률 정보를 표시할 수 없습니다. "확인 필요" 배지가 붙은 사람의 이름·동기 표기를 시트에서 다시 확인해주세요.</span>
     </div>` : ''}
