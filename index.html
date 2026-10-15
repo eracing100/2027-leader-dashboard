@@ -418,14 +418,10 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .cf-need{font-size:12px;font-weight:700;color:var(--danger);margin-top:10px}
 .cf-need.ok{color:var(--accent-ink)}
 .cf-need.over{color:var(--gold)}
-/* 일반 조장·부조장·면려회도 팀장 열과 같은 카드(.cf-col)로 묶음 */
+/* 일반 조장·부조장·면려회도 팀장 열과 같은 카드(.cf-col)로 묶음(가로 전체 폭) */
 .cf-col.cf-wide{margin-bottom:12px}
 .cf-col.cf-wide .cf-tiles{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
-.cf-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
-.cf-pair.one{grid-template-columns:1fr}
-.cf-pair .cf-tiles{grid-template-columns:1fr 1fr}
-.cf-pair.one .cf-tiles{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
-@media screen and (max-width:420px){.cf-cols .cf-col:nth-child(1) .cf-tiles,.cf-pair .cf-tiles{grid-template-columns:1fr}}
+@media screen and (max-width:420px){.cf-cols .cf-col:nth-child(1) .cf-tiles{grid-template-columns:1fr}}
 .confirmed-row-name{font-weight:700;color:var(--ink);flex:0 0 150px;min-width:0}
 .cohort-tag-sm{font-weight:600;color:var(--ink-faint);font-size:12px;margin-left:2px}
 /* 확정 리더 탭 — 팀 배지/출석률/수료 배지를 고정폭 그리드로 묶어서 그 묶음 자체의 폭이 항상
@@ -468,7 +464,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   /* 통계 카드가 5개(홀수)가 되면서 2열 배치에서 마지막 카드가 혼자 남지 않도록 가로로 꽉 채움 */
   #stats-content .stats .stat:last-child:nth-child(odd){grid-column:1 / -1}
   .cf-sum{grid-template-columns:1fr 1fr}
-  .cf-cols,.cf-boards,.cf-pair{grid-template-columns:1fr}
+  .cf-cols,.cf-boards{grid-template-columns:1fr}
   .cf-board.wide .cf-slots{grid-template-columns:repeat(2,1fr)}
   .stat{padding:13px 13px 11px}
   .stat .num{font-size:22px}
@@ -2062,17 +2058,18 @@ function renderConfirmed(){
     return `<div class="cf-col${extraClass ? ' ' + extraClass : ''}"><div class="cf-col-h">${badge(g)}<span class="k">${g.items.length}명</span></div>${body}</div>`;
   };
   const genChoHtml = n('조장_일반') ? cardHtml(G.조장_일반, 'cf-wide', '') : '';
+  /* 조장 섹션 표시 순서: 조장(일반) → 부조장(있을 때만) → 새가족 조장 → 온보딩 조장 (위원장 지시 2026-10-15) */
+  const subChoHtml = n('부조장') ? cardHtml(G.부조장, 'cf-wide', '') : '';
   const choHtml = `
     <div class="cf-sec">
       <div class="cf-sec-h"><h3>조장</h3><span class="cnt">${counts['조장']}명</span><span class="hint">새가족 ${G.조장_새가족.target}명 · 온보딩 ${G.조장_온보딩.target}명을 세워야 합니다</span></div>
       ${genChoHtml}
+      ${subChoHtml}
       <div class="cf-boards">${boardHtml('조장_새가족', false)}${boardHtml('조장_온보딩', true)}</div>
     </div>`;
 
-  /* 부조장·면려회: 있는 것만 팀장 열과 같은 카드로 나란히 표시(둘 다 없으면 생략, 하나만 있으면 가로 전체) */
-  const pairKeys = ['부조장', '면려회'].filter(k => n(k));
-  const pairHtml = pairKeys.length ? `
-    <div class="cf-sec"><div class="cf-pair${pairKeys.length === 1 ? ' one' : ''}">${pairKeys.map(k => cardHtml(G[k], '', '')).join('')}</div></div>` : '';
+  /* 면려회: 있을 때만 팀장 열과 같은 카드로 표시 */
+  const yeoHtml = n('면려회') ? `<div class="cf-sec">${cardHtml(G.면려회, 'cf-wide', '')}</div>` : '';
 
   const unknownGroupHtml = unknownRoleItems.length ? `
       <div class="confirmed-group">
@@ -2080,7 +2077,7 @@ function renderConfirmed(){
         <div class="confirmed-list">${unknownRoleItems.map(c => confirmedRowHtml(c, true)).join('')}</div>
       </div>` : '';
 
-  wrap.innerHTML = summaryHtml + leadersHtml + choHtml + pairHtml + unknownGroupHtml;
+  wrap.innerHTML = summaryHtml + leadersHtml + choHtml + yeoHtml + unknownGroupHtml;
 }
 
 function confirmedRowHtml(c, showRawRole){
