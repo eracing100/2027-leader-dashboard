@@ -1227,7 +1227,9 @@ function parseConfirmedRole(raw){
   if (m && !(senior && m[2] === '조장')){
     const sub = m[1] ? m[1].replace(/팀$/, '') : '일반';
     const base = senior ? '선임팀장' : m[2];
-    return { role: m[2], sub: sub, senior: senior, label: sub === '일반' ? base : sub + ' ' + base };
+    /* [2026-10-19] 새가족·온보딩 조장은 아직 확정이 아니라 컨택 대상자라서 이름 뒤에 표시를 붙임 */
+    const contact = m[2] === '조장' && sub !== '일반';
+    return { role: m[2], sub: sub, senior: senior, label: (sub === '일반' ? base : sub + ' ' + base) + (contact ? '(컨택 대상자)' : '') };
   }
   if (!senior && (s === '부조장' || s === '면려회')) return { role: s, sub: '', senior: false, label: s };
   const t = (raw || '').trim();
@@ -1671,7 +1673,7 @@ function applicantCard(a, isOpen){
     ? `<span class="elig-badge ${eligClass(a.eligible)}">${escapeHtml(eligShort(a.eligible))}</span>`
     : '';
   const confirmedBadge = confRole
-    ? `<span class="badge badge-confirmed ${confirmedBadgeClass(confInfo.role, confInfo.sub)}" title="2027년 확정 역할 (가능등급은 카드를 펼치면 확인할 수 있습니다)">27 ${escapeHtml(confInfo.label)}</span>`
+    ? `<span class="badge badge-confirmed ${confirmedBadgeClass(confInfo.role, confInfo.sub)}" title="${confInfo.role === '조장' && confInfo.sub !== '일반' ? '2027년 컨택 대상자 (아직 확정 전, 가능등급은 카드를 펼치면 확인할 수 있습니다)' : '2027년 확정 역할 (가능등급은 카드를 펼치면 확인할 수 있습니다)'}">27 ${escapeHtml(confInfo.label)}</span>`
     : '';
   // 확정된 사람은 확정 배지를 우선 표시합니다(가능등급 배지는 생략, 펼치면 '가능한 직분'에서 확인 가능). 그 외에는 가능등급 배지를 표시합니다.
   const primaryBadge = confirmedBadge || eligBadge;
@@ -1979,7 +1981,8 @@ function renderConfirmed(){
   };
   Object.keys(G).forEach(k => {
     const g = G[k];
-    g.label = g.sub ? g.sub + ' ' + g.role : g.role;
+    g.contact = g.role === '조장' && (g.sub === '새가족' || g.sub === '온보딩');
+    g.label = (g.sub ? g.sub + ' ' + g.role : g.role) + (g.contact ? '(컨택 대상자)' : '');
     g.items = CONFIRMED.filter(c => c.role === g.role && c.sub === g.sub).slice().sort((a,b) => {
       if (!!a.senior !== !!b.senior) return a.senior ? -1 : 1;
       const ia = COHORT_ORDER_FULL.indexOf(a.cohort), ib = COHORT_ORDER_FULL.indexOf(b.cohort);
@@ -1993,7 +1996,7 @@ function renderConfirmed(){
     const c = g.items.length;
     if (c < g.target) return `<div class="cf-need">${g.target - c}명 더 필요</div>`;
     if (c > g.target) return `<div class="cf-need over">${c - g.target}명 초과</div>`;
-    return '<div class="cf-need ok">정원 충족</div>';
+    return `<div class="cf-need ok">${g.contact ? '목표 인원 컨택 완료' : '정원 충족'}</div>`;
   };
 
   const summaryHtml = `
@@ -2005,7 +2008,7 @@ function renderConfirmed(){
       <div class="c lead"><div class="top"><span class="n tnum">${counts['팀장']}</span><span class="t">팀장</span></div>
         <div class="sub"><span>일반 <b>${n('팀장_일반')}</b></span><span>새가족 <b>${n('팀장_새가족')}</b></span><span>온보딩 <b>${n('팀장_온보딩')}</b></span></div></div>
       <div class="c"><div class="top"><span class="n tnum">${counts['조장']}</span><span class="t">조장</span></div>
-        <div class="sub"><span>일반 <b>${n('조장_일반')}</b></span><span>새가족 <b>${n('조장_새가족')}/${G.조장_새가족.target}</b></span><span>온보딩 <b>${n('조장_온보딩')}/${G.조장_온보딩.target}</b></span></div></div>
+        <div class="sub"><span>일반 <b>${n('조장_일반')}</b></span><span>새가족 컨택 <b>${n('조장_새가족')}/${G.조장_새가족.target}</b></span><span>온보딩 컨택 <b>${n('조장_온보딩')}/${G.조장_온보딩.target}</b></span></div></div>
       <div class="c"><div class="top"><span class="n tnum">${counts['부조장']}</span><span class="t">부조장</span></div>
         <div class="sub"><span>${counts['부조장'] ? '&nbsp;' : '아직 확정 없음'}</span></div></div>
       <div class="c"><div class="top"><span class="n tnum">${counts['면려회']}</span><span class="t">면려회</span></div>
@@ -2062,7 +2065,7 @@ function renderConfirmed(){
   const subChoHtml = n('부조장') ? cardHtml(G.부조장, 'cf-wide', '') : '';
   const choHtml = `
     <div class="cf-sec">
-      <div class="cf-sec-h"><h3>조장</h3><span class="cnt">${counts['조장']}명</span><span class="hint">새가족 ${G.조장_새가족.target}명 · 온보딩 ${G.조장_온보딩.target}명을 세워야 합니다</span></div>
+      <div class="cf-sec-h"><h3>조장</h3><span class="cnt">${counts['조장']}명</span><span class="hint">새가족 ${G.조장_새가족.target}명 · 온보딩 ${G.조장_온보딩.target}명을 세워야 합니다 (새가족·온보딩은 컨택 대상자 기준)</span></div>
       ${genChoHtml}
       ${subChoHtml}
       <div class="cf-boards">${boardHtml('조장_새가족', false)}${boardHtml('조장_온보딩', true)}</div>
