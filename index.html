@@ -534,6 +534,8 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .pl-metric b{font-size:28px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
 .pl-metric b small{font-size:14px;font-weight:700;margin-left:2px}
 .pl-metric span{display:block;margin-top:2px;font-size:12px;color:var(--ink-soft);line-height:1.45}
+.pl-metric span.pl-alt{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border);color:var(--ink)}
+.pl-metric span.pl-alt b{font-size:inherit;font-weight:800;line-height:inherit;color:var(--accent-ink)}
 .pl-teams{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .pl-team{border:1px solid var(--border);border-radius:9px;padding:7px 8px;background:var(--surface);min-width:0}
 .pl-team-n{font-size:11px;font-weight:700;color:var(--ink-faint)}
@@ -1753,8 +1755,18 @@ function renderPlan(){
   const cards = steps.map((st, idx) => {
     const title = st.add === 0 ? '지금 확정 기준' : `${st.add}명 더 확정되면`;
     const sub = st.add === 0 ? `일반 조장 ${st.j}명` : `일반 조장 ${J}명 → ${st.j}명`;
+    /* [2026-10-19] 큰 숫자(조당 평균)는 팀장 조를 포함하는지에 따라 값이 달라 헷갈린다는 지적 — 큰 숫자 아래에
+       "조장 평균"(조장 1명당 인원, 팀장 조 제외)을 따로 한 줄 더 보여 줌. 토글이 "조장만 조를 맡음"이면 큰 숫자가
+       이미 조장 평균이므로 그 줄에는 반대로 "팀장 조 포함 평균"을 보여 줌. */
+    const altGroups = planLeaderLeads ? st.j : T + st.j;
+    const altLine = PLAN_INPUT && altGroups > 0
+      ? (planLeaderLeads
+          ? `<span class="pl-alt">조장 평균 <b>${fmt(PLAN_INPUT.total / altGroups)}명</b> · 출석 기준 ${fmt(PLAN_INPUT.attend / altGroups)}명 (팀장 조 제외)</span>`
+          : `<span class="pl-alt">팀장 조 포함 평균 <b>${fmt(PLAN_INPUT.total / altGroups)}명</b> · 출석 기준 ${fmt(PLAN_INPUT.attend / altGroups)}명</span>`)
+      : '';
+    const mainLabel = planLeaderLeads ? '조당 평균(팀장 조 포함)' : '조장 평균';
     const metric = PLAN_INPUT
-      ? `<div class="pl-metric"><b>${fmt(st.avgTotal)}<small>명</small></b><span>조당 평균 · 출석 기준 ${fmt(st.avgAttend)}명 · 조 ${st.groups}개</span></div>`
+      ? `<div class="pl-metric"><b>${fmt(st.avgTotal)}<small>명</small></b><span>${mainLabel} · 출석 기준 ${fmt(st.avgAttend)}명 · 조 ${st.groups}개</span>${altLine}</div>`
       : `<div class="pl-metric"><span>조 ${st.groups}개 (조원 수 입력값을 못 찾아 평균 인원은 표시하지 않음)</span></div>`;
     const tiles = st.teams.map((t, i) => `
       <div class="pl-team" title="팀장 1 · 조장 ${t.jo}${t.bu ? ' · 부조장 ' + t.bu : ''}">
