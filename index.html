@@ -515,6 +515,7 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .pl-tick.low em{bottom:auto;top:20px}
 .pl-tick.right em{left:auto;right:-2px;transform:none}
 .pl-bar-cap{font-size:11.5px;color:var(--ink-faint);margin:22px 4px 0}
+.pl-modehelp{margin:8px 0 12px;font-size:12.5px;color:var(--ink-soft);line-height:1.5}
 .pl-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
 .pl-legend{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft)}
 .pl-legend .pl-dot{margin-left:8px}
@@ -534,8 +535,7 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .pl-metric b{font-size:28px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
 .pl-metric b small{font-size:14px;font-weight:700;margin-left:2px}
 .pl-metric span{display:block;margin-top:2px;font-size:12px;color:var(--ink-soft);line-height:1.45}
-.pl-metric span.pl-alt{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border);color:var(--ink)}
-.pl-metric span.pl-alt b{font-size:inherit;font-weight:800;line-height:inherit;color:var(--accent-ink)}
+.pl-metric span.pl-mlabel{margin-top:4px;font-size:12.5px;font-weight:800;color:var(--ink)}
 .pl-teams{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .pl-team{border:1px solid var(--border);border-radius:9px;padding:7px 8px;background:var(--surface);min-width:0}
 .pl-team-n{font-size:11px;font-weight:700;color:var(--ink-faint)}
@@ -1628,7 +1628,7 @@ function showApp(){
      시트의 "시나리오 추가 인원"·"팀당 조장" 칸(buildPlanInput 참고)에서 바꾸거나, 칸이 없으면 PLAN_DEFAULT를 씀. */
 const PLAN_DEFAULT = { add: [3, 6], min: 2, max: 3 };   // 시트에 설정이 없을 때의 기본값(위원회 메모 "3~6명 추가", 팀당 조장 2~3명)
 let PLAN_CFG = { add: PLAN_DEFAULT.add.slice(), min: PLAN_DEFAULT.min, max: PLAN_DEFAULT.max };
-let planLeaderLeads = true;   // true: 팀장도 한 조를 맡음 / false: 조장만 조를 맡음 (새로고침하면 true로 돌아옴)
+let planLeaderLeads = false;   // false: 조장만 조를 맡음(기본) / true: 팀장도 한 조를 맡음 (새로고침하면 false로 돌아옴)
 
 function buildPlanInput(rows){
   PLAN_INPUT = null;
@@ -1731,9 +1731,10 @@ function renderPlan(){
     : `모든 팀에 조장 ${PLAN_CFG.min}명씩 두려면 ${gapMin}명이 더 필요합니다. `;
   if (PLAN_INPUT){
     const sMid = steps[1], sMax = steps[steps.length - 1];
+    const avgWord = planLeaderLeads ? '조 1개당' : '조장 1명당';
     leadP += addMid === addMax
-      ? `${addMid}명이 더 확정되면 조당 평균 ${fmt(sMid.avgTotal)}명이 됩니다.`
-      : `${addMid}명이 더 확정되면 조당 평균 ${fmt(sMid.avgTotal)}명, ${addMax}명이 더 확정되면 ${fmt(sMax.avgTotal)}명이 됩니다.`;
+      ? `${addMid}명이 더 확정되면 ${avgWord} 조원이 평균 ${fmt(sMid.avgTotal)}명이 됩니다.`
+      : `${addMid}명이 더 확정되면 ${avgWord} 조원이 평균 ${fmt(sMid.avgTotal)}명, ${addMax}명이 더 확정되면 ${fmt(sMax.avgTotal)}명이 됩니다.`;
   } else {
     leadP += addMid === addMax
       ? `${addMid}명이 더 확정되면 팀당 조장 수가 아래처럼 정리됩니다.`
@@ -1748,25 +1749,21 @@ function renderPlan(){
 
   const modeBtns = `
     <div class="pl-seg" role="group" aria-label="조 수 계산 방식">
-      <button type="button" class="${planLeaderLeads ? 'on' : ''}" onclick="setPlanMode(true)">팀장도 한 조를 맡음</button>
       <button type="button" class="${planLeaderLeads ? '' : 'on'}" onclick="setPlanMode(false)">조장만 조를 맡음</button>
+      <button type="button" class="${planLeaderLeads ? 'on' : ''}" onclick="setPlanMode(true)">팀장도 한 조를 맡음</button>
     </div>`;
 
   const cards = steps.map((st, idx) => {
     const title = st.add === 0 ? '지금 확정 기준' : `${st.add}명 더 확정되면`;
     const sub = st.add === 0 ? `일반 조장 ${st.j}명` : `일반 조장 ${J}명 → ${st.j}명`;
-    /* [2026-10-19] 큰 숫자(조당 평균)는 팀장 조를 포함하는지에 따라 값이 달라 헷갈린다는 지적 — 큰 숫자 아래에
-       "조장 평균"(조장 1명당 인원, 팀장 조 제외)을 따로 한 줄 더 보여 줌. 토글이 "조장만 조를 맡음"이면 큰 숫자가
-       이미 조장 평균이므로 그 줄에는 반대로 "팀장 조 포함 평균"을 보여 줌. */
-    const altGroups = planLeaderLeads ? st.j : T + st.j;
-    const altLine = PLAN_INPUT && altGroups > 0
-      ? (planLeaderLeads
-          ? `<span class="pl-alt">조장 평균 <b>${fmt(PLAN_INPUT.total / altGroups)}명</b> · 출석 기준 ${fmt(PLAN_INPUT.attend / altGroups)}명 (팀장 조 제외)</span>`
-          : `<span class="pl-alt">팀장 조 포함 평균 <b>${fmt(PLAN_INPUT.total / altGroups)}명</b> · 출석 기준 ${fmt(PLAN_INPUT.attend / altGroups)}명</span>`)
-      : '';
-    const mainLabel = planLeaderLeads ? '조당 평균(팀장 조 포함)' : '조장 평균';
+    /* [2026-10-19 단순화] 카드마다 평균 숫자는 하나만 보여 줌. 나누는 개수가 다른 두 평균을 나란히 놓으면 헷갈린다는
+       지적 — 큰 숫자 아래에 "무엇을 무엇으로 나눴는지" 계산식만 적고, 팀장이 조를 맡는 경우는 위 버튼으로 바꿔 봄. */
+    const mainLabel = planLeaderLeads ? '조 1개당 평균 조원' : '조장 1명당 평균 조원';
+    const basis = planLeaderLeads
+      ? `조원 ${PLAN_INPUT ? PLAN_INPUT.total : ''}명 ÷ 조 ${st.groups}개 (조장 ${st.j} + 팀장 ${T})`
+      : `조원 ${PLAN_INPUT ? PLAN_INPUT.total : ''}명 ÷ 조장 ${st.j}명`;
     const metric = PLAN_INPUT
-      ? `<div class="pl-metric"><b>${fmt(st.avgTotal)}<small>명</small></b><span>${mainLabel} · 출석 기준 ${fmt(st.avgAttend)}명 · 조 ${st.groups}개</span>${altLine}</div>`
+      ? `<div class="pl-metric"><b>${fmt(st.avgTotal)}<small>명</small></b><span class="pl-mlabel">${mainLabel}</span><span>${basis} · 출석 기준 ${fmt(st.avgAttend)}명</span></div>`
       : `<div class="pl-metric"><span>조 ${st.groups}개 (조원 수 입력값을 못 찾아 평균 인원은 표시하지 않음)</span></div>`;
     const tiles = st.teams.map((t, i) => `
       <div class="pl-team" title="팀장 1 · 조장 ${t.jo}${t.bu ? ' · 부조장 ' + t.bu : ''}">
@@ -1808,6 +1805,9 @@ function renderPlan(){
           <div class="pl-legend"><i class="pl-dot d-t"></i>팀장 <i class="pl-dot d-j"></i>조장 <i class="pl-dot d-b"></i>부조장</div>
           ${modeBtns}
         </div>
+        <p class="pl-modehelp">${planLeaderLeads
+          ? '팀장도 한 조를 맡는 경우입니다. 조원 수는 그대로이고, 나누는 조 개수가 조장 수 + 팀장 수로 늘어납니다.'
+          : '조장 한 명이 한 조를 맡는 기준입니다. 팀장이 조도 맡는 경우는 오른쪽 버튼으로 바꿔 볼 수 있습니다.'}</p>
         <div class="pl-cards${steps.length === 2 ? ' two' : ''}">${cards}</div>
       </div>
 
