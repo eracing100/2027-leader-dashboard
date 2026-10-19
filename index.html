@@ -376,6 +376,7 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .cf-toggle.on i::after{left:12px;background:#fff}
 .cf-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .cf-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
+.cf-sum.five{grid-template-columns:repeat(5,1fr)}
 .cf-sum .c{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px 16px 13px;box-shadow:var(--shadow)}
 .cf-sum .top{display:flex;align-items:baseline;gap:8px}
 .cf-sum .n{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
@@ -462,6 +463,61 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 #panel-kwonmyeon .confirmed-row-meta .kwon-recommender{flex:1 1 90px;margin-left:auto;max-width:240px;text-align:right}
 #panel-kwonmyeon .kwon-att{color:var(--ink-soft)}
 
+
+/* ---------- 조장 구성 탭 (2026-10-20) ---------- */
+#plan-content{word-break:keep-all}
+.pl-wrap{display:flex;flex-direction:column;gap:22px}
+.pl-lead{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px 16px;box-shadow:var(--shadow)}
+.pl-lead h3{margin:0 0 6px;font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.45;text-wrap:balance}
+.pl-lead p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.65;max-width:68ch}
+.pl-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}
+.pl-stat{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:#fbfbfd}
+.pl-stat b{display:block;font-size:22px;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums}
+.pl-stat span{display:block;margin-top:2px;font-size:12px;color:var(--ink-soft);line-height:1.4}
+.pl-bar{position:relative;height:10px;border-radius:6px;background:var(--surface-2);margin:34px 4px 6px}
+.pl-bar-fill{height:100%;border-radius:6px;background:var(--accent)}
+.pl-tick{position:absolute;top:-4px;width:2px;height:18px;background:var(--gold);border-radius:1px}
+.pl-tick em{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-style:normal;font-size:11.5px;font-weight:700;color:var(--gold);white-space:nowrap}
+.pl-tick.low em{bottom:auto;top:20px}
+.pl-tick.right em{left:auto;right:-2px;transform:none}
+.pl-bar-cap{font-size:11.5px;color:var(--ink-faint);margin:22px 4px 0}
+.pl-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.pl-legend{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft)}
+.pl-legend .pl-dot{margin-left:8px}
+.pl-legend .pl-dot:first-child{margin-left:0}
+.pl-seg{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--surface)}
+.pl-seg button{font:inherit;font-size:12.5px;font-weight:700;padding:7px 12px;border:0;background:transparent;color:var(--ink-soft);cursor:pointer}
+.pl-seg button + button{border-left:1px solid var(--border)}
+.pl-seg button.on{background:var(--accent-soft);color:var(--accent-ink)}
+.pl-seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.pl-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch}
+.pl-cards.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;min-width:0}
+.pl-card.now{background:#fbfbfd}
+.pl-card-h{display:flex;flex-direction:column;gap:2px}
+.pl-card-h h4{margin:0;font-size:15px;font-weight:800}
+.pl-card-h span{font-size:12px;color:var(--ink-faint)}
+.pl-metric b{font-size:28px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
+.pl-metric b small{font-size:14px;font-weight:700;margin-left:2px}
+.pl-metric span{display:block;margin-top:2px;font-size:12px;color:var(--ink-soft);line-height:1.45}
+.pl-teams{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.pl-team{border:1px solid var(--border);border-radius:9px;padding:7px 8px;background:var(--surface);min-width:0}
+.pl-team-n{font-size:11px;font-weight:700;color:var(--ink-faint)}
+.pl-pips{display:flex;flex-wrap:wrap;gap:3px;margin:5px 0 4px;min-height:22px;align-content:flex-start}
+.pl-team-c{font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+.pl-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none}
+.pl-dot.d-t{background:#6f4d78}
+.pl-dot.d-j{background:#3f6b73}
+.pl-dot.d-b{background:#c9953a}
+.pl-comp{list-style:none;margin:auto 0 0;padding:10px 0 0;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink-soft)}
+.pl-notes p{margin:0 0 4px;font-size:12px;color:var(--ink-faint);line-height:1.6}
+@media screen and (max-width:860px){
+  .pl-cards,.pl-cards.two{grid-template-columns:1fr}
+  #plan-content .cf-sec-h{flex-direction:column;gap:2px}
+  #plan-content .cf-sec-h .hint{margin-left:0}
+  .pl-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pl-teams{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
 .empty{padding:40px 16px;text-align:center;color:var(--ink-faint);font-size:13px}
 footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--ink-faint);text-align:center}
 
@@ -470,7 +526,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   .stats{grid-template-columns:repeat(2,1fr);gap:8px}
   /* 통계 카드가 5개(홀수)가 되면서 2열 배치에서 마지막 카드가 혼자 남지 않도록 가로로 꽉 채움 */
   #stats-content .stats .stat:last-child:nth-child(odd){grid-column:1 / -1}
-  .cf-sum{grid-template-columns:1fr 1fr}
+  .cf-sum,.cf-sum.five{grid-template-columns:1fr 1fr}
   .cf-cols,.cf-boards{grid-template-columns:1fr}
   .cf-board.wide .cf-slots{grid-template-columns:repeat(2,1fr)}
   .stat{padding:13px 13px 11px}
@@ -594,6 +650,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
     <button class="tab-btn" id="tab-btn-apply" onclick="switchTab('apply')">지원 현황 <span id="apply-tab-count"></span></button>
     <button class="tab-btn" id="tab-btn-stats" onclick="switchTab('stats')">통계</button>
     <button class="tab-btn" id="tab-btn-confirmed" onclick="switchTab('confirmed')">2027년도 확정 리더 <span id="confirmed-tab-count"></span></button>
+    <button class="tab-btn" id="tab-btn-plan" onclick="switchTab('plan')">조장 구성</button>
   </div>
 
   <div id="panel-roster">
@@ -746,13 +803,17 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <div id="panel-stats" style="display:none">
     <div class="notice notice-static">
       <span class="dot">●</span>
-      <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다. 상반기·하반기 리더 인원 대비는 모두 "2026 팀조장양육 출석부"의 "양육 출석부" 시트에서 면려회를 뺀 팀 소속 리더 인원(직분 구분 없음)과 비교한 수치입니다. 하반기는 하반기에 새로 추가된 인원까지 모두 포함하고, 상반기는 "하반기 추가"로 표시된 인원을 뺀 값이며, 화면을 열 때마다 시트를 다시 읽어 셉니다. 성비는 구글시트 DB 매칭 기준으로 매칭되지 않는 이름은 "미확인"으로 표시됩니다. "2027 확정 리더" 탭에 면려회로 이미 확정된 지원자, "2027 제외 후보" 탭에 위원회가 올려둔 지원자는 이 통계 집계에서 제외됩니다(지원 현황 카드 목록에는 그대로 표시).</span>
+      <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다. 상반기·하반기 리더 인원 대비는 모두 "2026 팀조장양육 출석부"의 "양육 출석부" 시트에서 면려회를 뺀 팀 소속 리더 인원(직분 구분 없음)과 비교한 수치입니다. 하반기는 하반기에 새로 추가된 인원까지 모두 포함하고, 상반기는 "하반기 추가"로 표시된 인원을 뺀 값이며, 화면을 열 때마다 시트를 다시 읽어 셉니다. 성비는 구글시트 DB 매칭 기준으로 매칭되지 않는 이름은 "미확인"으로 표시됩니다. "2027 확정 리더" 탭에 면려회·히엘로 이미 확정된 지원자, "2027 제외 후보" 탭에 위원회가 올려둔 지원자는 이 통계 집계에서 제외됩니다(지원 현황 카드 목록에는 그대로 표시).</span>
     </div>
     <div id="stats-content"></div>
   </div>
 
   <div id="panel-confirmed" style="display:none">
     <div id="confirmed-content"></div>
+  </div>
+
+  <div id="panel-plan" style="display:none">
+    <div id="plan-content"></div>
   </div>
 
   <footer class="foot" id="footer-total"></footer>
@@ -771,6 +832,10 @@ const CONFIRMED_GID = "1174157990";
    입력하면, 전화번호는 "26메이커스 DB(하반기)" 탭에서, 가능역할(가능등급)은 "2026 메이커스"
    탭(ROSTER)에서 이름+동기로 자동으로 찾아옴. 탭 이름으로 직접 gviz 조회(gid 불필요). */
 const KWONMYEON_TAB = "권면 대상";
+/* [2026-10-20 신설] "조장 구성" 탭이 쓰는 마스터 워크북 탭("2027 확정 리더(정리)"). 이 탭에서는 사람이 정한
+   입력값 두 개(일반 조원 총인원·출석 기준 인원)만 읽고, 팀장·조장·부조장 인원은 "2027 확정 리더" 탭에서
+   직접 세므로 이 탭의 집계 수식·메모·추가 권면 명단은 화면에 영향을 주지 않음. */
+const PLAN_GID = "2097028031";
 const PHONE_TAB = "26메이커스 DB(하반기)";
 /* 위원회 제외 후보 — 마스터 워크북 안의 별도 탭(2026-09-27 신설). 위원회가 "이 사람은 어려울 것
    같다"고 판단한 인원을 이름/동기/사유만 입력해두면, "통계" 탭 집계에서만 제외됨(지원 현황
@@ -821,6 +886,7 @@ let CONFIRMED = [];
 let KWONMYEON = [];
 let PHONE_MAP = {};
 let EXCLUDED = [];
+let PLAN_INPUT = null;   // {attend, total} — 조장 구성 탭용 입력값(시트에서 못 찾으면 null)
 
 /* 회칙상 별도 트랙인 부조장, 그리고 면려회 — 원본 시트의 "현재역할" 컬럼에는 아직
    반영되어 있지 않아 여기서 보정합니다. 두 역할 모두 원래 컬럼 값(대개 "조원")을
@@ -900,6 +966,9 @@ function gvizCsvUrl(){
 function respCsvUrl(){
   return `https://docs.google.com/spreadsheets/d/${RESP_SHEET_ID}/export?format=csv&gid=${RESP_GID}`;
 }
+function planCsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${PLAN_GID}`;
+}
 function confirmedCsvUrl(){
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${CONFIRMED_GID}`;
 }
@@ -962,6 +1031,18 @@ async function fetchAndBuild(){
   } catch (e3){
     console.error('confirmed fetch failed', e3);
     CONFIRMED = [];
+  }
+
+  try {
+    const resP = await fetch(planCsvUrl(), {cache:'no-store'});
+    if (resP.ok){
+      buildPlanInput(parseCSV(await resP.text()));
+    } else {
+      PLAN_INPUT = null;
+    }
+  } catch (eP){
+    console.error('plan input fetch failed', eP);
+    PLAN_INPUT = null;
   }
 
   try {
@@ -1240,7 +1321,7 @@ function parseConfirmedRole(raw){
     const contact = m[2] === '조장' && sub !== '일반';
     return { role: m[2], sub: sub, senior: senior, label: (sub === '일반' ? base : sub + ' ' + base) + (contact ? '(컨택 대상자)' : '') };
   }
-  if (!senior && (s === '부조장' || s === '면려회')) return { role: s, sub: '', senior: false, label: s };
+  if (!senior && (s === '부조장' || s === '면려회' || s === '히엘')) return { role: s, sub: '', senior: false, label: s };
   const t = (raw || '').trim();
   return { role: t, sub: '', senior: false, label: t };
 }
@@ -1408,7 +1489,8 @@ function isCommitteeExcluded(name, cohort){
    (2) "2027 제외 후보" 탭에 위원회가 올려둔 경우. 둘 다 "통계" 탭 숫자에서만 빼고
    지원 현황 카드 목록·전체 명단에는 그대로 남겨 개별 확인은 계속 가능하게 함. */
 function isStatsExcludedApplicant(a){
-  return confirmedRoleOf(a.name, a.cohort) === '면려회' || isCommitteeExcluded(a.name, a.cohort);
+  const cr = confirmedRoleOf(a.name, a.cohort);
+  return cr === '면려회' || cr === '히엘' || isCommitteeExcluded(a.name, a.cohort);
 }
 
 function cleanRemark(rm){
@@ -1507,8 +1589,200 @@ function showApp(){
   renderApplicants();
   renderStatsTab();
   renderConfirmed();
+  renderPlan();
   renderKwonmyeon();
   document.getElementById('app').style.display = 'block';
+}
+
+/* ---------- 조장 구성 탭 (2026-10-20 신설) ----------
+   "일반 팀 N개에 조장이 몇 명 있으면 팀이 어떻게 구성되고, 조당 평균 몇 명이 되는가"를 보여줌.
+   - 팀장·조장·부조장 인원은 "2027 확정 리더" 탭(CONFIRMED)에서 직접 세므로 확정이 늘면 자동 반영됨.
+     새가족·온보딩 팀장/조장은 별도 팀이라 계산에서 제외함.
+   - 조원 수(전체·출석 기준)만 마스터 워크북 "2027 확정 리더(정리)" 탭의 "일반 조원" 행에서 읽음
+     (행 위치가 바뀌어도 "일반 조원"/"출석 기준"/"총인원수" 글자로 찾음). 못 찾으면 인원 수치만 숨김.
+   - 시나리오 "지금 / 3명 더 / 6명 더"는 위원회 메모("조장 3~6명 추가 필요")를 따른 값이며,
+     시트의 "시나리오 추가 인원"·"팀당 조장" 칸(buildPlanInput 참고)에서 바꾸거나, 칸이 없으면 PLAN_DEFAULT를 씀. */
+const PLAN_DEFAULT = { add: [3, 6], min: 2, max: 3 };   // 시트에 설정이 없을 때의 기본값(위원회 메모 "3~6명 추가", 팀당 조장 2~3명)
+let PLAN_CFG = { add: PLAN_DEFAULT.add.slice(), min: PLAN_DEFAULT.min, max: PLAN_DEFAULT.max };
+let planLeaderLeads = true;   // true: 팀장도 한 조를 맡음 / false: 조장만 조를 맡음 (새로고침하면 true로 돌아옴)
+
+function buildPlanInput(rows){
+  PLAN_INPUT = null;
+  PLAN_CFG = { add: PLAN_DEFAULT.add.slice(), min: PLAN_DEFAULT.min, max: PLAN_DEFAULT.max };
+  const num = v => { const n = parseFloat(String(v || '').replace(/[^0-9.]/g, '')); return isFinite(n) && n > 0 ? n : null; };
+  const norm = v => (v || '').replace(/\s+/g, '');
+  /* 시나리오 설정(선택): "시나리오 추가 인원" 칸 오른쪽에 숫자 1~2개(예: 3, 6), "팀당 조장" 칸 오른쪽에
+     최소·최대 숫자(예: 2, 3)를 적으면 화면에 반영됨. 칸 위치는 어디든 상관없고 글자로 찾으며,
+     없거나 숫자가 이상하면 기본값을 씀. */
+  const nums = (r, from) => r.slice(from + 1).map(x => String(x || '').trim()).filter(x => /^\d+$/.test(x)).map(Number);
+  rows.forEach(r => {
+    const a = r.findIndex(x => norm(x) === '시나리오추가인원');
+    if (a !== -1){
+      const v = Array.from(new Set(nums(r, a).filter(n => n > 0 && n <= 30))).sort((x, y) => x - y).slice(0, 2);
+      if (v.length) PLAN_CFG.add = v;
+    }
+    const m = r.findIndex(x => norm(x) === '팀당조장');
+    if (m !== -1){
+      const v = nums(r, m).filter(n => n > 0 && n <= 10);
+      if (v.length >= 2 && v[0] <= v[1]){ PLAN_CFG.min = v[0]; PLAN_CFG.max = v[1]; }
+    }
+  });
+  for (let i = 0; i < rows.length; i++){
+    const r = rows[i];
+    const c = r.findIndex(x => norm(x) === '일반조원');
+    if (c === -1) continue;
+    let ca = c + 1, ct = c + 2;
+    for (let k = i - 1; k >= Math.max(0, i - 3); k--){
+      const ia = rows[k].findIndex(x => norm(x) === '출석기준');
+      const it = rows[k].findIndex(x => norm(x) === '총인원수');
+      if (ia !== -1 && it !== -1){ ca = ia; ct = it; break; }
+    }
+    const attend = num(r[ca]), total = num(r[ct]);
+    if (attend && total) PLAN_INPUT = { attend: attend, total: total };
+    return;
+  }
+}
+
+/* 조장 J명을 T개 팀에 고르게 나눔(많은 쪽이 앞 팀). 부조장 B명은 조장이 적은 팀(뒤쪽)부터 한 명씩 배치하고,
+   남으면 앞 팀부터 한 명씩 더 얹음. */
+function planDistribute(T, J, B){
+  const base = Math.floor(J / T), rem = J % T;
+  const teams = Array.from({ length: T }, (_, i) => ({ jo: base + (i < rem ? 1 : 0), bu: 0 }));
+  let left = B;
+  for (let i = T - 1; i >= 0 && left > 0; i--){ teams[i].bu = 1; left--; }
+  for (let i = 0; left > 0; i = (i + 1) % T){ teams[i].bu++; left--; }
+  return teams;
+}
+
+function setPlanMode(leaderLeads){
+  planLeaderLeads = !!leaderLeads;
+  renderPlan();
+}
+
+function planPips(t){
+  const dot = (cls, n) => Array.from({ length: n }, () => `<i class="pl-dot ${cls}"></i>`).join('');
+  return dot('d-t', 1) + dot('d-j', t.jo) + dot('d-b', t.bu);
+}
+
+function renderPlan(){
+  const wrap = document.getElementById('plan-content');
+  if (!wrap) return;
+  const cnt = (role, sub) => CONFIRMED.filter(c => c.role === role && c.sub === sub).length;
+  const T = cnt('팀장', '일반'), J = cnt('조장', '일반');
+  const B = CONFIRMED.filter(c => c.role === '부조장').length;
+  const newJ = cnt('조장', '새가족'), onbJ = cnt('조장', '온보딩');
+  if (!CONFIRMED.length || T === 0){
+    wrap.innerHTML = '<div class="empty">"2027 확정 리더" 시트에 일반 팀장이 입력되면 팀 구성 계획이 표시됩니다.</div>';
+    return;
+  }
+
+  const steps = [0].concat(PLAN_CFG.add).map(add => {
+    const j = J + add;
+    const teams = planDistribute(T, j, B);
+    const groups = planLeaderLeads ? T + j : j;
+    const avgTotal = PLAN_INPUT ? PLAN_INPUT.total / groups : null;
+    const avgAttend = PLAN_INPUT ? PLAN_INPUT.attend / groups : null;
+    /* 같은 구성의 팀끼리 묶어 문장으로 */
+    const kinds = new Map();
+    teams.forEach(t => { const k = t.jo + '|' + t.bu; kinds.set(k, (kinds.get(k) || 0) + 1); });
+    const comp = Array.from(kinds.entries()).sort((a, b) => {
+      const [ja, ba] = a[0].split('|').map(Number), [jb, bb] = b[0].split('|').map(Number);
+      return (jb - ja) || (ba - bb);
+    }).map(([k, n]) => {
+      const [jo, bu] = k.split('|').map(Number);
+      return `팀장 1 + 조장 ${jo}${bu ? ' + 부조장 ' + bu : ''} · ${n}팀`;
+    });
+    return { add, j, teams, groups, avgTotal, avgAttend, comp };
+  });
+
+  const fmt = v => (Math.round(v * 10) / 10).toFixed(1);
+  const maxJ = Math.max(T * PLAN_CFG.max, J + Math.max.apply(null, PLAN_CFG.add));
+  const pct = v => Math.min(100, (v / maxJ) * 100);
+  const gapMin = Math.max(0, T * PLAN_CFG.min - J);
+  const addMid = PLAN_CFG.add[0], addMax = PLAN_CFG.add[PLAN_CFG.add.length - 1];
+
+  let lead = `일반 팀 ${T}개에 조장 ${J}명이 확정되어 있습니다`;
+  let leadP = gapMin === 0
+    ? `지금도 모든 팀에 조장이 ${PLAN_CFG.min}명 이상 배정됩니다. `
+    : `모든 팀에 조장 ${PLAN_CFG.min}명씩 두려면 ${gapMin}명이 더 필요합니다. `;
+  if (PLAN_INPUT){
+    const sMid = steps[1], sMax = steps[steps.length - 1];
+    leadP += addMid === addMax
+      ? `${addMid}명이 더 확정되면 조당 평균 ${fmt(sMid.avgTotal)}명이 됩니다.`
+      : `${addMid}명이 더 확정되면 조당 평균 ${fmt(sMid.avgTotal)}명, ${addMax}명이 더 확정되면 ${fmt(sMax.avgTotal)}명이 됩니다.`;
+  } else {
+    leadP += addMid === addMax
+      ? `${addMid}명이 더 확정되면 팀당 조장 수가 아래처럼 정리됩니다.`
+      : `${addMid}~${addMax}명이 더 확정되면 팀당 조장 수가 아래처럼 정리됩니다.`;
+  }
+
+  const ticks = PLAN_CFG.add.map((a, i, arr) => {
+    const v = J + a;
+    const edge = (i > 0 ? ' low' : '') + ((v / maxJ) > 0.9 ? ' right' : '');
+    return `<span class="pl-tick${edge}" style="left:${pct(v)}%"><em>+${a}명 → ${v}</em></span>`;
+  }).join('');
+
+  const modeBtns = `
+    <div class="pl-seg" role="group" aria-label="조 수 계산 방식">
+      <button type="button" class="${planLeaderLeads ? 'on' : ''}" onclick="setPlanMode(true)">팀장도 한 조를 맡음</button>
+      <button type="button" class="${planLeaderLeads ? '' : 'on'}" onclick="setPlanMode(false)">조장만 조를 맡음</button>
+    </div>`;
+
+  const cards = steps.map((st, idx) => {
+    const title = st.add === 0 ? '지금 확정 기준' : `${st.add}명 더 확정되면`;
+    const sub = st.add === 0 ? `일반 조장 ${st.j}명` : `일반 조장 ${J}명 → ${st.j}명`;
+    const metric = PLAN_INPUT
+      ? `<div class="pl-metric"><b>${fmt(st.avgTotal)}<small>명</small></b><span>조당 평균 · 출석 기준 ${fmt(st.avgAttend)}명 · 조 ${st.groups}개</span></div>`
+      : `<div class="pl-metric"><span>조 ${st.groups}개 (조원 수 입력값을 못 찾아 평균 인원은 표시하지 않음)</span></div>`;
+    const tiles = st.teams.map((t, i) => `
+      <div class="pl-team" title="팀장 1 · 조장 ${t.jo}${t.bu ? ' · 부조장 ' + t.bu : ''}">
+        <div class="pl-team-n">${i + 1}팀</div>
+        <div class="pl-pips">${planPips(t)}</div>
+        <div class="pl-team-c">${1 + t.jo + t.bu}명</div>
+      </div>`).join('');
+    return `
+      <section class="pl-card${idx === 0 ? ' now' : ''}">
+        <div class="pl-card-h"><h4>${title}</h4><span>${sub}</span></div>
+        ${metric}
+        <div class="pl-teams">${tiles}</div>
+        <ul class="pl-comp">${st.comp.map(x => `<li>${x}</li>`).join('')}</ul>
+      </section>`;
+  }).join('');
+
+  const note1 = PLAN_INPUT
+    ? `조원 ${PLAN_INPUT.total}명 · 출석 기준 ${PLAN_INPUT.attend}명은 "2027 확정 리더(정리)" 시트 "일반 조원" 행의 입력값(현재 출석을 보고 추정한 값)이며, 시트 값을 고치면 새로고침 시 반영됩니다.`
+    : `"2027 확정 리더(정리)" 시트에서 "일반 조원" 행의 조원 수를 찾지 못해 조당 평균 인원은 표시하지 않았습니다.`;
+
+  wrap.innerHTML = `
+    <div class="pl-wrap">
+      <div class="pl-lead">
+        <h3>${lead}</h3>
+        <p>${leadP}</p>
+        <div class="pl-stats">
+          <div class="pl-stat"><b>${T}</b><span>일반 팀장 (= 팀 수)</span></div>
+          <div class="pl-stat"><b>${J}</b><span>일반 조장 확정</span></div>
+          <div class="pl-stat"><b>${B}</b><span>부조장 확정</span></div>
+          <div class="pl-stat"><b>${T * PLAN_CFG.min}~${T * PLAN_CFG.max}</b><span>팀당 조장 ${PLAN_CFG.min}~${PLAN_CFG.max}명일 때 필요</span></div>
+        </div>
+        <div class="pl-bar" aria-hidden="true"><div class="pl-bar-fill" style="width:${pct(J)}%"></div>${ticks}</div>
+        <div class="pl-bar-cap">현재 ${J}명 · 막대 끝 ${maxJ}명</div>
+      </div>
+
+      <div class="cf-sec" style="margin-bottom:0">
+        <div class="cf-sec-h"><h3>팀 구성 시나리오</h3><span class="hint">조장이 늘면 팀 구성과 조당 인원이 이렇게 됩니다</span></div>
+        <div class="pl-toolbar">
+          <div class="pl-legend"><i class="pl-dot d-t"></i>팀장 <i class="pl-dot d-j"></i>조장 <i class="pl-dot d-b"></i>부조장</div>
+          ${modeBtns}
+        </div>
+        <div class="pl-cards${steps.length === 2 ? ' two' : ''}">${cards}</div>
+      </div>
+
+      <div class="pl-notes">
+        <p>${note1}</p>
+        <p>새가족 조장 ${newJ}명 · 온보딩 조장 ${onbJ}명(컨택 대상자)과 그 팀장은 별도 팀이라 이 계산에서 뺐습니다.</p>
+        <p>팀 번호는 구성을 보여 주기 위한 예시이며 실제 팀 배정이 아닙니다. 부조장은 조장이 적은 팀에 먼저 두는 것으로 가정했습니다.</p>
+      </div>
+    </div>`;
 }
 
 function switchTab(tab){
@@ -1517,11 +1791,13 @@ function switchTab(tab){
   document.getElementById('tab-btn-stats').classList.toggle('active', tab === 'stats');
   document.getElementById('tab-btn-confirmed').classList.toggle('active', tab === 'confirmed');
   document.getElementById('tab-btn-kwonmyeon').classList.toggle('active', tab === 'kwonmyeon');
+  document.getElementById('tab-btn-plan').classList.toggle('active', tab === 'plan');
   document.getElementById('panel-roster').style.display = tab === 'roster' ? 'block' : 'none';
   document.getElementById('panel-apply').style.display = tab === 'apply' ? 'block' : 'none';
   document.getElementById('panel-stats').style.display = tab === 'stats' ? 'block' : 'none';
   document.getElementById('panel-confirmed').style.display = tab === 'confirmed' ? 'block' : 'none';
   document.getElementById('panel-kwonmyeon').style.display = tab === 'kwonmyeon' ? 'block' : 'none';
+  document.getElementById('panel-plan').style.display = tab === 'plan' ? 'block' : 'none';
 }
 
 function applyChipsList(){
@@ -1906,7 +2182,7 @@ function renderStatsTab(){
   const excludedNoticeHtml = statsExcludedCount ? `
     <div class="notice" style="margin-top:10px">
       <span class="dot">●</span>
-      <span>${statsExcludedCount}명은 "2027 확정 리더" 탭에 면려회로 확정됐거나 "2027 제외 후보" 탭에 위원회가 올려둔 지원자라 위 통계에서 제외했습니다(지원 현황 탭 카드 목록에는 그대로 표시됩니다).</span>
+      <span>${statsExcludedCount}명은 "2027 확정 리더" 탭에 면려회·히엘로 확정됐거나 "2027 제외 후보" 탭에 위원회가 올려둔 지원자라 위 통계에서 제외했습니다(지원 현황 탭 카드 목록에는 그대로 표시됩니다).</span>
     </div>` : '';
 
   wrap.innerHTML = summaryHtml + excludedNoticeHtml + `
@@ -1969,7 +2245,7 @@ function renderConfirmed(){
     return;
   }
 
-  const ROLE_ORDER_C = ['팀장','조장','부조장','면려회'];
+  const ROLE_ORDER_C = ['팀장','조장','부조장','면려회','히엘'];
   const counts = {};
   ROLE_ORDER_C.forEach(r => { counts[r] = CONFIRMED.filter(c => c.role === r).length; });
   const unmatchedCount = CONFIRMED.filter(c => !c.matched).length;
@@ -1991,6 +2267,7 @@ function renderConfirmed(){
     조장_온보딩: { role:'조장', sub:'온보딩', target:8 },
     부조장:      { role:'부조장', sub:'' },
     면려회:      { role:'면려회', sub:'' },
+    히엘:        { role:'히엘', sub:'' },
   };
   Object.keys(G).forEach(k => {
     const g = G[k];
@@ -2017,7 +2294,7 @@ function renderConfirmed(){
       <h2>확정 리더 <small>${CONFIRMED.length}명</small></h2>
       <button type="button" class="cf-toggle${cfShowDetail ? ' on' : ''}" aria-pressed="${cfShowDetail}" onclick="toggleConfirmedDetail(this)"><i></i>출석률·수료 보기</button>
     </div>
-    <div class="cf-sum">
+    <div class="cf-sum${counts['히엘'] ? ' five' : ''}">
       <div class="c lead"><div class="top"><span class="n tnum">${counts['팀장']}</span><span class="t">팀장</span></div>
         <div class="sub"><span>일반 <b>${n('팀장_일반')}</b></span><span>새가족 <b>${n('팀장_새가족')}</b></span><span>온보딩 <b>${n('팀장_온보딩')}</b></span></div></div>
       <div class="c"><div class="top"><span class="n tnum">${counts['조장']}</span><span class="t">조장</span></div>
@@ -2026,11 +2303,13 @@ function renderConfirmed(){
         <div class="sub"><span>${counts['부조장'] ? '&nbsp;' : '아직 확정 없음'}</span></div></div>
       <div class="c"><div class="top"><span class="n tnum">${counts['면려회']}</span><span class="t">면려회</span></div>
         <div class="sub"><span>지원 통계 집계에서 제외</span></div></div>
+      ${counts['히엘'] ? `<div class="c"><div class="top"><span class="n tnum">${counts['히엘']}</span><span class="t">히엘</span></div>
+        <div class="sub"><span>지원 통계 집계에서 제외</span></div></div>` : ''}
     </div>
     ${unknownRoleItems.length ? `
     <div class="notice" style="margin:-8px 0 22px">
       <span class="dot">●</span>
-      <span>${unknownRoleItems.length}명은 확정역할 값이 정해진 표기(팀장 / 새가족 팀장 / 온보딩 팀장 / 선임팀장 / 조장 / 새가족 조장 / 온보딩 조장 / 부조장 / 면려회)와 일치하지 않아 위 역할별 숫자에는 안 잡히고 아래 "표기 확인 필요" 항목에 별도로 표시했습니다. 시트의 확정역할 칸(오타·공백 등)을 다시 확인해주세요.</span>
+      <span>${unknownRoleItems.length}명은 확정역할 값이 정해진 표기(팀장 / 새가족 팀장 / 온보딩 팀장 / 선임팀장 / 조장 / 새가족 조장 / 온보딩 조장 / 부조장 / 면려회 / 히엘)와 일치하지 않아 위 역할별 숫자에는 안 잡히고 아래 "표기 확인 필요" 항목에 별도로 표시했습니다. 시트의 확정역할 칸(오타·공백 등)을 다시 확인해주세요.</span>
     </div>` : ''}
     ${unmatchedCount ? `
     <div class="notice" style="margin:-8px 0 22px">
@@ -2086,6 +2365,8 @@ function renderConfirmed(){
 
   /* 면려회: 있을 때만 팀장 열과 같은 카드로 표시 */
   const yeoHtml = n('면려회') ? `<div class="cf-sec">${cardHtml(G.면려회, 'cf-wide', '')}</div>` : '';
+  /* 히엘: 있을 때만 면려회와 같은 카드로 표시 (시트 확정역할 칸에 "히엘"로 입력) */
+  const hielHtml = n('히엘') ? `<div class="cf-sec">${cardHtml(G.히엘, 'cf-wide', '')}</div>` : '';
 
   const unknownGroupHtml = unknownRoleItems.length ? `
       <div class="confirmed-group">
@@ -2093,7 +2374,7 @@ function renderConfirmed(){
         <div class="confirmed-list">${unknownRoleItems.map(c => confirmedRowHtml(c, true)).join('')}</div>
       </div>` : '';
 
-  wrap.innerHTML = summaryHtml + leadersHtml + choHtml + yeoHtml + unknownGroupHtml;
+  wrap.innerHTML = summaryHtml + leadersHtml + choHtml + yeoHtml + hielHtml + unknownGroupHtml;
 }
 
 function confirmedRowHtml(c, showRawRole){
