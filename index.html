@@ -178,6 +178,8 @@ h1.title{font-family:var(--font-display);font-size:27px;font-weight:400;margin:0
 
 .notice{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius-sm);padding:12px 14px;font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin-bottom:22px}
 .notice b{color:var(--ink);font-weight:700}
+/* [2026-10-19] 탭마다 맨 위에 붙어 있던 고정 설명 상자는 위원장 요청으로 숨김(문구는 남겨 두었으니 다시 보이려면 이 줄만 지우면 됨). 데이터 오류를 알리는 경고 상자는 그대로 표시 */
+.notice-static{display:none}
 .notice .dot{color:var(--gold);flex:none;font-size:15px;line-height:1.5}
 
 details.filters{margin-bottom:6px}
@@ -381,45 +383,50 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .cf-sum .sub{margin-top:8px;font-size:11.8px;color:var(--ink-faint);display:flex;gap:6px 10px;flex-wrap:wrap}
 .cf-sum .sub b{color:var(--ink-soft);font-weight:700}
 .cf-sum .c.lead .n{color:var(--accent-ink)}
-.cf-sec{margin-bottom:26px}
-.cf-sec-h{display:flex;align-items:baseline;gap:8px;margin:0 0 10px}
+/* [2026-10-19 간격 통일] 카드 안쪽 여백 14px, 카드·섹션 안 세로 간격 12px, 타일 사이 8px, 섹션 사이 26px로 고정 */
+.cf-sec{--cf-pad:14px;--cf-gap:12px;--cf-tile-gap:8px;display:flex;flex-direction:column;gap:var(--cf-gap);margin-bottom:26px}
+.cf-sec-h{display:flex;align-items:baseline;gap:8px;margin:0}
 .cf-sec-h h3{margin:0;font-size:15px;font-weight:800;letter-spacing:-.01em}
 .cf-sec-h .cnt{font-size:12.5px;font-weight:700;color:var(--ink-faint)}
 .cf-sec-h .hint{margin-left:auto;font-size:12px;color:var(--ink-faint)}
-.cf-cols{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:12px;align-items:start}
-.cf-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 13px 12px;box-shadow:var(--shadow);min-width:0}
-.cf-col-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.cf-cols{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:var(--cf-gap);align-items:stretch}
+.cf-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:var(--cf-pad);box-shadow:var(--shadow);min-width:0}
+.cf-col-h{display:flex;align-items:center;gap:8px;margin-bottom:var(--cf-gap)}
 .cf-col-h .badge{font-size:11.5px;font-weight:800;padding:3px 8px}
 .cf-col-h .k{font-size:12px;font-weight:700;color:var(--ink-faint)}
-.cf-tiles{display:grid;gap:8px}
+.cf-tiles{display:grid;gap:var(--cf-tile-gap)}
 .cf-cols .cf-col:nth-child(1) .cf-tiles{grid-template-columns:1fr 1fr}
 .cf-tile{border:1px solid var(--border);border-radius:10px;padding:9px 11px;background:#fbfbfd;min-width:0}
 .cf-nm{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-weight:800;font-size:14px;color:var(--ink)}
 .cf-nm em{font-style:normal;font-weight:600;font-size:11.5px;color:var(--ink-faint)}
 .cf-nm .senior-tag{margin-left:0;vertical-align:baseline}
-.cf-tm{margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.cf-detail{display:none;margin-top:7px;padding-top:7px;border-top:1px dashed var(--border);font-size:11.8px;color:var(--ink-soft);gap:6px;align-items:center;flex-wrap:wrap}
+.cf-tm{margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:nowrap;min-height:22px}
+.cf-tm .team-pill,.cf-tm .elig-badge{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cf-tm .cf-cr{display:none;margin-left:auto;flex:0 0 auto}
+#confirmed-content.cf-show-detail .cf-tm .cf-cr{display:inline-block}
+#confirmed-content.cf-show-detail .cf-slot,#confirmed-content.cf-show-detail .cf-col-empty{min-height:101px}
+.cf-detail{display:none;margin-top:7px;padding-top:7px;border-top:1px dashed var(--border);font-size:11.8px;line-height:1.35;color:var(--ink-soft);gap:6px;align-items:center;flex-wrap:wrap}
 #confirmed-content.cf-show-detail .cf-detail{display:flex}
 .cf-detail b{color:var(--ink);font-weight:700}
 .cf-cr{font-size:10.5px;font-weight:800;border-radius:5px;padding:1px 6px}
 .cf-cr.y{background:var(--accent-soft);color:var(--accent-ink)}
 .cf-cr.n{background:var(--surface-2);color:var(--ink-faint)}
-.cf-col-empty,.cf-slot{min-height:44px;border:1.5px dashed #c5cad6;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-faint);font-weight:600;text-align:center;padding:6px 8px}
-.cf-boards{display:grid;grid-template-columns:1fr 1.5fr;gap:12px}
-.cf-board{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 14px 13px;box-shadow:var(--shadow);min-width:0}
-.cf-board-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+/* 빈 칸은 채워진 타일과 같은 높이(출석률 보기 켬 101px / 끔 70px)로 맞춰서 줄마다 높이가 달라지지 않게 함 */
+.cf-col-empty,.cf-slot{min-height:70px;border:1.5px dashed #c5cad6;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-faint);font-weight:600;text-align:center;padding:6px 8px}
+.cf-boards{display:grid;grid-template-columns:1fr 1.5fr;gap:var(--cf-gap)}
+.cf-board{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:var(--cf-pad);box-shadow:var(--shadow);min-width:0;display:flex;flex-direction:column}
+.cf-board-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .cf-board-h .badge{font-size:11.5px;font-weight:800;padding:3px 8px}
 .cf-board-h .frac{margin-left:auto;font-size:13px;font-weight:800}
 .cf-board-h .frac small{color:var(--ink-faint);font-weight:700;font-size:inherit}
-.cf-track{height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden;margin:6px 0 12px}
+.cf-track{height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden;margin:0 0 var(--cf-gap)}
 .cf-track i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .5s var(--ease)}
-.cf-slots{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.cf-slots{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--cf-tile-gap)}
 .cf-board.wide .cf-slots{grid-template-columns:repeat(3,1fr)}
-.cf-need{font-size:12px;font-weight:700;color:var(--danger);margin-top:10px}
+.cf-need{font-size:12px;font-weight:700;color:var(--danger);margin-top:auto;padding-top:var(--cf-gap)}
 .cf-need.ok{color:var(--accent-ink)}
 .cf-need.over{color:var(--gold)}
 /* 일반 조장·부조장·면려회도 팀장 열과 같은 카드(.cf-col)로 묶음(가로 전체 폭) */
-.cf-col.cf-wide{margin-bottom:12px}
 .cf-col.cf-wide .cf-tiles{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
 @media screen and (max-width:420px){.cf-cols .cf-col:nth-child(1) .cf-tiles{grid-template-columns:1fr}}
 .confirmed-row-name{font-weight:700;color:var(--ink);flex:0 0 150px;min-width:0}
@@ -446,7 +453,7 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
    레이아웃이 깨지지 않게 안전장치를 둠. */
 #panel-kwonmyeon .confirmed-row-meta{flex:1 1 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-width:0}
 #panel-kwonmyeon .confirmed-row-meta > *{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#panel-kwonmyeon .confirmed-row-meta .kwon-slot-applied{flex:0 0 58px}
+#panel-kwonmyeon .confirmed-row-meta .kwon-slot-applied{flex:0 0 232px}
 #panel-kwonmyeon .confirmed-row-meta .kwon-slot-tenure{flex:0 0 88px}
 #panel-kwonmyeon .confirmed-row-meta .kwon-slot-att{flex:0 0 156px}
 #panel-kwonmyeon .confirmed-row-meta .kwon-slot-phone{flex:0 0 116px}
@@ -512,7 +519,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
      (2026-09-25 추가 수정). */
   #panel-kwonmyeon .confirmed-row{flex-wrap:wrap}
   #panel-kwonmyeon .confirmed-row-name{flex:1 1 100%;overflow:visible;text-overflow:clip;white-space:normal}
-  #panel-kwonmyeon .confirmed-row-meta{display:grid;grid-template-columns:1fr 1fr;column-gap:10px;row-gap:6px;width:100%;margin-top:6px}
+  #panel-kwonmyeon .confirmed-row-meta{display:grid;grid-template-columns:1fr 1fr;column-gap:10px;row-gap:6px;width:100%;margin-top:6px;grid-auto-flow:row dense}
   #panel-kwonmyeon .confirmed-row-meta > *{justify-self:start;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:0;flex:none}
   /* PC에서는 지원완료·등록연차·출석률이 값이 없어도 정렬을 위해 자리를 예약해두지만(빈
      kwon-slot-* 래퍼), 모바일은 표처럼 줄맞출 필요가 없으므로 빈 슬롯은 그냥 감춰서 압축되게
@@ -529,6 +536,8 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   #panel-kwonmyeon .confirmed-row-meta > *{text-align:left}
   #panel-kwonmyeon .confirmed-row-meta .kwon-slot-tenure{grid-column:1}
   #panel-kwonmyeon .confirmed-row-meta .kwon-slot-applied{grid-column:2;justify-self:end;text-align:right}
+  /* [2026-10-19] "지원완료(새가족 조장·컨택 대상자)"처럼 긴 표기는 한 칸(화면 절반)에 안 들어가므로 줄 전체를 쓰게 함 */
+  #panel-kwonmyeon .confirmed-row-meta .kwon-slot-applied.is-long{grid-column:1 / -1;justify-self:start;text-align:left}
   #panel-kwonmyeon .confirmed-row-meta .kwon-slot-att{grid-column:1 / -1}
   #panel-kwonmyeon .confirmed-row-meta .kwon-slot-phone{grid-column:1}
   #panel-kwonmyeon .confirmed-row-meta .kwon-slot-elig{grid-column:2;justify-self:end;text-align:right}
@@ -590,7 +599,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   <div id="panel-roster">
   <div class="stats" id="stats"></div>
 
-  <div class="notice">
+  <div class="notice notice-static">
     <span class="dot">●</span>
     <span>이 표는 <b>지원자 명단이 아니라</b> 등록연차·출석률을 기준으로 지원 가능 여부를 미리 확인할 수 있는 청년2부 전체 명단입니다. 실제 지원 접수 현황은 옆의 "지원 현황" 탭에서 확인해주세요. 최근 등록자 일부는 출석부 데이터가 아직 없어 "데이터 없음"으로 표기됩니다.</span>
   </div>
@@ -689,7 +698,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
       <h2>권면 대상 명단</h2>
       <div class="print-meta">청년2부 리더선출위원회 · 인쇄일 <span id="kwonmyeon-print-date"></span></div>
     </div>
-    <div class="notice">
+    <div class="notice notice-static">
       <span class="dot">●</span>
       <span>"권면 대상" 시트(마스터 워크북 내 별도 탭)에 팀/이름/동기/권면자를 입력하면, 전화번호는 "26메이커스 DB(하반기)" 탭에서, 가능역할은 "2026 메이커스" 탭(가능등급)에서 이름+동기로 자동으로 찾아와 팀 단위로 묶어 보여줍니다. "완료" 열을 추가해서 아무 값이나(예: "완료", "O") 채워 넣으면 권면 완료로 표시됩니다(비워두면 미완료). 시트에 입력만 하면 새로고침 시 자동으로 반영됩니다. 전화번호를 누르면 바로 전화가 걸립니다.</span>
     </div>
@@ -700,7 +709,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   </div>
 
   <div id="panel-apply" style="display:none">
-    <div class="notice">
+    <div class="notice notice-static">
       <span class="dot">●</span>
       <span>구글 폼으로 접수된 지원서만 모아 보여줍니다. 응답 시트에 새 지원서가 들어오면 이 페이지를 새로고침할 때 자동으로 반영됩니다.</span>
     </div>
@@ -735,7 +744,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   </div>
 
   <div id="panel-stats" style="display:none">
-    <div class="notice">
+    <div class="notice notice-static">
       <span class="dot">●</span>
       <span>실제 접수된 지원서(지원 현황 탭) 데이터를 기준으로 계산한 통계입니다. "자격자"는 전체 명단 중 팀장·조장·부조장 중 하나라도 지원 가능한 사람을 뜻합니다. 상반기·하반기 리더 인원 대비는 모두 "2026 팀조장양육 출석부"의 "양육 출석부" 시트에서 면려회를 뺀 팀 소속 리더 인원(직분 구분 없음)과 비교한 수치입니다. 하반기는 하반기에 새로 추가된 인원까지 모두 포함하고, 상반기는 "하반기 추가"로 표시된 인원을 뺀 값이며, 화면을 열 때마다 시트를 다시 읽어 셉니다. 성비는 구글시트 DB 매칭 기준으로 매칭되지 않는 이름은 "미확인"으로 표시됩니다. "2027 확정 리더" 탭에 면려회로 이미 확정된 지원자, "2027 제외 후보" 탭에 위원회가 올려둔 지원자는 이 통계 집계에서 제외됩니다(지원 현황 카드 목록에는 그대로 표시).</span>
     </div>
@@ -1934,8 +1943,12 @@ function cfDetailHtml(c){
   const att = c.hasSplitAtt
     ? `금년 <b class="tnum">${c.attThis === null ? '데이터 없음' : pct(c.attThis)}</b> · 작년 <b class="tnum">${c.attLast === null ? '데이터 없음' : pct(c.attLast)}</b>`
     : (c.att === null ? '출석률 데이터 없음' : `<b class="tnum">${pct(c.att)}</b>`);
-  const course = c.course === '수료' ? '<span class="cf-cr y">수료</span>' : '<span class="cf-cr n">미수료</span>';
-  return `<div class="cf-detail">${att}${course}</div>`;
+  return `<div class="cf-detail">${att}</div>`;
+}
+/* 수료 배지는 팀 배지 옆 오른쪽 끝에 둠(출석률 줄에 같이 두면 줄이 넘쳐 타일 높이가 들쭉날쭉해짐) */
+function cfCourseHtml(c){
+  if (!c.matched) return '';
+  return c.course === '수료' ? '<span class="cf-cr y">수료</span>' : '<span class="cf-cr n">미수료</span>';
 }
 function cfTileHtml(c){
   const sen = c.senior ? '<span class="senior-tag">선임팀장</span>' : '';
@@ -1943,7 +1956,7 @@ function cfTileHtml(c){
     ? `<span class="team-pill"${teamPillStyle(c.team)}>${escapeHtml(c.team || '-')}</span>`
     : '<span class="elig-badge elig-warn">확인 필요</span>';
   return `<div class="cf-tile"><div class="cf-nm">${escapeHtml(c.name)}<em>${escapeHtml(c.cohort)}동기</em>${sen}</div>
-    <div class="cf-tm">${team}</div>${cfDetailHtml(c)}</div>`;
+    <div class="cf-tm">${team}${cfCourseHtml(c)}</div>${cfDetailHtml(c)}</div>`;
 }
 
 function renderConfirmed(){
@@ -2207,7 +2220,18 @@ function kwonmyeonRowHtml(k){
      사람도 명시"는 아니었음). 기존 4항목 그리드(전화/가능등급/완료/권면자)는 이미 실측
      폭이 꽉 차 있어 새 항목을 더 넣으면 인쇄에서 깨지므로, 등록연차·출석률과 같은
      둘째 줄(meta2)에 붙임. */
-  const appliedHtml = k.applied ? '<span class="course-badge course-yes">지원완료</span>' : '';
+  /* [2026-10-19] 지원완료 뒤에 괄호로 "2027 확정 리더" 탭에서의 역할을 함께 표시함. 확정 리더 탭에
+     이름+동기가 있으면 그 역할 표기(팀장/새가족 팀장/온보딩 조장 등)를, 없으면 "미확정"을 붙임.
+     새가족·온보딩 조장의 "(컨택 대상자)"는 괄호가 겹치지 않게 "·컨택 대상자"로 바꿔 넣음.
+     확정 리더 시트를 아예 못 읽어 CONFIRMED가 비어 있으면 "미확정"이라고 잘못 단정하지 않도록
+     괄호 없이 "지원완료"만 표시함. */
+  let appliedHtml = '';
+  if (k.applied){
+    const cf = confirmedInfoOf(k.name, k.cohort);
+    const roleTxt = cf ? cf.label.replace('(컨택 대상자)', '·컨택 대상자') : (CONFIRMED.length ? '미확정' : '');
+    const full = '지원완료' + (roleTxt ? '(' + roleTxt + ')' : '');
+    appliedHtml = `<span class="course-badge course-yes" title="${escapeHtml(full)}">${escapeHtml(full)}</span>`;
+  }
   /* [2026-09-27 재구성] "PC에서는 한 줄로, 폰에서는 깔끔하게" 요청에 따라 등록연차·출석률·
      전화·가능등급·권면상태·지원완료·권면자를 하나의 meta 목록으로 합침(기존에는 이름 줄에
      등록연차/출석률만 붙이고 전화/등급/권면상태/권면자는 항상 아래 줄로 강제 분리했었음).
@@ -2221,7 +2245,7 @@ function kwonmyeonRowHtml(k){
      권면상태·권면자가 사람마다 항상 같은 x좌표에서 시작함. 모바일(≤860px)에서는 이 빈 슬롯을
      CSS로 감춰서(:empty) 빈 칸 없이 압축되게 함. */
   const items = [
-    `<span class="kwon-slot-applied">${appliedHtml}</span>`,
+    `<span class="kwon-slot-applied${appliedHtml.length && /컨택/.test(appliedHtml) ? ' is-long' : ''}">${appliedHtml}</span>`,
     `<span class="kwon-slot-tenure">${tenureHtml}</span>`,
     `<span class="kwon-slot-att">${attHtml}</span>`,
     phoneHtml,
