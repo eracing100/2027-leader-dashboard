@@ -247,10 +247,14 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .group-body{display:none}
 .group.open .group-body{display:block}
 
-.row{display:grid;grid-template-columns:116px 112px 140px minmax(130px,1fr) 74px 70px 128px;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--border);font-size:12.8px;transition:background .15s var(--ease)}
+.row{display:grid;grid-template-columns:92px 118px 100px 78px minmax(120px,1fr) 66px 58px 100px;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border);font-size:12.8px;transition:background .15s var(--ease)}
 .row:not(.headrow):hover{background:var(--surface-2)}
+@media screen and (min-width:861px){.row:not(.headrow){min-height:64px}}
 .row.headrow{background:var(--surface-2);font-size:11px;color:var(--ink-faint);font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:8px 16px;border-top:none}
-.row .name{font-weight:700;color:var(--ink)}
+.row .name{font-weight:700;color:var(--ink);min-width:0}
+.row .idcell{display:contents}
+.row .status-cell{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+.row .status-cell .applied-tag{margin-left:0;vertical-align:baseline;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .row .rmk{display:block;font-weight:400;color:var(--ink-faint);font-size:11px;margin-top:1px}
 .applied-tag{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent-soft-2);border-radius:5px;padding:1px 6px;vertical-align:2px;white-space:nowrap}
 .team-pill{display:inline-block;font-size:11.5px;font-weight:600;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px 7px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -637,6 +641,10 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
   }
   .row.headrow{display:none}
   .row .name{order:1;grid-column:1 / -1;font-family:var(--font-display);font-size:15.5px;font-weight:400;letter-spacing:0;color:var(--ink)}
+  .row .idcell{order:1;grid-column:1 / -1;display:flex;align-items:center;flex-wrap:wrap;gap:5px 9px}
+  .row .idcell .name{grid-column:auto;min-width:0;order:-1}
+  .row .idcell .status-cell:empty{display:none}
+  .row .status-cell{flex-direction:row;flex-wrap:wrap;gap:5px}
   .row .roles{order:2;display:flex;gap:5px;flex-wrap:wrap;align-items:center;align-self:center}
   .row .elig-cell{order:3;justify-self:end;align-self:center}
   .row .team-cell{order:4;padding-top:11px;border-top:1px solid var(--border);min-width:0}
@@ -1758,7 +1766,6 @@ function renderPlan(){
   const cnt = (role, sub) => CONFIRMED.filter(c => c.role === role && c.sub === sub).length;
   const T = cnt('팀장', '일반'), J = cnt('조장', '일반');
   const B = CONFIRMED.filter(c => c.role === '부조장').length;
-  const newJ = cnt('조장', '새가족'), onbJ = cnt('조장', '온보딩');
   if (!CONFIRMED.length || T === 0){
     wrap.innerHTML = '<div class="empty">"2027 확정 리더" 시트에 일반 팀장이 입력되면 팀 구성 계획이 표시됩니다.</div>';
     return;
@@ -1849,10 +1856,6 @@ function renderPlan(){
       </section>`;
   }).join('');
 
-  const note1 = PLAN_INPUT
-    ? `조원 ${PLAN_INPUT.total}명 · 출석 기준 ${PLAN_INPUT.attend}명은 "2027 확정 리더(정리)" 시트 "일반 조원" 행의 입력값(현재 출석을 보고 추정한 값)이며, 시트 값을 고치면 새로고침 시 반영됩니다.`
-    : `"2027 확정 리더(정리)" 시트에서 "일반 조원" 행의 조원 수를 찾지 못해 조당 평균 인원은 표시하지 않았습니다.`;
-
   /* ---- 조장 후보 목록 (2026-10-20 신설) ----
      시나리오의 "N명 더 확정되면"이 현실적으로 누구를 가리키는지 한눈에 보이도록, 아직 확정되지 않은 사람 중
      조장이 가능한 사람을 두 묶음으로 보여 줌. (A) 지원서를 낸 사람 (B) 권면 대상이지만 아직 지원서가 없는 사람.
@@ -1902,7 +1905,7 @@ function renderPlan(){
   const candHtml = (candA.length || candB.length) ? `
       <div class="cf-sec" style="margin-bottom:0">
         <div class="cf-sec-h"><h3>조장 후보</h3><span class="hint">이름을 누르면 사람 카드가 열립니다</span></div>
-        <p class="pl-cand-lead">${candLead} 히엘은 조장과 겸직할 수 없어 태그로 표시했습니다.</p>
+        <p class="pl-cand-lead">${candLead}</p>
         ${candA.length ? `<div class="pl-cand-sub">지원서를 낸 사람 <span>${candA.length}명 · 아직 확정 전</span></div><div class="pl-cand-grid">${candA.join('')}</div>` : ''}
         ${candB.length ? `<div class="pl-cand-sub">권면 대상 중 미지원 <span>${candB.length}명 · 지원서 없음</span></div><div class="pl-cand-grid">${candB.join('')}</div>` : ''}
       </div>` : '';
@@ -1936,12 +1939,7 @@ function renderPlan(){
 
       ${candHtml}
 
-      <div class="pl-notes">
-        <p>${note1}</p>
-        <p>새가족 조장 ${newJ}명 · 온보딩 조장 ${onbJ}명(컨택 대상자)과 그 팀장은 별도 팀이라 이 계산에서 뺐습니다.</p>
-        <p>팀 번호는 구성을 보여 주기 위한 예시이며 실제 팀 배정이 아닙니다. 부조장은 조장이 적은 팀에 먼저 두는 것으로 가정했습니다.</p>
-        <p>히엘과 조장·팀장·부조장은 겸직할 수 없습니다. 히엘로 확정된 사람은 위 조장 수에 들어가지 않으며, 현재 히엘인 사람이 조장으로 확정되면 그 역할만 반영됩니다.</p>
-      </div>
+
     </div>`;
 }
 
@@ -2278,7 +2276,7 @@ function applicantCard(a, isOpen){
       <div class="app-fields">
         ${fields.map(([k,v]) => `<div class="app-field"><b>${escapeHtml(k)}</b>${escapeHtml(v)}</div>`).join('')}
         ${essays.map(([k,v]) => `<div class="app-field wide"><b>${escapeHtml(k)}</b>${escapeHtml(v)}</div>`).join('')}
-        <div class="app-field wide"><button type="button" class="pm-open plink" data-pn="${escapeHtml(a.name)}" data-pc="${escapeHtml(a.cohort)}">사람 카드로 한눈에 보기 →</button></div>
+        <div class="app-field wide"><button type="button" class="pm-open plink" data-pn="${escapeHtml(a.name)}" data-pc="${escapeHtml(a.cohort)}">한눈에 보기</button></div>
       </div>
     </div>
   `;
@@ -2977,7 +2975,7 @@ function rowHtml(m, appliedSet){
   const confTag = ci ? `<span class="applied-tag conf" title="2027 확정 역할">27 ${escapeHtml(confTagText(ci))}</span>` : '';
   return `
     <div class="row">
-      <div class="name">${personLink(m.n, m.c, escapeHtml(m.n))}${appliedTag}${confTag}${rmk}</div>
+      <div class="idcell"><div class="name">${personLink(m.n, m.c, escapeHtml(m.n))}${rmk}</div><div class="status-cell" data-lbl="상태">${appliedTag}${confTag}</div></div>
       <div class="team-cell" data-lbl="소속팀"><span class="team-pill" title="${escapeHtml(m.t)}"${teamPillStyle(m.t)}>${escapeHtml(m.t)}</span></div>
       <div class="roles" data-lbl="현재역할">${roleHtml}</div>
       <div class="att-cell" data-lbl="출석률">${attHtml}</div>
@@ -3054,7 +3052,7 @@ function render(){
   if (bySort !== 'cohort'){
     groupsEl.innerHTML = `
       <div class="group open">
-        <div class="row headrow"><div>이름</div><div>팀</div><div>역할</div><div>출석률</div><div>연차</div><div>양육</div><div>가능등급</div></div>
+        <div class="row headrow"><div>이름</div><div>상태</div><div>팀</div><div>역할</div><div>출석률</div><div>연차</div><div>양육</div><div>가능등급</div></div>
         <div class="group-body" style="display:block">${sorted.map(m => rowHtml(m, appliedSet)).join('')}</div>
       </div>`;
     return;
@@ -3076,7 +3074,7 @@ function render(){
           <span class="cohort-count">${items.length}명</span>
         </div>
         <div class="group-body">
-          <div class="row headrow"><div>이름</div><div>팀</div><div>역할</div><div>출석률</div><div>연차</div><div>양육</div><div>가능등급</div></div>
+          <div class="row headrow"><div>이름</div><div>상태</div><div>팀</div><div>역할</div><div>출석률</div><div>연차</div><div>양육</div><div>가능등급</div></div>
           ${items.map(m => rowHtml(m, appliedSet)).join('')}
         </div>
       </div>`;
