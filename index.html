@@ -967,6 +967,13 @@ function teamPillStyle(team){
 }
 
 let APPLICANTS = [];
+/* [2026-10-21 신설] 구글 폼 밖에서(구두·메신저 등) 지원 의사를 밝힌 사람을 위원회가 확인한 뒤 지원 현황에
+   직접 올리는 목록. 팀·출석률·등록연차·가능등급·전화는 명단(ROSTER, PHONE_MAP)에서 이름+동기로 자동으로 채움.
+   같은 사람이 나중에 구글 폼으로 지원서를 내면 폼 응답이 우선이고 이 항목은 자동으로 무시됨(중복 방지).
+   더 올릴 사람이 있으면 {name, cohort, added} 한 줄만 추가. added는 목록 정렬용 등록일(YYYY-MM-DD). */
+const MANUAL_APPLICANTS = [
+  {name:'김에스더', cohort:'94', added:'2026-10-21'},
+];
 let CONFIRMED = [];
 let KWONMYEON = [];
 let CONFIRMED_CONFLICTS = [];   // 같은 사람이 2027 확정 리더 시트에 서로 다른 역할로 두 번 이상 입력된 경우(히엘·조장 겸직 불가 등)
@@ -1182,7 +1189,36 @@ async function fetchAndBuild(){
     console.error('leader H2 fetch failed', e7);
     LEADER_H2 = leaderH2Fallback();
   }
+  addManualApplicants();
   lastFetchTime = new Date();
+}
+
+/* MANUAL_APPLICANTS(폼 밖 지원)를 APPLICANTS에 합침. ROSTER·PHONE_MAP이 모두 채워진 뒤에 호출. */
+function addManualApplicants(){
+  MANUAL_APPLICANTS.forEach(ma => {
+    if (APPLICANTS.some(a => a.name === ma.name && a.cohort === ma.cohort)) return; // 폼 응답이 있으면 그쪽이 우선
+    const m = ROSTER.find(x => x.n === ma.name && x.c === ma.cohort);
+    const d = ma.added ? ma.added.split('-').map(Number) : null;
+    APPLICANTS.push({
+      ts: '',
+      manual: true,
+      tsNum: d ? new Date(d[0], d[1] - 1, d[2], 12).getTime() : 0,
+      team: m ? m.t : '',
+      cohort: ma.cohort,
+      name: ma.name,
+      phone: PHONE_MAP[ma.name + '|' + ma.cohort] || '',
+      exp: '', expDetail: '', gift: '', reason: '', goal: '',
+      curRole: m ? (m.r[0] || '') : '',
+      att: m && m.att ? m.att : '',
+      attThis: m ? m.attThis : null,
+      attLast: m ? m.attLast : null,
+      hasSplitAtt: m ? m.hasSplitAtt : false,
+      tenure: m ? m.ten : '',
+      course: m ? m.co : '',
+      eligible: m ? m.e : '명단없음(수동확인 필요)',
+      check: m ? '' : '명단없음(수동확인 필요)',
+    });
+  });
 }
 
 async function loadData(){
@@ -2006,7 +2042,7 @@ function openPerson(n, c){
     add('명단', '<span class="elig-badge elig-warn">전체 명단에서 이름+동기를 찾지 못함</span>');
   }
   add('지원', app
-    ? `<span class="course-badge course-yes">지원완료</span> <span class="pm-mute">지원팀 ${escapeHtml(app.team || '미기재')} · 접수 ${escapeHtml(app.ts || '-')}</span>`
+    ? `<span class="course-badge course-yes">지원완료</span> <span class="pm-mute">지원팀 ${escapeHtml(app.team || '미기재')} · ${app.manual ? '구글 폼 외 접수(위원회 등록)' : '접수 ' + escapeHtml(app.ts || '-')}</span>`
     : '<span class="pm-mute">지원서 없음</span>');
   if (kw) add('권면', `권면 대상 · 권면자 ${escapeHtml(kw.recommender || '미기재')}${kw.done ? ' · <span class="course-badge course-yes">권면 완료</span>' : ''}`);
   const phone = (kw && kw.phone) || (app && app.phone) || '';
@@ -2161,7 +2197,7 @@ function renderApplicants(){
     if (eligF && a.eligible !== eligF) return false;
     return true;
   });
-  const sorted = filtered.slice().sort((a, b) => parseTs(b.ts) - parseTs(a.ts));
+  const sorted = filtered.slice().sort((a, b) => (b.tsNum || parseTs(b.ts)) - (a.tsNum || parseTs(a.ts)));
 
   const countEl = document.getElementById('apply-result-count');
   if (countEl){
@@ -2269,7 +2305,7 @@ function applicantCard(a, isOpen){
         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleApplyCard('${key.replace(/'/g,"\\'")}')}">
         <div>
           <div class="app-name">${escapeHtml(a.name)} <span style="font-weight:600;color:var(--ink-faint);font-size:12.5px">${escapeHtml(a.cohort)}동기</span></div>
-          <div class="app-meta">지원: ${escapeHtml(a.team || '미기재')} · 접수일시 ${escapeHtml(a.ts || '-')}</div>
+          <div class="app-meta">지원: ${escapeHtml(a.team || '미기재')} · ${a.manual ? '구글 폼 외 접수(위원회 등록)' : '접수일시 ' + escapeHtml(a.ts || '-')}</div>
         </div>
         <div class="app-badges">${primaryBadge}${matchBadge}<span class="car">▶</span></div>
       </div>
