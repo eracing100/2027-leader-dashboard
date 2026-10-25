@@ -592,6 +592,7 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .pl-metric b{font-size:28px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
 .pl-metric b small{font-size:14px;font-weight:700;margin-left:2px}
 .pl-metric span{display:block;margin-top:2px;font-size:12px;color:var(--ink-soft);line-height:1.45}
+.pl-metric span b.pl-att{font-size:inherit;font-weight:800;color:var(--ink);line-height:inherit}
 .pl-metric span.pl-mlabel{margin-top:4px;font-size:12.5px;font-weight:800;color:var(--ink)}
 .pl-teams{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .pl-team{border:1px solid var(--border);border-radius:9px;padding:7px 8px;background:var(--surface);min-width:0}
@@ -1814,8 +1815,14 @@ function renderPlan(){
     const j = J + add;
     const teams = planDistribute(T, j, B);
     const groups = planLeaderLeads ? T + j : j;
-    const avgTotal = PLAN_INPUT ? PLAN_INPUT.total / groups : null;
-    const avgAttend = PLAN_INPUT ? PLAN_INPUT.attend / groups : null;
+    /* [2026-10-25] 시트의 조원 수(전체·출석 기준)에는 리더가 될 사람도 들어 있으므로, 시나리오마다 그 시나리오의
+       리더(팀장 T + 조장 j + 부조장 B)를 빼고 계산함. 조장이 늘어나는 시나리오는 늘어난 조장도 조원에서 나온 사람이라 함께 뺌.
+       출석 기준 인원도 같은 인원을 뺌(리더는 출석하는 사람으로 보고). */
+    const leaders = T + j + B;
+    const memTotal = PLAN_INPUT ? Math.max(0, PLAN_INPUT.total - leaders) : null;
+    const memAttend = PLAN_INPUT ? Math.max(0, PLAN_INPUT.attend - leaders) : null;
+    const avgTotal = PLAN_INPUT ? memTotal / groups : null;
+    const avgAttend = PLAN_INPUT ? memAttend / groups : null;
     /* 같은 구성의 팀끼리 묶어 문장으로 */
     const kinds = new Map();
     teams.forEach(t => { const k = t.jo + '|' + t.bu; kinds.set(k, (kinds.get(k) || 0) + 1); });
@@ -1826,7 +1833,7 @@ function renderPlan(){
       const [jo, bu] = k.split('|').map(Number);
       return `팀장 1 + 조장 ${jo}${bu ? ' + 부조장 ' + bu : ''} · ${n}팀`;
     });
-    return { add, j, teams, groups, avgTotal, avgAttend, comp };
+    return { add, j, teams, groups, avgTotal, avgAttend, comp, leaders, memTotal, memAttend };
   });
 
   const fmt = v => (Math.round(v * 10) / 10).toFixed(1);
@@ -1871,11 +1878,14 @@ function renderPlan(){
     /* [2026-10-19 단순화] 카드마다 평균 숫자는 하나만 보여 줌. 나누는 개수가 다른 두 평균을 나란히 놓으면 헷갈린다는
        지적 — 큰 숫자 아래에 "무엇을 무엇으로 나눴는지" 계산식만 적고, 팀장이 조를 맡는 경우는 위 버튼으로 바꿔 봄. */
     const mainLabel = planLeaderLeads ? '조 1개당 평균 조원' : '조장 1명당 평균 조원';
+    const memLine = PLAN_INPUT
+      ? `전체 ${PLAN_INPUT.total}명 − 리더 ${st.leaders}명(팀장 ${T}·조장 ${st.j}·부조장 ${B}) = 조원 ${st.memTotal}명`
+      : '';
     const basis = planLeaderLeads
-      ? `조원 ${PLAN_INPUT ? PLAN_INPUT.total : ''}명 ÷ 조 ${st.groups}개 (조장 ${st.j} + 팀장 ${T})`
-      : `조원 ${PLAN_INPUT ? PLAN_INPUT.total : ''}명 ÷ 조장 ${st.j}명`;
+      ? `${memLine} ÷ 조 ${st.groups}개 (조장 ${st.j} + 팀장 ${T})`
+      : `${memLine} ÷ 조장 ${st.j}명`;
     const metric = PLAN_INPUT
-      ? `<div class="pl-metric"><b>${fmt(st.avgTotal)}<small>명</small></b><span class="pl-mlabel">${mainLabel}</span><span>${basis} · 출석 기준 ${fmt(st.avgAttend)}명</span></div>`
+      ? `<div class="pl-metric"><b>${fmt(st.avgTotal)}<small>명</small></b><span class="pl-mlabel">${mainLabel}</span><span>${basis}</span><span>출석 기준 ${PLAN_INPUT.attend}명 − 리더 ${st.leaders}명 = ${st.memAttend}명 → 평균 <b class="pl-att">${fmt(st.avgAttend)}명</b></span></div>`
       : `<div class="pl-metric"><span>조 ${st.groups}개 (조원 수 입력값을 못 찾아 평균 인원은 표시하지 않음)</span></div>`;
     const tiles = st.teams.map((t, i) => `
       <div class="pl-team" title="팀장 1 · 조장 ${t.jo}${t.bu ? ' · 부조장 ' + t.bu : ''}">
@@ -1968,8 +1978,8 @@ function renderPlan(){
           ${modeBtns}
         </div>
         <p class="pl-modehelp">${planLeaderLeads
-          ? '팀장도 한 조를 맡는 경우입니다. 조원 수는 그대로이고, 나누는 조 개수가 조장 수 + 팀장 수로 늘어납니다.'
-          : '조장 한 명이 한 조를 맡는 기준입니다. 팀장이 조도 맡는 경우는 오른쪽 버튼으로 바꿔 볼 수 있습니다.'}</p>
+          ? '팀장도 한 조를 맡는 경우입니다. 조원 수는 그대로이고, 나누는 조 개수가 조장 수 + 팀장 수로 늘어납니다. 조원 수는 전체에서 리더(팀장·조장·부조장)를 뺀 값입니다.'
+          : '조장 한 명이 한 조를 맡는 기준입니다. 조원 수는 전체에서 리더(팀장·조장·부조장)를 뺀 값이며, 팀장이 조도 맡는 경우는 오른쪽 버튼으로 바꿔 볼 수 있습니다.'}</p>
         <div class="pl-cards${steps.length === 2 ? ' two' : steps.length === 1 ? ' one' : ''}">${cards}</div>
       </div>
 
