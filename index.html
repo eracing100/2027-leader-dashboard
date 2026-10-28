@@ -593,6 +593,7 @@ details.criteria[open] summary{border-bottom:1px solid var(--border)}
 .pl-metric b small{font-size:14px;font-weight:700;margin-left:2px}
 .pl-metric span{display:block;margin-top:2px;font-size:12px;color:var(--ink-soft);line-height:1.45}
 .pl-metric span b.pl-att{font-size:inherit;font-weight:800;color:var(--ink);line-height:inherit}
+.pl-metric span.pl-fine{font-size:11.5px;color:var(--ink-faint)}
 .pl-metric span.pl-mlabel{margin-top:4px;font-size:12.5px;font-weight:800;color:var(--ink)}
 .pl-teams{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .pl-team{border:1px solid var(--border);border-radius:9px;padding:7px 8px;background:var(--surface);min-width:0}
@@ -1012,6 +1013,15 @@ const LEADER_2026_TOTAL = LEADER_2026['팀장'] + LEADER_2026['조장'] + LEADER
    면려회 7명 제외, 시트 자체 "총인원수" 64명 = 57 + 7과 일치).
    시트는 매주 출석을 기록하며 파송·추가로 명단이 바뀔 수 있어 화면을 열 때마다 시트를 다시 읽어
    세고(buildLeaderH2), 시트를 못 읽거나 구조가 예상과 다르면 아래 확인 시점 값으로 대체함. */
+/* [2026-10-28 신설] 팀조장 배치 구성 탭의 "출석 기준" 대략값용 — "2026 청년2부 하반기 출석부" 파일의 master 탭을
+   읽어 일반 팀(새가족·온보딩·교사회 제외) 조원의 주일별 출석을 셈. 시트를 못 읽으면 기존 "출석 기준" 입력값(188명)으로 대체. */
+const ATT_SHEET_ID = "1E5QPBP4zF3AHT65PS6t4N6yGdof8Sm-PlpqtldcI1GU";
+const ATT_GID = "1226766912";   // master 탭
+const ATT_WINDOW = 8;           // 최근 몇 주를 평균낼지
+let ATT_RAW = null;             // {weeks:[라벨], pop:[{n,c,pres:[0/1…]}], totals:[주별 출석 인원]} 또는 null
+function attCsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${ATT_SHEET_ID}/export?format=csv&gid=${ATT_GID}`;
+}
 const LEADER_H2_SHEET_ID = "10RINTSkgTJsfaS_3XQAtMRD3-Nss2lAKD5BCp-3kpEE";
 const LEADER_H2_TAB = "양육 출석부";
 /* added = 시트 맨 오른쪽(BG열)에 "하반기 추가"라고 적힌 인원(양지은·박지현·박재형, 2026-10-03 확인) —
@@ -1190,8 +1200,81 @@ async function fetchAndBuild(){
     console.error('leader H2 fetch failed', e7);
     LEADER_H2 = leaderH2Fallback();
   }
+  try {
+    const resA = await fetch(attCsvUrl(), {cache:'no-store'});
+    if (resA.ok){
+      buildAttBasis(parseCSV(await resA.text()));
+    } else {
+      ATT_RAW = null;
+    }
+  } catch (eA){
+    console.error('attendance fetch failed', eA);
+    ATT_RAW = null;
+  }
+
   addManualApplicants();
   lastFetchTime = new Date();
+}
+
+/* "2026 청년2부 하반기 출석부" master 탭 → 일반 팀 조원의 최근 주일 출석. 열 위치는 머리글 글자로 찾고,
+   아직 지나지 않은 주(2행 "함수" 칸이 1이 아닌 주)는 뺌. 가장 최근 주가 아직 덜 입력된 것 같으면(앞 주 평균의 60% 미만) 그 주는 뺌.
+   실패하거나 구조가 다르면 ATT_RAW = null → 화면은 기존 "출석 기준" 입력값으로 대체됨. */
+function buildAttBasis(rows){
+  ATT_RAW = null;
+  if (!rows || rows.length < 3) return;
+  const hdr = rows[0].map(h => (h || '').trim());
+  const nameI = hdr.indexOf('이름'), cohI = hdr.indexOf('동기');
+  const w0 = hdr.findIndex(h => /^\d{1,2}\/\d{1,2}$/.test(h));
+  if (nameI === -1 || cohI === -1 || w0 === -1) return;
+  let wEnd = w0;
+  while (wEnd < hdr.length && /^\d{1,2}\/\d{1,2}$/.test(hdr[wEnd])) wEnd++;
+  const flagRow = rows.find((r, i) => i > 0 && i < 4 && /^함수/.test((r[1] || '').trim()));
+  if (!flagRow) return;
+  let weekIdx = [];
+  for (let c = w0; c < wEnd; c++){ if ((flagRow[c] || '').trim() === '1') weekIdx.push(c); }
+  if (weekIdx.length < ATT_WINDOW + 1) return;
+  const EXCL = ['온보딩팀', '새가족팀', '교사회팀'];
+  const pop = [];
+  rows.forEach((r, i) => {
+    if (i < 2) return;
+    const team = (r[0] || '').trim(), role = (r[1] || '').trim(), name = (r[nameI] || '').trim();
+    if (!team || !/팀$/.test(team) || EXCL.indexOf(team) !== -1 || !name || role === '인원수') return;
+    let coh = (r[cohI] || '').trim(); if (coh === '0') coh = '00';
+    pop.push({ n: name, c: coh, row: r });
+  });
+  if (pop.length < 50) return;
+  const tot = c => pop.reduce((a, p) => a + ((p.row[c] || '').trim() === '1' ? 1 : 0), 0);
+  let win = weekIdx.slice(-ATT_WINDOW);
+  const prevAvg = weekIdx.slice(-ATT_WINDOW - 1, -1).reduce((a, c) => a + tot(c), 0) / ATT_WINDOW;
+  if (tot(weekIdx[weekIdx.length - 1]) < prevAvg * 0.6) win = weekIdx.slice(-ATT_WINDOW - 1, -1);
+  ATT_RAW = {
+    weeks: win.map(c => hdr[c]),
+    pop: pop.map(p => ({ n: p.n, c: p.c, pres: win.map(c => ((p.row[c] || '').trim() === '1' ? 1 : 0)) })),
+    totals: win.map(tot),
+  };
+}
+
+/* 시나리오 하나의 "출석 기준" 대략값. leaders = 2027 확정 팀장·조장·부조장 목록(일반·새가족·온보딩 모두), add = 시나리오에서 더 늘어나는 조장 수.
+   주별로 (일반 조원 출석 인원 − 그 주 리더 출석 인원)을 구하고, 늘어나는 조장은 확정 리더의 평균 출석률만큼 뺌.
+   출석부에서 일반 팀 조원(441명)으로 확인되지 않는 리더(2026에 새가족·온보딩 소속이던 사람 등)는 441명 안에 없으므로 빼지 않음.
+   일반 팀 조원이던 새가족·온보딩 리더는 일반 조의 조원에서 빠지므로 함께 뺌(2026-10-28 판단). */
+function planAttendance(leaders, add, groups){
+  if (!ATT_RAW) return null;
+  const W = ATT_RAW.weeks.length;
+  const byKey = new Map();
+  ATT_RAW.pop.forEach(p => { const k = p.n + '|' + p.c; byKey.set(k, (byKey.get(k) || []).concat([p])); });
+  const found = [], foundSub = [];
+  leaders.forEach(l => { const m = byKey.get(l.name + '|' + l.cohort); if (m && m.length === 1){ found.push(m[0]); foundSub.push(l.sub); } });
+  const leadWk = Array.from({ length: W }, (_, w) => found.reduce((a, p) => a + p.pres[w], 0));
+  const rate = found.length ? leadWk.reduce((a, b) => a + b, 0) / (W * found.length) : 0.9;
+  const memWk = ATT_RAW.totals.map((t, w) => Math.max(0, t - leadWk[w] - add * rate));
+  const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
+  const mem = avg(memWk);
+  return {
+    weeks: ATT_RAW.weeks, total: avg(ATT_RAW.totals), lead: avg(leadWk) + add * rate, mem: mem,
+    per: mem / groups, perLo: Math.min.apply(null, memWk) / groups, perHi: Math.max.apply(null, memWk) / groups,
+    found: found.length, foundGen: foundSub.filter(x => x === '일반').length,
+  };
 }
 
 /* MANUAL_APPLICANTS(폼 밖 지원)를 APPLICANTS에 합침. ROSTER·PHONE_MAP이 모두 채워진 뒤에 호출. */
@@ -1811,6 +1894,7 @@ function renderPlan(){
   const adds = PLAN_CFG.add && PLAN_CFG.add.length
     ? PLAN_CFG.add.slice()
     : PLAN_CFG.target.map(t => t - J).filter(a => a > 0);   // 이미 목표 인원을 넘은 시나리오는 뺌
+  const leadersList = CONFIRMED.filter(c => c.role === '팀장' || c.role === '조장' || c.role === '부조장');
   const steps = [0].concat(adds).map(add => {
     const j = J + add;
     const teams = planDistribute(T, j, B);
@@ -1818,7 +1902,8 @@ function renderPlan(){
     /* [2026-10-25] 시트의 조원 수(전체·출석 기준)에는 리더가 될 사람도 들어 있으므로, 시나리오마다 그 시나리오의
        리더(팀장 T + 조장 j + 부조장 B)를 빼고 계산함. 조장이 늘어나는 시나리오는 늘어난 조장도 조원에서 나온 사람이라 함께 뺌.
        출석 기준 인원도 같은 인원을 뺌(리더는 출석하는 사람으로 보고). */
-    const leaders = T + j + B;
+    const att = planAttendance(leadersList, add, groups);   // 출석부로 구한 대략값(없으면 null → 시트의 출석 기준 입력값 사용)
+    const leaders = att ? att.found + add : T + j + B;       // 출석부를 읽었으면 441명 안에 있는 확정 리더 + 늘어나는 조장
     const memTotal = PLAN_INPUT ? Math.max(0, PLAN_INPUT.total - leaders) : null;
     const memAttend = PLAN_INPUT ? Math.max(0, PLAN_INPUT.attend - leaders) : null;
     const avgTotal = PLAN_INPUT ? memTotal / groups : null;
@@ -1833,7 +1918,7 @@ function renderPlan(){
       const [jo, bu] = k.split('|').map(Number);
       return `팀장 1 + 조장 ${jo}${bu ? ' + 부조장 ' + bu : ''} · ${n}팀`;
     });
-    return { add, j, teams, groups, avgTotal, avgAttend, comp, leaders, memTotal, memAttend };
+    return { add, j, teams, groups, avgTotal, avgAttend, comp, leaders, memTotal, memAttend, att };
   });
 
   const fmt = v => (Math.round(v * 10) / 10).toFixed(1);
@@ -1879,13 +1964,19 @@ function renderPlan(){
        지적 — 큰 숫자 아래에 "무엇을 무엇으로 나눴는지" 계산식만 적고, 팀장이 조를 맡는 경우는 위 버튼으로 바꿔 봄. */
     const mainLabel = planLeaderLeads ? '조 1개당 평균 조원' : '조장 1명당 평균 조원';
     const memLine = PLAN_INPUT
-      ? `전체 ${PLAN_INPUT.total}명 − 리더 ${st.leaders}명(팀장 ${T}·조장 ${st.j}·부조장 ${B}) = 조원 ${st.memTotal}명`
+      ? (st.att
+          ? `전체 ${PLAN_INPUT.total}명 − 리더 ${st.leaders}명(441명 안에 있는 확정 팀장·조장·부조장 ${st.att.found}명${st.add ? ' + 늘어나는 조장 ' + st.add + '명' : ''}) = 조원 ${st.memTotal}명`
+          : `전체 ${PLAN_INPUT.total}명 − 리더 ${st.leaders}명(팀장 ${T}·조장 ${st.j}·부조장 ${B}) = 조원 ${st.memTotal}명`)
       : '';
     const basis = planLeaderLeads
       ? `${memLine} ÷ 조 ${st.groups}개 (조장 ${st.j} + 팀장 ${T})`
       : `${memLine} ÷ 조장 ${st.j}명`;
+    const att = st.att;
+    const attLine = att
+      ? `<span>출석 기준 약 <b class="pl-att">${fmt(att.per)}명</b> (주별 ${fmt(att.perLo)}~${fmt(att.perHi)}명)</span><span class="pl-fine">하반기 출석부 최근 ${att.weeks.length}주(${escapeHtml(att.weeks[0])}~${escapeHtml(att.weeks[att.weeks.length - 1])}) 주일 평균 출석 ${Math.round(att.total)}명 − 리더 ${Math.round(att.lead)}명 = 조원 ${Math.round(att.mem)}명 ÷ ${planLeaderLeads ? '조 ' + st.groups + '개' : '조장 ' + st.j + '명'}</span>`
+      : (PLAN_INPUT ? `<span>출석 기준 ${PLAN_INPUT.attend}명 − 리더 ${st.leaders}명 = ${st.memAttend}명 → 평균 <b class="pl-att">${fmt(st.avgAttend)}명</b></span>` : '');
     const metric = PLAN_INPUT
-      ? `<div class="pl-metric"><b>${fmt(st.avgTotal)}<small>명</small></b><span class="pl-mlabel">${mainLabel}</span><span>${basis}</span><span>출석 기준 ${PLAN_INPUT.attend}명 − 리더 ${st.leaders}명 = ${st.memAttend}명 → 평균 <b class="pl-att">${fmt(st.avgAttend)}명</b></span></div>`
+      ? `<div class="pl-metric"><b>${fmt(st.avgTotal)}<small>명</small></b><span class="pl-mlabel">${mainLabel}</span><span>${basis}</span>${attLine}</div>`
       : `<div class="pl-metric"><span>조 ${st.groups}개 (조원 수 입력값을 못 찾아 평균 인원은 표시하지 않음)</span></div>`;
     const tiles = st.teams.map((t, i) => `
       <div class="pl-team" title="팀장 1 · 조장 ${t.jo}${t.bu ? ' · 부조장 ' + t.bu : ''}">
@@ -1978,8 +2069,8 @@ function renderPlan(){
           ${modeBtns}
         </div>
         <p class="pl-modehelp">${planLeaderLeads
-          ? '팀장도 한 조를 맡는 경우입니다. 조원 수는 그대로이고, 나누는 조 개수가 조장 수 + 팀장 수로 늘어납니다. 조원 수는 전체에서 리더(팀장·조장·부조장)를 뺀 값입니다.'
-          : '조장 한 명이 한 조를 맡는 기준입니다. 조원 수는 전체에서 리더(팀장·조장·부조장)를 뺀 값이며, 팀장이 조도 맡는 경우는 오른쪽 버튼으로 바꿔 볼 수 있습니다.'}</p>
+          ? '팀장도 한 조를 맡는 경우입니다. 조원 수는 그대로이고, 나누는 조 개수가 조장 수 + 팀장 수로 늘어납니다. 조원 수는 전체에서 리더(팀장·조장·부조장)를 뺀 값입니다.' + (ATT_RAW ? ' 출석부를 읽을 수 있을 때는 441명 안에 있는 확정 리더만 빼고, 출석 기준은 하반기 출석부의 최근 주일 실제 출석으로 계산한 대략값입니다.' : '')
+          : '조장 한 명이 한 조를 맡는 기준입니다. 조원 수는 전체에서 리더(팀장·조장·부조장)를 뺀 값이며, 팀장이 조도 맡는 경우는 오른쪽 버튼으로 바꿔 볼 수 있습니다.' + (ATT_RAW ? ' 출석부를 읽을 수 있을 때는 441명 안에 있는 확정 리더만 빼고, 출석 기준은 하반기 출석부의 최근 주일 실제 출석으로 계산한 대략값입니다.' : '')}</p>
         <div class="pl-cards${steps.length === 2 ? ' two' : steps.length === 1 ? ' one' : ''}">${cards}</div>
       </div>
 
