@@ -864,6 +864,7 @@ footer.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
       <span class="dot">●</span>
       <span>구글 폼으로 접수된 지원서만 모아 보여줍니다. 응답 시트에 새 지원서가 들어오면 이 페이지를 새로고침할 때 자동으로 반영됩니다.</span>
     </div>
+    <div id="apply-course-notice"></div>
     <div id="apply-summary" class="apply-summary"></div>
 
     <div class="toolbar" id="apply-toolbar">
@@ -922,6 +923,7 @@ const RESP_GID = "1908492599";
 /* 2027 확정 리더 — 마스터 워크북("2027 리더선출 정리") 안의 별도 탭. 위원회가 이름/동기/확정역할만
    입력하면, 나머지(팀·출석률·양육과정수료)는 ROSTER에서 이름+동기로 자동으로 찾아옴(2026-09-15 신설). */
 const CONFIRMED_GID = "1174157990";
+const COURSE_GID = "160740632"; /* "양육 수료" 탭 — 하반기 정규양육 수료자 명단 */
 /* 권면 대상 — 마스터 워크북 안의 별도 탭(2026-09-21 신설). 위원회가 팀/이름/동기/권면자만
    입력하면, 전화번호는 "26메이커스 DB(하반기)" 탭에서, 가능역할(가능등급)은 "2026 메이커스"
    탭(ROSTER)에서 이름+동기로 자동으로 찾아옴. 탭 이름으로 직접 gviz 조회(gid 불필요). */
@@ -988,6 +990,7 @@ let KWONMYEON = [];
 let CONFIRMED_CONFLICTS = [];   // 같은 사람이 2027 확정 리더 시트에 서로 다른 역할로 두 번 이상 입력된 경우(히엘·조장 겸직 불가 등)
 let PHONE_MAP = {};
 let EXCLUDED = [];
+let COURSE_NOTICE = null; /* "양육 수료" 탭 반영 결과 {added:[], unmatched:[], total} — 화면 안내용 */
 let PLAN_INPUT = null;   // {attend, total} — 조장 구성 탭용 입력값(시트에서 못 찾으면 null)
 
 /* 회칙상 별도 트랙인 부조장, 그리고 면려회 — 원본 시트의 "현재역할" 컬럼에는 아직
@@ -1083,6 +1086,9 @@ function planCsvUrl(){
 function confirmedCsvUrl(){
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${CONFIRMED_GID}`;
 }
+function courseCsvUrl(){
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${COURSE_GID}`;
+}
 function kwonmyeonCsvUrl(){
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(KWONMYEON_TAB)}`;
 }
@@ -1117,6 +1123,15 @@ async function fetchAndBuild(){
     throw new Error('unexpected sheet content — check sharing permission (anyone with link, viewer)');
   }
   buildRoster(rows);
+
+  COURSE_NOTICE = null;
+  try {
+    const resC = await fetch(courseCsvUrl(), {cache:'no-store'});
+    if (resC.ok) applyCourseOverlay(parseCSV(await resC.text()));
+  } catch (eC){
+    console.error('course tab fetch failed', eC);
+    COURSE_NOTICE = null;
+  }
 
   try {
     const res2 = await fetch(respCsvUrl(), {cache:'no-store'});
@@ -1399,7 +1414,7 @@ function buildApplicants(rows){
       attLast: m ? m.attLast : null,
       hasSplitAtt: m ? m.hasSplitAtt : false,
       tenure: (r[idx.tenure] || '').trim(),
-      course: (r[idx.course] || '').trim(),
+      course: (m && m.co === '수료') ? '수료' : (r[idx.course] || '').trim(),
       eligible: (r[idx.eligible] || '').trim(),
       check: (r[idx.check] || '').trim(),
     });
@@ -1419,6 +1434,46 @@ function isUnmatchedApplicant(a){
   const eligUnmatched = !!(a.eligible && a.eligible.indexOf('명단없음') !== -1);
   const checkUnresolved = !!(a.check && (a.check.indexOf('명단없음') !== -1 || a.check.indexOf('불일치') !== -1));
   return eligUnmatched || checkUnresolved;
+}
+
+/* [2026-11-09 신설] "양육 수료" 탭에 적힌 하반기 정규양육 수료자를 ROSTER의 수료 여부(co)에 덧씌움.
+   마스터 시트의 양육과정수료 열은 손으로 적은 값이라 새 수료자를 바로 반영하지 못하므로, 이 탭을 읽어
+   "수료"로 바꿔 줌(이미 수료인 사람은 그대로, 미수료로 되돌리는 일은 없음).
+   명단 형식은 "- 이름 동기"(예: "- 강신의 97"). 이름+동기가 정확히 같으면 그 사람, 아니면 같은 동기에서
+   이름 뒤 알파벳(동명이인 구분: 김현수B)만 다른 사람이 딱 한 명일 때만 같은 사람으로 봄.
+   찾지 못한 줄은 unmatched로 모아 화면에 따로 알려 줌. 탭을 못 읽으면 아무것도 바꾸지 않음. */
+function parseCourseEntries(rows){
+  const out = [], seen = new Set();
+  rows.forEach(r => r.forEach(cell => {
+    let t = (cell || '').trim();
+    if (!t.startsWith('-')) return;            /* "- 이름 동기" 형식의 칸만 명단으로 봄 */
+    t = t.replace(/^-+\s*/, '');
+    const m = t.match(/^(\S+?)\s*(\d{2})$/);   /* "황금산91"처럼 붙여 쓴 칸도 허용 */
+    if (!m) return;
+    const key = m[1] + '|' + m[2];
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({name: m[1], cohort: m[2]});
+  }));
+  return out;
+}
+function applyCourseOverlay(rows){
+  const entries = parseCourseEntries(rows);
+  if (!entries.length){ COURSE_NOTICE = null; return; }
+  const added = [], unmatched = [];
+  let already = 0;
+  entries.forEach(e => {
+    let hit = ROSTER.filter(m => m.n === e.name && m.c === e.cohort);
+    if (!hit.length){
+      hit = ROSTER.filter(m => m.c === e.cohort && m.n.length === e.name.length + 1 &&
+        m.n.startsWith(e.name) && /^[A-Za-z]$/.test(m.n.slice(e.name.length)));
+    }
+    if (hit.length !== 1){ unmatched.push(e.name + ' ' + e.cohort); return; }
+    if (hit[0].co === '수료'){ already++; return; }
+    hit[0].co = '수료';
+    added.push(hit[0].n + ' ' + hit[0].c);
+  });
+  COURSE_NOTICE = {total: entries.length, already: already, added: added, unmatched: unmatched};
 }
 
 function buildRoster(rows){
@@ -2256,7 +2311,20 @@ function applyChipsList(){
   return items;
 }
 
+/* "양육 수료" 탭 반영 결과 안내 — 새로 수료로 바뀐 사람 수와, 마스터 명단에서 찾지 못해 반영 못 한 이름을 알려 줌 */
+function renderCourseNotice(){
+  const el = document.getElementById('apply-course-notice');
+  if (!el) return;
+  const c = COURSE_NOTICE;
+  if (!c){ el.innerHTML = ''; return; }
+  const un = c.unmatched.length
+    ? ` 마스터 명단(2026 메이커스 탭)에서 찾지 못해 반영하지 못한 ${c.unmatched.length}명: ${c.unmatched.map(escapeHtml).join(', ')}. 이름·동기 표기를 확인해 주세요.`
+    : '';
+  el.innerHTML = `<div class="notice" style="margin-bottom:14px"><span class="dot">●</span><span>"양육 수료" 탭의 하반기 정규양육 수료자 ${c.total}명 중 ${c.added.length}명을 수료로 새로 반영했습니다(나머지 ${c.already}명은 마스터 명단에 이미 수료로 적혀 있음).${un}</span></div>`;
+}
+
 function renderApplicants(){
+  renderCourseNotice();
   document.getElementById('apply-tab-count').textContent = APPLICANTS.length ? `(${APPLICANTS.length})` : '';
   renderChipsInto('apply-active-chips', applyChipsList());
 
@@ -2649,7 +2717,7 @@ function renderStatsTab(){
 
 /* "확정 리더" 탭 — "2027 확정 리더" 시트(이름/동기/확정역할만 입력)를 역할별로 묶어서 보여줌.
    배정팀(조 편성)은 아직 없는 단계라 역할만 표시하고, 팀·출석률·양육과정수료는 ROSTER 매칭으로 자동 표시.
-   [2026-10-14 개편] 요약 4칸 → 팀장 3열(일반·새가족·온보딩) → 조장 슬롯판(새가족 4칸·온보딩 8칸,
+   [2026-10-14 개편] 요약 4칸 → 팀장 3열(일반·새가족·온보딩) → 조장 슬롯판(새가족 4칸·온보딩 7칸(2026-11-09: 8→7 확정),
    일반 조장은 이름이 생길 때만 줄 표시) → 부조장(있을 때만) → 면려회 순서. 출석률·수료는 기본 표시이고
    상단 토글로 끌 수 있음(상태는 cfShowDetail에만 보관, 새로고침하면 다시 켜짐). */
 let cfShowDetail = true;
@@ -2705,7 +2773,7 @@ function renderConfirmed(){
   const unknownRoleItems = CONFIRMED.filter(c => ROLE_ORDER_C.indexOf(c.role) === -1);
 
   /* [2026-10-14 신설] 팀장·조장을 일반/새가족/온보딩으로 나눠서 보여줌. 새가족·온보딩 조장은
-     충원 목표 인원(새가족 4명, 온보딩 8명)이 있어 목표 대비 현황과 부족 인원을 같이 표시함.
+     충원 목표 인원(새가족 4명, 온보딩 7명 — 2026-11-09 위원장 확정)이 있어 목표 대비 현황과 부족 인원을 같이 표시함.
      목표를 바꾸려면 아래 target 값만 고치면 됨. 팀장 구분에는 목표 인원을 따로 두지 않음.
      정렬: 선임팀장 먼저, 그다음 동기순(91→00), 같은 동기는 이름순(가나다). */
   const G = {
@@ -2714,7 +2782,7 @@ function renderConfirmed(){
     팀장_온보딩: { role:'팀장', sub:'온보딩' },
     조장_일반:   { role:'조장', sub:'일반'   },
     조장_새가족: { role:'조장', sub:'새가족', target:4 },
-    조장_온보딩: { role:'조장', sub:'온보딩', target:8 },
+    조장_온보딩: { role:'조장', sub:'온보딩', target:7 },
     부조장:      { role:'부조장', sub:'' },
     면려회:      { role:'면려회', sub:'' },
     히엘:        { role:'히엘', sub:'' },
